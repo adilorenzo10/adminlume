@@ -9,6 +9,7 @@
 | `src/Assets.php` | Conditional admin assets, appearance variables, and luminance-based foreground selection. |
 | `src/Chrome.php` | Admin toolbar adjustments and the sidebar site link for opted-in users. |
 | `src/FrontendToolbar.php` | Native toolbar integration on authenticated public-site requests. |
+| `src/Updater.php` | Native update metadata, plugin details, and verified downloads from stable GitHub releases. |
 | `assets/css/admin.css` | Scoped admin layout and native controls. |
 | `assets/css/toolbar.css` | Backend toolbar only. |
 | `assets/css/media.css` | Native media surfaces, loaded when WordPress enqueues media. |
@@ -27,6 +28,7 @@ Keep public-site assets isolated: do not enqueue the admin layout or sidebar scr
 - `adminlume_preferences`: current user metadata containing `enabled`, `accent`, `chrome_background`, and `radius`.
 - `rounded_admin_preferences`: legacy fallback, read only if the current key is absent. Saving writes the current key without deleting legacy data.
 - Browser local storage: dock visibility state when storage is available; controls must still work if storage is blocked.
+- `adminlume_release_manifest_v1`: network-scoped transient for validated update metadata (six hours), or a failure marker (15 minutes). No custom cron job is added.
 
 Internal `rounded-admin`, `ra-*`, and `nzm-*` identifiers and asset handles are compatibility details. Do not rename them as part of cosmetic or documentation work. Neither deactivation nor an uninstall routine currently deletes metadata; there is no uninstall cleanup implementation.
 
@@ -51,6 +53,14 @@ docker compose run --rm wpcli wp eval-file /var/www/html/wp-content/plugins/admi
 ```
 
 Coverage includes opt-in defaults, sanitization, contrast selection, metadata isolation, legacy fallback, authenticated form markup, conditional admin/front-end asset loading, homepage customization fallback, and preservation of native action destinations and metadata. Contextual edit-label checks reuse existing page, post, and product fixtures when available; missing fixtures are skipped. These checks are not a complete security audit or a substitute for request-level authorization testing.
+
+The updater has a separate local integration suite:
+
+```bash
+docker compose run --rm wpcli wp eval-file /var/www/html/wp-content/plugins/adminlume/tests/updater-integration.php
+```
+
+It mocks outbound HTTP, exercises `wp_update_plugins()` and the native plugin-details API, checks no-update/downgrade behavior, caches, compatibility requirements, checksum verification, malformed responses, failures, and isolation from unrelated plugins. It does not install an update, change automatic-update preferences, or contact GitHub. Download fixtures are temporary and update transients are restored during cleanup. Run only on the isolated local environment described above; an interrupted process may require clearing its test update transients.
 
 ### Browser regression tests
 

@@ -34,6 +34,14 @@ Adminlume is disabled by default for each user. Each account opts in independent
 
 The front-end dock retains its own dark presentation. Disabling the personal preference or deactivating the plugin restores the native interface. Deactivation retains user preferences for later reactivation. The plugin currently has no uninstall cleanup routine; do not assume deletion removes stored preferences.
 
+## Plugin updates
+
+Starting with **0.3.0**, stable GitHub releases integrate with WordPress's native update screen. Keep Adminlume active; appearance opt-in is not required for update detection. Enable **automatic updates** for Adminlume on the Plugins screen if desired. The plugin does not force automatic installation or bypass site policies, filesystem permissions, or WordPress/PHP requirements.
+
+**One-time migration:** version `0.2.0` has no updater. Upload and replace it manually with the first updater-enabled ZIP once; subsequent newer releases can then be detected normally. There is no need to uninstall the plugin or delete personal preferences.
+
+Checks use a cached manifest from the public GitHub release feed, not a WordPress.org listing. GitHub metadata is cached for six hours (15 minutes on errors), and WordPress has its own check schedule, so notifications are not instantaneous. Release ZIPs are verified against the manifest's SHA-256 before installation. See [updates and troubleshooting](docs/updates.md).
+
 ## Features
 
 ### Admin navigation
@@ -79,7 +87,8 @@ Adminlume does not attempt to restyle arbitrary React application internals or c
 - Preferences are stored in WordPress user metadata and apply only to the current account.
 - Saving uses the authenticated WordPress POST handler, the `read` capability, and a nonce tied to the current user. No client-supplied user ID is accepted.
 - Colors are validated as hexadecimal values, panel radii use an allowlist, and rendered settings values are escaped.
-- The plugin adds no tracking, remote fonts, external HTTP requests, scheduled tasks, or custom database tables. Preferences should not contain secrets.
+- The plugin adds no tracking, remote fonts, custom scheduled tasks, or custom database tables. Preferences should not contain secrets.
+- Native update checks fetch a small HTTPS manifest from GitHub and its download CDN, with no site URL, account details, installed-version query, or locale parameters. GitHub receives standard connection information, including the server IP. Package downloads use WordPress's HTTP API, whose default user agent may include WordPress and site information. See [GitHub's privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).
 - Existing WordPress or third-party toolbar features may retain their own external links or resources; Adminlume does not replace their privacy policies.
 
 ## Developer documentation
@@ -87,6 +96,7 @@ Adminlume does not attempt to restyle arbitrary React application internals or c
 - [Development, architecture, and testing](docs/development.md)
 - [Front-end toolbar behavior and compatibility](docs/frontend-toolbar.md)
 - [Automated releases and installable ZIPs](docs/releases.md)
+- [Native WordPress updates](docs/updates.md)
 - [Contributing and commit conventions](CONTRIBUTING.md)
 - [WordPress plugin readme](readme.txt)
 
