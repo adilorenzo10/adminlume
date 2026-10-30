@@ -1,163 +1,220 @@
-/* Local-only browser regression: no product/order writes or preference changes. */
+/* Local WordPress only. No content or preference writes; temporary session cleanup. */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const { execFileSync } = require('node:child_process');
+const fs = require('node:fs');
 const path = require('node:path');
 const root = process.env.ADMINLUME_WP_ROOT || path.resolve(__dirname, '../../../../..');
-const wp = code => execFileSync('docker', ['compose','run','--rm','wpcli','wp','eval',code], {cwd:root,encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+const wp = code => execFileSync('docker', ['compose', 'run', '--rm', 'wpcli', 'wp', 'eval', code], {
+  cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+}).trim();
 const auth = JSON.parse(wp(`
-if(!in_array(wp_parse_url(home_url(),PHP_URL_HOST),array('localhost','127.0.0.1'),true)) WP_CLI::error('Local only');
-$ids=get_users(array('role'=>'administrator','number'=>1,'fields'=>'ID')); if(!$ids) WP_CLI::error('No administrator');
-$id=(int)$ids[0]; $token=WP_Session_Tokens::get_instance($id)->create(time()+900);
-echo wp_json_encode(array('id'=>$id,'url'=>home_url(),'token'=>$token,'cookies'=>array(
-array('name'=>AUTH_COOKIE,'value'=>wp_generate_auth_cookie($id,time()+900,'auth',$token)),
-array('name'=>LOGGED_IN_COOKIE,'value'=>wp_generate_auth_cookie($id,time()+900,'logged_in',$token)))));
+  if (!in_array(wp_parse_url(home_url(), PHP_URL_HOST), array('localhost', '127.0.0.1'), true)) WP_CLI::error('Local only.');
+  $ids = get_users(array('role' => 'administrator', 'number' => 1, 'fields' => 'ID'));
+  if (!$ids) WP_CLI::error('No local administrator.');
+  $id = (int) $ids[0]; $token = WP_Session_Tokens::get_instance($id)->create(time() + 900);
+  echo wp_json_encode(array('id' => $id, 'url' => home_url(), 'token' => $token, 'cookies' => array(
+    array('name' => AUTH_COOKIE, 'value' => wp_generate_auth_cookie($id, time()+900, 'auth', $token)),
+    array('name' => LOGGED_IN_COOKIE, 'value' => wp_generate_auth_cookie($id, time()+900, 'logged_in', $token))
+  )));
 `));
-let browser; let checks=0;
-const check=(value,message)=>{if(!value)throw new Error(message);checks++;};
-const screenshot=async(page,name)=>{if(process.env.TOOLBAR_SCREENSHOT_DIR)await page.screenshot({path:path.join(process.env.TOOLBAR_SCREENSHOT_DIR,name+'.png')});};
-(async()=>{try{
-  browser=await chromium.launch({headless:true});
-  const context=await browser.newContext({viewport:{width:1440,height:960}});
-  await context.addCookies(auth.cookies.map(cookie=>({...cookie,url:auth.url,httpOnly:true,sameSite:'Lax'})));
-  await context.route('**/*',route=>new URL(route.request().url()).origin===new URL(auth.url).origin?route.continue():route.abort());
-  const page=await context.newPage();
-  await page.goto(auth.url+'/wp-admin/',{waitUntil:'domcontentloaded'});
-  const adminBefore=await page.locator('#wpadminbar').evaluate(el=>({top:el.getBoundingClientRect().top,height:el.getBoundingClientRect().height,css:getComputedStyle(el).position}));
-  check(await page.locator('#rounded-admin-frontend-toolbar-js, body.nzm-frontend-toolbar').count()===0,'No frontend toolbar assets or class in wp-admin');
-  check(await page.locator('#footer-thankyou').evaluateAll(els=>els.length>0&&els.every(el=>getComputedStyle(el).display==='none')),'Rounded backend hides WordPress footer thank-you text');
-  check(await page.evaluate(()=>{const posts=getComputedStyle(document.querySelector('#menu-posts')).getPropertyValue('--ra-icon');const pages=getComputedStyle(document.querySelector('#menu-pages')).getPropertyValue('--ra-icon');return posts.includes('svg')&&pages.includes('svg')&&posts!==pages;}),'Posts and Pages always use distinct outline icons');
-  await page.goto(auth.url,{waitUntil:'domcontentloaded'});
-  await page.locator('#wp-admin-bar-nzm-toolbar-more').waitFor({state:'attached'});
-  await page.waitForTimeout(250);
-  await screenshot(page,'dock-desktop');
-  check(await page.locator('#ra-dock-hide .ra-dock-hide-label').isVisible()&&await page.locator('#ra-dock-hide svg').count()===1,'Desktop hide action has explicit label and outline visibility icon');
-  const hideStyle=await page.locator('#ra-dock-hide').evaluate(el=>{const native=document.querySelector('#wp-admin-bar-nzm-toolbar-dashboard > .ab-item');return ['height','borderRadius','backgroundColor','fontSize'].map(property=>[property,getComputedStyle(el)[property],getComputedStyle(native)[property]]);});
-  check(hideStyle.every(([,actual,expected])=>actual===expected),'Hide action matches native dock button design: '+JSON.stringify(hideStyle));
-  await page.locator('#ra-dock-hide').focus();
-  await page.keyboard.press('Enter');
-  await page.locator('#wpadminbar').waitFor({state:'hidden'});
-  check(await page.locator('#wpadminbar').isHidden()&&await page.locator('#ra-dock-show').isVisible(),'Hide replaces dock with compact reopen control');
-  check(await page.evaluate(()=>document.activeElement.id==='ra-dock-show'&&document.querySelector('#wpadminbar').inert),'Hidden dock is inert and focus moves to reopen control');
-  await page.reload({waitUntil:'domcontentloaded'});
-  await page.locator('#ra-dock-show').waitFor({state:'visible'});
-  check(await page.locator('#wpadminbar').isHidden(),'Hidden preference survives navigation');
-  await page.locator('#ra-dock-show').focus();
-  await page.keyboard.press('Enter');
-  check(await page.locator('#wpadminbar').isVisible()&&await page.locator('#ra-dock-hide').evaluate(el=>el===document.activeElement),'Keyboard reopen restores dock and focus');
-  await page.waitForFunction(()=>document.querySelector('#wpadminbar').getAnimations().length===0);
-  check(await page.locator('#wpadminbar').evaluate(el=>{const r=el.getBoundingClientRect();return getComputedStyle(el).position==='fixed'&&Math.abs(innerHeight-r.bottom-20)<1&&Math.abs((r.left+r.right)/2-innerWidth/2)<1;}),'Toolbar is centered and fixed twenty pixels from bottom');
-  check(await page.evaluate(()=>getComputedStyle(document.documentElement).marginTop==='0px'),'No reserved space at top');
-  check(await page.locator('.site-header').evaluate(el=>el.getBoundingClientRect().top===0),'Public header starts at original top position');
-  check(await page.locator('#rounded-admin-toolbar-css, #rounded-admin-css, #rounded-admin-sidebar-js').count()===0,'No competing admin skin assets in frontend');
-  check(await page.locator('#rounded-admin-frontend-toolbar-css').getAttribute('href').then(url=>url.includes('/plugins/adminlume/'))&&await page.locator('#rounded-admin-frontend-toolbar-js').getAttribute('src').then(url=>url.includes('/plugins/adminlume/')),'Frontend CSS and JS are served by the plugin independently of the theme');
-  check(await page.locator('#wp-admin-bar-wp-logo, #wp-admin-bar-site-name, #wp-admin-bar-nzm-toolbar-dashboard').count()===3,'Native WordPress/site links and capability-checked Dashboard present');
-  const nativeLinks=await page.locator('#wpadminbar [id^="wp-admin-bar-"] > a.ab-item[href]').evaluateAll(els=>Object.fromEntries(els.filter(el=>el.parentElement.id!=='wp-admin-bar-nzm-toolbar-more').map(el=>[el.parentElement.id,el.getAttribute('href')])));
-  await page.locator('#wp-admin-bar-site-name > a').hover();
-  await page.waitForFunction(()=>document.querySelector('#wp-admin-bar-site-name').classList.contains('nzm-open'));
-  const siteRows=await page.locator('#wp-admin-bar-site-name .ab-sub-wrapper a.ab-item').evaluateAll(els=>els.filter(el=>el.getClientRects().length).map(el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height,left:r.left};}));
-  check(siteRows.length>=4&&siteRows.every(row=>row.height===34&&row.left===siteRows[0].left),'Site menu rows have equal height and horizontal alignment');
-  check(siteRows.slice(1).every((row,index)=>Math.abs(row.top-siteRows[index].bottom)<0.5),'Site menu groups have no inconsistent vertical gaps');
-  check(await page.locator('#wp-admin-bar-appearance').evaluate(el=>getComputedStyle(el).marginTop==='0px'),'Native appearance group negative offset is removed in frontend only');
-  await page.locator('#wp-admin-bar-site-name .ab-sub-wrapper a.ab-item').first().hover();
-  check(await page.locator('#wp-admin-bar-site-name .ab-sub-wrapper a.ab-item').first().evaluate(el=>getComputedStyle(el).backgroundColor==='rgb(57, 57, 57)'),'Submenu links visibly highlight on hover');
-  await page.locator('#wp-admin-bar-site-name .ab-sub-wrapper a.ab-item').first().focus();
-  check(await page.locator('#wp-admin-bar-site-name .ab-sub-wrapper a.ab-item').first().evaluate(el=>getComputedStyle(el).backgroundColor==='rgb(57, 57, 57)'),'Submenu keyboard focus has same visible highlight');
-  await page.locator('#wp-admin-bar-site-name .ab-sub-wrapper a.ab-item').first().blur();
-  await screenshot(page,'dock-site-menu');
-  await page.locator('#wp-admin-bar-my-account > a').hover();
-  await page.waitForFunction(()=>document.querySelector('#wp-admin-bar-my-account').classList.contains('nzm-open'));
-  check(await page.locator('#wp-admin-bar-my-account > .ab-sub-wrapper').evaluate(el=>el.scrollWidth<=el.clientWidth),'Profile popup has no horizontal scrollbar');
-  await page.evaluate(async()=>{window.dispatchEvent(new Event('resize'));await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});
-  check(await page.locator('#wp-admin-bar-my-account').evaluate(el=>el.classList.contains('nzm-open')&&el.querySelector(':scope > a').getAttribute('aria-expanded')==='true'),'Profile popup remains open during same-width layout updates');
-  check(await page.locator('#wp-admin-bar-user-actions > li').evaluateAll(els=>els.every(el=>getComputedStyle(el).marginLeft==='0px'&&getComputedStyle(el).marginRight==='0px')),'Profile popup removes native avatar column indentation');
-  check(await page.locator('#wp-admin-bar-user-info').evaluate(el=>{const name=el.querySelector('.display-name:not(.edit-profile)');const edit=el.querySelector('.edit-profile');return name&&edit&&edit.getBoundingClientRect().top>=name.getBoundingClientRect().bottom;}),'Profile name and edit link are stacked without overlap');
-  await page.locator('#wp-admin-bar-logout > a').hover();
-  check(await page.locator('#wp-admin-bar-logout > a').evaluate(el=>getComputedStyle(el).backgroundColor==='rgb(57, 57, 57)'),'Profile action hover is visible');
-  await screenshot(page,'dock-profile-menu');
-  await page.locator('#wp-admin-bar-new-content > a').hover();
-  await page.waitForFunction(()=>document.querySelector('#wp-admin-bar-new-content').classList.contains('nzm-open'));
-  const popupMetrics=await page.locator('#wp-admin-bar-new-content > .ab-sub-wrapper').evaluate(el=>{const r=el.getBoundingClientRect();const s=getComputedStyle(el);return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,min:s.minWidth,max:s.maxWidth,width:s.width,dockTop:document.querySelector('#wpadminbar').getBoundingClientRect().top,viewport:innerWidth};});
-  check(popupMetrics.bottom<popupMetrics.dockTop&&popupMetrics.top>=0&&popupMetrics.left>=0&&popupMetrics.right<=popupMetrics.viewport,'Desktop dropdown opens upward inside viewport: '+JSON.stringify(popupMetrics));
-  await page.locator('#wp-admin-bar-new-content > a').focus();
-  await page.keyboard.press('ArrowUp');
-  check(await page.locator('#wp-admin-bar-new-content > .ab-sub-wrapper').evaluate(el=>el.contains(document.activeElement)),'Arrow key opens native dropdown and focuses an entry');
-  await page.keyboard.press('Escape');
-  check(await page.locator('#wp-admin-bar-new-content > a').evaluate(el=>el===document.activeElement&&el.getAttribute('aria-expanded')==='false'),'Escape restores trigger focus and closes dropdown');
-  const product=wp('$ids=get_posts(array("post_type"=>"product","post_status"=>"publish","numberposts"=>1,"fields"=>"ids"));echo $ids?get_permalink($ids[0]):"";');
-  if(product){
-    await page.goto(product,{waitUntil:'domcontentloaded'});
-    await page.locator('#wp-admin-bar-nzm-toolbar-more').waitFor({state:'attached'});
-    check(await page.locator('#wp-admin-bar-edit > a').evaluate(el=>getComputedStyle(el).backgroundColor==='rgb(255, 75, 11)'&&!!el.getAttribute('href')),'Native edit action receives accent without changing destination');
-    await screenshot(page,'dock-product');
+let browser;
+let checks = 0;
+const check = (value, message) => { if (!value) throw new Error(message); checks++; };
+const screenshot = async (page, name) => {
+  if (process.env.TOOLBAR_SCREENSHOT_DIR) await page.screenshot({ path: path.join(process.env.TOOLBAR_SCREENSHOT_DIR, name + '.png') });
+};
+const routes = async context => context.route('**/*', route => {
+  const url = new URL(route.request().url());
+  if (url.origin !== new URL(auth.url).origin) return route.abort();
+  // Explicit opt-in: test checkout CSS/JS without modifying an installed plugin.
+  if (process.env.ADMINLUME_ASSET_OVERRIDE === '1') {
+    const asset = url.pathname.match(/\/plugins\/adminlume\/(assets\/(?:css|js)\/frontend-toolbar\.(?:css|js))$/);
+    if (asset) return route.fulfill({
+      body: fs.readFileSync(path.resolve(__dirname, '..', asset[1])),
+      contentType: asset[1].endsWith('.css') ? 'text/css' : 'application/javascript',
+    });
   }
-  await page.goto(auth.url,{waitUntil:'domcontentloaded'});
-  await page.locator('#wp-admin-bar-nzm-toolbar-more').waitFor({state:'attached'});
-  await page.setViewportSize({width:390,height:844});
-  await page.waitForFunction(()=>document.querySelector('#wpadminbar').classList.contains('nzm-dock-compact'));
-  await screenshot(page,'dock-mobile');
-  check(await page.locator('#ra-dock-hide').isVisible()&&await page.locator('#nzm-toolbar-overflow #ra-dock-hide').count()===0,'Mobile hide control remains outside overflow');
-  await page.locator('#ra-dock-hide').click();
-  await page.locator('#wpadminbar').waitFor({state:'hidden'});
-  check(await page.locator('#ra-dock-show').evaluate(el=>{const r=el.getBoundingClientRect();return r.width===44&&r.left>=0&&r.right<=innerWidth;}),'Mobile reopen is compact and inside viewport');
-  await page.locator('#ra-dock-show').click();
-  await page.waitForFunction(()=>document.querySelector('#wpadminbar').getAnimations().length===0);
-  check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Mobile has no horizontal overflow');
-  check(await page.locator('#wpadminbar').evaluate(el=>{const r=el.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&innerHeight-r.bottom>=19;}),'Mobile dock stays within viewport and bottom margin');
-  check(await page.locator('#wp-admin-bar-site-name > a').evaluate(el=>el.getBoundingClientRect().width>=80&&getComputedStyle(el).textIndent==='0px'),'Mobile site name remains readable');
-  await page.locator('#wp-admin-bar-my-account > a').hover();
-  check(await page.locator('#wp-admin-bar-my-account > .ab-sub-wrapper').evaluate(el=>el.scrollWidth<=el.clientWidth&&el.getBoundingClientRect().right<=innerWidth),'Mobile profile popup stays unclipped without horizontal scrolling');
-  check(await page.locator('#nzm-toolbar-overflow #wp-admin-bar-new-content, #nzm-toolbar-overflow #wp-admin-bar-customize').count()===2,'Mobile secondary native actions grouped in More');
-  const afterLinks=await page.locator('#wpadminbar [id^="wp-admin-bar-"] > a.ab-item[href]').evaluateAll(els=>Object.fromEntries(els.map(el=>[el.parentElement.id,el.getAttribute('href')])));
-  check(Object.entries(nativeLinks).every(([id,url])=>afterLinks[id]===url),'Responsive grouping preserves all native IDs and destinations');
-  await page.locator('#wp-admin-bar-nzm-toolbar-more > a').click();
-  check(await page.locator('#wp-admin-bar-nzm-toolbar-more > a').getAttribute('aria-expanded')==='true','Mobile More exposes expanded state');
-  check(await page.locator('#wp-admin-bar-nzm-toolbar-more > .ab-sub-wrapper').evaluate(el=>{const r=el.getBoundingClientRect();return r.bottom<document.querySelector('#wpadminbar').getBoundingClientRect().top&&r.left>=0&&r.right<=innerWidth;}),'Mobile More opens upward without clipping');
-  const mobileRows=await page.locator('#wp-admin-bar-customize > a, #wp-admin-bar-comments > a, #wp-admin-bar-new-content > a').evaluateAll(els=>els.map(el=>({id:el.parentElement.id,font:getComputedStyle(el).fontSize,indent:getComputedStyle(el).textIndent,width:el.getBoundingClientRect().width,parent:el.parentElement.getBoundingClientRect().width})));
-  check(mobileRows.every(el=>el.font==='12px'&&el.indent==='0px'&&el.width>=150),'Mobile overflow actions keep readable full-width labels: '+JSON.stringify(mobileRows));
-  check(await page.locator('#wp-admin-bar-new-content .ab-label').evaluate(el=>getComputedStyle(el).clipPath==='none'&&el.getBoundingClientRect().width>20),'Mobile native action labels are not visually hidden');
-  await screenshot(page,'dock-mobile-open');
-  await page.locator('#nzm-toolbar-overflow #wp-admin-bar-new-content > a').hover();
-  check(await page.locator('#wp-admin-bar-new-content > .ab-sub-wrapper').evaluate(el=>{const r=el.getBoundingClientRect();const hit=document.elementFromPoint(r.left+10,r.top+10);return r.top>=0&&r.right<=innerWidth&&el.contains(hit); }),'Nested mobile dropdown is visible and unclipped');
-  await page.setViewportSize({width:1440,height:960});
-  await page.waitForFunction(()=>!document.querySelector('#wpadminbar').classList.contains('nzm-dock-compact'));
-  check(await page.locator('#wp-admin-bar-root-default > #wp-admin-bar-new-content').count()===1,'Desktop restores original menu parent');
-  if(product){
-    await page.setViewportSize({width:320,height:640});
-    await page.goto(product,{waitUntil:'domcontentloaded'});
-    await page.waitForFunction(()=>document.querySelector('#wpadminbar').classList.contains('nzm-dock-compact'));
-    check(await page.locator('#wpadminbar').evaluate(el=>el.getBoundingClientRect().right<=innerWidth&&el.scrollWidth<=el.clientWidth+1),'Small-phone product dock has no overflow');
-    check(await page.locator('#wp-admin-bar-edit > a').evaluate(el=>getComputedStyle(el).backgroundColor==='rgb(255, 75, 11)'&&el.textContent.trim().length>0),'Small-phone edit icon retains native accessible text');
+  return route.continue();
+});
+const cookies = auth.cookies.map(cookie => ({ ...cookie, url: auth.url, httpOnly: true, sameSite: 'Lax' }));
+const nativeLinks = page => page.locator('#wpadminbar [id^="wp-admin-bar-"] > a.ab-item[href]').evaluateAll(elements =>
+  Object.fromEntries(elements.map(element => [element.parentElement.id, element.getAttribute('href')])));
+const waitAnimation = page => page.waitForFunction(() => !document.querySelector('#wpadminbar').getAnimations().length);
+(async () => {
+  try {
+    browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({ viewport: { width: 1440, height: 960 } });
+    await context.addCookies(cookies);
+    await routes(context);
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', error => errors.push(error.message));
+    await page.goto(auth.url + '/wp-admin/', { waitUntil: 'domcontentloaded' });
+    const adminMetrics = () => page.locator('#wpadminbar').evaluate(element => {
+      const rect = element.getBoundingClientRect();
+      return { top: rect.top, height: rect.height, position: getComputedStyle(element).position };
+    });
+    const before = await adminMetrics();
+    check(await page.locator('#rounded-admin-frontend-toolbar-css, #rounded-admin-frontend-toolbar-js').count() === 0, 'No dock assets in backend');
+    await page.goto(auth.url, { waitUntil: 'domcontentloaded' });
+    await page.locator('#wpadminbar.nzm-dock-ready').waitFor();
+    const links = await nativeLinks(page);
+    check(await page.locator('#wpadminbar').count() === 1, 'Only one native toolbar');
+    check(await page.locator('#rounded-admin-css, #rounded-admin-toolbar-css, #rounded-admin-sidebar-js').count() === 0, 'No admin layout assets on frontend');
+    check(await page.locator('#wpadminbar').evaluate(element => {
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return rect.height >= 52 && rect.height <= 56 && rect.width <= 850 && Math.abs((rect.left + rect.right) / 2 - innerWidth / 2) < 1 && innerHeight - rect.bottom >= 20 && style.backgroundColor === 'rgb(23, 24, 27)' && getComputedStyle(element, '::before').content === 'none';
+    }), 'Compact centered dark shell, no halo');
+    check(await page.locator('#wp-admin-bar-nzm-toolbar-site-items #wp-admin-bar-site-name, #wp-admin-bar-nzm-toolbar-site-items #wp-admin-bar-wp-logo, #wp-admin-bar-nzm-toolbar-site-items #wp-admin-bar-nzm-toolbar-dashboard').count() === 3, 'Native site, WordPress, and Dashboard grouped');
+    if (await page.locator('#wp-admin-bar-woocommerce-site-visibility-badge').count()) {
+      check(await page.locator('#wp-admin-bar-nzm-toolbar-site-items #wp-admin-bar-woocommerce-site-visibility-badge').count() === 1, 'Live status grouped without duplication');
+    }
+    await page.locator('#wp-admin-bar-nzm-toolbar-site > button').click();
+    check(await page.locator('#wp-admin-bar-nzm-toolbar-dashboard > a').isVisible(), 'Site dropdown exposes Dashboard');
+    await page.keyboard.press('ArrowUp');
+    check(await page.locator('#wp-admin-bar-nzm-toolbar-site-items').evaluate(element => element.contains(document.activeElement)), 'Arrow key enters site menu');
+    await page.keyboard.press('Escape');
+    check(await page.locator('#wp-admin-bar-nzm-toolbar-site > button').evaluate(element => element === document.activeElement && element.getAttribute('aria-expanded') === 'false'), 'Escape closes site menu and restores focus');
+    await page.locator('#wp-admin-bar-my-account > .ab-item').click();
+    check(await page.locator('#wp-admin-bar-logout > a').isVisible(), 'Avatar opens native account actions');
+    check(await page.locator('#wp-admin-bar-my-account > .ab-item').evaluate(element => element.getBoundingClientRect().width === 44 && !!element.getAttribute('aria-label')), 'Account is a labeled 44px avatar control');
+    await page.keyboard.press('Escape');
+    await screenshot(page, 'dock-desktop');
+
+    // Exercise a late third-party action, its nested submenu, and its original handler.
+    await page.evaluate(() => {
+      const item = document.createElement('li');
+      item.id = 'wp-admin-bar-adminlume-test-plugin';
+      item.className = 'menupop';
+      item.innerHTML = '<a class="ab-item" href="#plugin">Plugin action</a><div class="ab-sub-wrapper"><ul class="ab-submenu"><li id="wp-admin-bar-adminlume-test-child"><a class="ab-item" href="#child">Nested action</a></li></ul></div>';
+      item.querySelector('#wp-admin-bar-adminlume-test-child a').addEventListener('click', event => {
+        event.preventDefault(); window.adminlumePluginClicks = (window.adminlumePluginClicks || 0) + 1;
+      });
+      window.adminlumePluginNode = item;
+      document.querySelector('#wp-admin-bar-root-default').append(item);
+    });
+    await page.locator('#nzm-toolbar-overflow #wp-admin-bar-adminlume-test-plugin').waitFor({ state: 'attached' });
+    await page.locator('#wp-admin-bar-nzm-toolbar-more > button').click();
+    await page.locator('#wp-admin-bar-adminlume-test-plugin > a').focus();
+    await page.keyboard.press('ArrowRight');
+    await page.locator('#wp-admin-bar-adminlume-test-child > a').click();
+    check(await page.evaluate(() => window.adminlumePluginClicks === 1 && window.adminlumePluginNode === document.querySelector('#wp-admin-bar-adminlume-test-plugin')), 'Late plugin node and event handler preserved');
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    await page.locator('#ra-dock-hide').focus();
+    await page.keyboard.press('Enter');
+    await page.locator('#wpadminbar').waitFor({ state: 'hidden' });
+    check(await page.locator('#ra-dock-show').evaluate(element => element === document.activeElement && element.getBoundingClientRect().height === 44), 'Collapse leaves a focused, usable pill');
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.locator('#ra-dock-show').waitFor({ state: 'visible' });
+    check(await page.locator('#wpadminbar').isHidden(), 'Collapsed preference survives navigation');
+    await page.locator('#ra-dock-show').click();
+    await waitAnimation(page);
+    check(await page.locator('#ra-dock-hide').evaluate(element => element === document.activeElement), 'Expand restores toolbar focus');
+    for (const width of [1024, 600, 390, 320]) {
+      await page.setViewportSize({ width, height: 844 });
+      await page.waitForFunction(() => document.querySelector('#wpadminbar').getBoundingClientRect().right <= innerWidth);
+      check(await page.locator('#wpadminbar').evaluate(element => {
+        const rect = element.getBoundingClientRect();
+        return rect.left >= 0 && rect.right <= innerWidth && element.scrollWidth <= element.clientWidth + 1;
+      }), `Toolbar fits at ${width}px`);
+    }
+    check(await page.locator('#nzm-toolbar-overflow #wp-admin-bar-new-content').count() === 1, 'New action grouped on mobile');
+    await page.locator('#wp-admin-bar-nzm-toolbar-more > button').click();
+    check(await page.locator('#wp-admin-bar-nzm-toolbar-more > .ab-sub-wrapper').evaluate(element => {
+      const rect = element.getBoundingClientRect();
+      return rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom < document.querySelector('#wpadminbar').getBoundingClientRect().top;
+    }), 'Mobile dropdown opens above dock within viewport');
+    const afterLinks = await nativeLinks(page);
+    check(Object.entries(links).every(([id, href]) => afterLinks[id] === href), 'All native action IDs and URLs survive regrouping');
+    await page.setViewportSize({ width: 1440, height: 960 });
+    await page.locator('#wp-admin-bar-root-default > #wp-admin-bar-new-content').waitFor({ state: 'attached' });
+    await page.evaluate(() => { document.documentElement.dir = 'rtl'; });
+    check(await page.locator('#wpadminbar').evaluate(element => element.getBoundingClientRect().left >= 0 && element.getBoundingClientRect().right <= innerWidth), 'RTL shell fits');
+    await page.evaluate(() => { document.documentElement.dir = 'ltr'; });
+    await page.locator('#ra-dock-hide').click();
+    await page.locator('#ra-dock-show').click();
+    await waitAnimation(page);
+    check(await page.locator('#wpadminbar').evaluate(element => !element.hidden && !element.inert), 'Quick reopen cancels outgoing animation');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.locator('#ra-dock-hide').click();
+    check(await page.locator('#wpadminbar').evaluate(element => element.hidden && !element.getAnimations().length), 'Reduced motion skips collapse animation');
+    await page.locator('#ra-dock-show').click();
+    await page.evaluate(() => {
+      const button = document.createElement('button');
+      const rect = document.querySelector('#wpadminbar').getBoundingClientRect();
+      button.id = 'adminlume-site-control'; button.textContent = 'Site control';
+      Object.assign(button.style, { position: 'fixed', left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px` });
+      document.body.append(button); button.focus();
+    });
+    check(await page.locator('#wpadminbar').isHidden() && await page.locator('#adminlume-site-control').evaluate(element => element === document.activeElement), 'Dock yields to overlapping site focus without stealing focus');
+    check(await page.evaluate(() => localStorage.getItem(window.roundedAdminDock.storageKey) === 'visible'), 'Automatic compression does not overwrite saved preference');
+    const product = wp('$ids = get_posts(array("post_type" => "product", "post_status" => "publish", "numberposts" => 1, "fields" => "ids")); echo $ids ? get_permalink($ids[0]) : "";');
+    if (product) {
+      await page.goto(product, { waitUntil: 'domcontentloaded' });
+      await page.locator('#wp-admin-bar-root-default > #wp-admin-bar-edit > a').waitFor();
+      check(await page.locator('#wp-admin-bar-edit > a').evaluate(element => !!element.getAttribute('href') && !!element.title && !!element.getAttribute('aria-label')), 'Product edit remains a labeled native link');
+      await screenshot(page, 'dock-product');
+      await page.setViewportSize({ width: 320, height: 640 });
+      await page.waitForFunction(() => document.querySelector('#wpadminbar').classList.contains('nzm-dock-compact'));
+      check(await page.locator('#wp-admin-bar-edit > a').evaluate(element => element.getBoundingClientRect().width === 44 && getComputedStyle(element, '::before').content !== 'none'), 'Narrow mobile keeps an accessible edit icon');
+      check(await page.locator('#wpadminbar').evaluate(element => element.scrollWidth <= element.clientWidth + 1), 'Product dock fits a small phone');
+      check(await page.locator('#wpadminbar').evaluate(element => {
+        const dock = element.getBoundingClientRect();
+        return [...element.querySelectorAll('.ab-top-menu > li > .ab-item, #ra-dock-hide')].every(item => {
+          const rect = item.getBoundingClientRect();
+          return !rect.width || (rect.top >= dock.top && rect.bottom <= dock.bottom && Math.abs((rect.top + rect.bottom) / 2 - (dock.top + dock.bottom) / 2) < 1);
+        });
+      }), 'Mobile controls share one centered row inside the shell');
+      await screenshot(page, 'dock-product-mobile');
+      await page.setViewportSize({ width: 1440, height: 960 });
+    }
+    await page.goto(auth.url + '/wp-admin/', { waitUntil: 'domcontentloaded' });
+    check(JSON.stringify(before) === JSON.stringify(await adminMetrics()), 'Backend toolbar unchanged');
+    check(errors.length === 0, 'No uncaught frontend errors: ' + errors.join(', '));
+
+    const touch = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    await touch.addCookies(cookies); await routes(touch);
+    const touchPage = await touch.newPage();
+    await touchPage.goto(auth.url, { waitUntil: 'domcontentloaded' });
+    await touchPage.locator('#wp-admin-bar-nzm-toolbar-site > button').tap();
+    check(await touchPage.locator('#wp-admin-bar-nzm-toolbar-dashboard > a').isVisible(), 'Touch opens site dropdown');
+    await touchPage.locator('#wp-admin-bar-nzm-toolbar-site > button').tap();
+    await touchPage.locator('#wp-admin-bar-my-account > .ab-item').tap();
+    check(await touchPage.locator('#wp-admin-bar-logout > a').isVisible(), 'Touch opens account without navigating');
+    await touchPage.locator('#wp-admin-bar-nzm-toolbar-more > button').tap();
+    await touchPage.locator('#wp-admin-bar-new-content > .ab-item').tap();
+    check(await touchPage.locator('#wp-admin-bar-new-content > .ab-sub-wrapper').isVisible(), 'Touch opens a native submenu inside More');
+    await touchPage.locator('#ra-dock-hide').tap();
+    await touchPage.locator('#wpadminbar').waitFor({ state: 'hidden' });
+    await touchPage.locator('#ra-dock-show').tap();
+    await waitAnimation(touchPage);
+    await screenshot(touchPage, 'dock-mobile');
+    await touch.close();
+    const guest = await browser.newContext(); await routes(guest);
+    const guestPage = await guest.newPage();
+    await guestPage.goto(auth.url, { waitUntil: 'domcontentloaded' });
+    check(await guestPage.locator('#wpadminbar, #rounded-admin-frontend-toolbar-css, #rounded-admin-frontend-toolbar-js').count() === 0, 'Guests receive no dock or dock assets');
+    await guest.close();
+    const blockedStorage = await browser.newContext(); await blockedStorage.addCookies(cookies); await routes(blockedStorage);
+    await blockedStorage.addInitScript(() => Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('Storage blocked', 'SecurityError'); } }));
+    const blockedPage = await blockedStorage.newPage();
+    await blockedPage.goto(auth.url, { waitUntil: 'domcontentloaded' });
+    await blockedPage.locator('#ra-dock-hide').click();
+    await blockedPage.locator('#wpadminbar').waitFor({ state: 'hidden' });
+    await blockedPage.locator('#ra-dock-show').click();
+    check(await blockedPage.locator('#wpadminbar').isVisible(), 'Controls work when local storage is blocked');
+    await blockedStorage.close();
+    const noScript = await browser.newContext({ javaScriptEnabled: false }); await noScript.addCookies(cookies); await routes(noScript);
+    const noScriptPage = await noScript.newPage();
+    await noScriptPage.goto(auth.url, { waitUntil: 'domcontentloaded' });
+    await noScriptPage.locator('#wp-admin-bar-site-name > .ab-item').hover();
+    check(await noScriptPage.locator('#wp-admin-bar-site-name > .ab-sub-wrapper').isVisible(), 'Native site menu remains available without JavaScript');
+    await noScript.close();
+    console.log(`Success: ${checks} frontend toolbar browser checks passed.${process.env.ADMINLUME_ASSET_OVERRIDE === '1' ? ' Checkout CSS/JS override enabled; installed PHP is not replaced.' : ''}`);
+  } finally {
+    if (browser) await browser.close();
+    wp(`WP_Session_Tokens::get_instance(${auth.id})->destroy('${auth.token}');`);
   }
-  await page.setViewportSize({width:1440,height:960});
-  await page.goto(auth.url+'/wp-admin/',{waitUntil:'domcontentloaded'});
-  const adminAfter=await page.locator('#wpadminbar').evaluate(el=>({top:el.getBoundingClientRect().top,height:el.getBoundingClientRect().height,css:getComputedStyle(el).position}));
-  check(JSON.stringify(adminBefore)===JSON.stringify(adminAfter),'Backend toolbar unchanged');
-  const guest=await browser.newContext({viewport:{width:1440,height:960}});
-  const guestPage=await guest.newPage(); await guestPage.goto(auth.url,{waitUntil:'domcontentloaded'});
-  check(await guestPage.locator('#wpadminbar, #rounded-admin-frontend-toolbar-js, #rounded-admin-frontend-toolbar-css').count()===0,'Guests receive neither toolbar nor its assets');
-  check(await guestPage.locator('.site-header').evaluate(el=>el.getBoundingClientRect().top===0),'Guest public header unchanged');
-  await guest.close();
-  const touch=await browser.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});
-  await touch.addCookies(auth.cookies.map(cookie=>({...cookie,url:auth.url,httpOnly:true,sameSite:'Lax'})));
-  const touchPage=await touch.newPage(); await touchPage.goto(auth.url,{waitUntil:'domcontentloaded'});
-  await touchPage.locator('#wp-admin-bar-nzm-toolbar-more > a').tap();
-  check(await touchPage.locator('#wp-admin-bar-nzm-toolbar-more > a').getAttribute('aria-expanded')==='true','Touch opens secondary actions on first tap');
-  await touchPage.locator('#wp-admin-bar-nzm-toolbar-more > a').tap();
-  check(await touchPage.locator('#wp-admin-bar-nzm-toolbar-more > a').getAttribute('aria-expanded')==='false','Second touch closes secondary menu');
-  await touchPage.locator('#ra-dock-hide').tap();
-  await touchPage.locator('#wpadminbar').waitFor({state:'hidden'});
-  check(await touchPage.locator('#wpadminbar').isHidden(),'Touch can hide dock');
-  await touchPage.locator('#ra-dock-show').tap();
-  check(await touchPage.locator('#wpadminbar').isVisible(),'Touch can reopen dock');
-  await touchPage.evaluate(()=>{document.querySelector('#ra-dock-hide').click();});
-  check(await touchPage.locator('#wpadminbar').evaluate(el=>el.inert&&!el.hidden&&el.getAnimations().some(animation=>animation.effect.getTiming().duration===180)),'Hide gently animates for 180ms while immediately disabling dock interaction');
-  await touchPage.locator('#ra-dock-show').tap();
-  await touchPage.waitForTimeout(240);
-  check(await touchPage.locator('#wpadminbar').evaluate(el=>!el.hidden&&!el.inert),'Quick reopen cancels outgoing animation without hiding dock afterward');
-  await touchPage.emulateMedia({reducedMotion:'reduce'});
-  await touchPage.evaluate(()=>document.querySelector('#ra-dock-hide').click());
-  check(await touchPage.locator('#wpadminbar').evaluate(el=>el.hidden&&el.getAnimations().length===0),'Reduced-motion preference skips visibility animation');
-  await touchPage.locator('#ra-dock-show').tap();
-  await touch.close();
-  console.log(`Success: ${checks} frontend dock checks passed.`);
-}finally{if(browser)await browser.close();wp(`WP_Session_Tokens::get_instance(${auth.id})->destroy('${auth.token}');`);}})().catch(error=>{console.error(error.message);process.exitCode=1;});
+})().catch(error => { console.error(error.stack); process.exitCode = 1; });

@@ -16,6 +16,9 @@ $previous_user = get_current_user_id();
 $previous_screen = $GLOBALS['current_screen'] ?? null;
 $previous_admin_bar = $GLOBALS['show_admin_bar'] ?? null;
 $front_bar_filter = null;
+$previous_query = $GLOBALS['wp_query'] ?? null;
+$previous_post = $GLOBALS['post'] ?? null;
+$front_page_option = static fn() => 'posts';
 $user_id = wp_insert_user( array( 'user_login' => 'rounded-test-' . wp_generate_uuid4(), 'user_pass' => wp_generate_password( 40 ), 'role' => 'subscriber' ) );
 if ( is_wp_error( $user_id ) ) {
 	throw new RuntimeException( 'Cannot create isolated test user.' );
@@ -119,6 +122,41 @@ try {
 	$chrome->toolbar( $front_bar );
 	$frontend->nodes( $front_bar );
 	$check( (bool) $front_bar->get_node( 'wp-logo' ) && (bool) $front_bar->get_node( 'site-name' ) && (bool) $front_bar->get_node( 'nzm-toolbar-dashboard' ), 'frontend preserves native branding and adds permitted Dashboard' );
+	// Reuse existing query fixtures without creating or modifying site content.
+	$query = new WP_Query();
+	$query->is_singular = true;
+	$GLOBALS['wp_query'] = $query;
+	foreach ( array( 'page', 'post', 'product' ) as $type ) {
+		if ( ! post_type_exists( $type ) ) continue;
+		$objects = get_posts( array( 'post_type' => $type, 'post_status' => 'any', 'numberposts' => 1 ) );
+		if ( ! $objects ) continue;
+		$GLOBALS['post'] = $objects[0];
+		$query->queried_object = $GLOBALS['post'];
+		$query->queried_object_id = $GLOBALS['post']->ID;
+		$context_bar = new WP_Admin_Bar();
+		$context_bar->add_node( array( 'id' => 'edit', 'title' => 'Original edit', 'href' => '/native-editor', 'meta' => array( 'class' => 'plugin-edit', 'target' => '_blank' ) ) );
+		$frontend->nodes( $context_bar );
+		$edit = $context_bar->get_node( 'edit' );
+		$check( esc_html( get_post_type_object( $type )->labels->edit_item ) === $edit->title, $type . ' uses its contextual edit label' );
+		$check( '/native-editor' === $edit->href && 'plugin-edit' === $edit->meta['class'] && '_blank' === $edit->meta['target'], $type . ' preserves native edit URL and third-party metadata' );
+	}
+	$query->is_singular = false;
+	$query->is_home = true;
+	add_filter( 'pre_option_show_on_front', $front_page_option );
+	$home_bar = new WP_Admin_Bar();
+	$home_bar->add_node( array( 'id' => 'customize', 'href' => '/native-customizer', 'meta' => array( 'class' => 'hide-if-no-customize', 'target' => '_blank' ) ) );
+	$home_bar->add_node( array( 'id' => 'my-account', 'href' => '/native-profile' ) );
+	$frontend->nodes( $home_bar );
+	$customize = $home_bar->get_node( 'customize' );
+	$check( str_contains( $customize->meta['class'], 'nzm-primary-action' ) && str_contains( $customize->meta['class'], 'hide-if-no-customize' ), 'homepage promotes only an existing customizer action and retains its visibility class' );
+	$check( '/native-customizer' === $customize->href && '_blank' === $customize->meta['target'], 'homepage customizer keeps original destination and metadata' );
+	$check( str_contains( $home_bar->get_node( 'nzm-toolbar-preferences' )->href, 'profile.php?page=adminlume' ), 'account preferences respect subscriber capabilities' );
+	$empty_bar = new WP_Admin_Bar();
+	$frontend->nodes( $empty_bar );
+	$check( ! $empty_bar->get_node( 'edit' ) && ! $empty_bar->get_node( 'customize' ), 'no edit or customize action is invented when WordPress provides none' );
+	remove_filter( 'pre_option_show_on_front', $front_page_option );
+	$GLOBALS['wp_query'] = $previous_query;
+	$GLOBALS['post'] = $previous_post;
 	wp_dequeue_style( 'rounded-admin-frontend-toolbar' );
 	wp_dequeue_script( 'rounded-admin-frontend-toolbar' );
 	$preferences = get_user_meta( $user_id, Settings::META_KEY, true );
@@ -142,6 +180,9 @@ try {
 	wp_delete_user( $user_id );
 	$GLOBALS['current_screen'] = $previous_screen;
 	$GLOBALS['show_admin_bar'] = $previous_admin_bar;
+	$GLOBALS['wp_query'] = $previous_query;
+	$GLOBALS['post'] = $previous_post;
+	remove_filter( 'pre_option_show_on_front', $front_page_option );
 	if ( null !== $front_bar_filter ) remove_filter( 'show_admin_bar', $front_bar_filter, PHP_INT_MAX );
 	wp_dequeue_style( 'rounded-admin' );
 	wp_dequeue_style( 'rounded-admin-woocommerce' );
