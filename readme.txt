@@ -2,7 +2,7 @@
 Tags: admin, dashboard, toolbar, customization
 Requires at least: 6.5
 Requires PHP: 8.1
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -22,9 +22,12 @@ Features include:
 * Conditional styles for media dialogs and relevant WooCommerce screens.
 * A compact, dark front-end dock with site, contextual action, and avatar sections.
 * Native actions preserved in grouped menus, with keyboard-accessible compression to a persistent floating pill.
-* No runtime build step, remote fonts, tracking, or plugin-initiated external HTTP requests.
+* Native WordPress update notices and optional automatic updates from stable GitHub releases.
+* No runtime build step, remote fonts, or tracking.
 
 Preferences are stored in user metadata. Dock visibility uses browser local storage when available. Existing WordPress and third-party toolbar links and resources remain subject to their own behavior and privacy policies.
+
+Update checks contact the official public GitHub repository and its download CDN over HTTPS. Requests are cached and do not include account details, the site URL, or installed-version parameters. GitHub receives normal connection information such as the server IP address. Package downloads use WordPress's HTTP API, whose default user agent may include WordPress and site information. See https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement for GitHub's privacy policy.
 
 The current settings interface uses Italian labels. This English readme does not include an English interface translation.
 
@@ -41,6 +44,12 @@ Adminlume was previously known as Rounded Admin. Legacy preferences are read as 
 WordPress 6.5 or later and PHP 8.1 or later are required. Test on a local or staging site before deployment.
 
 == Frequently Asked Questions ==
+
+= How do updates work? =
+
+After installing an updater-enabled version, keep Adminlume active. Stable releases with an update manifest appear through WordPress's normal plugin update checks. Use Dashboard > Updates > Check again to request a check; GitHub metadata is cached for up to six hours. Enable automatic updates on the Plugins screen if desired. Adminlume does not force that setting or bypass site policies and compatibility checks.
+
+Version 0.2.0 does not contain the updater. Upload and replace it once with the first updater-enabled release, then later releases can be detected normally. No WordPress.org listing or GitHub token is required for the public release feed.
 
 = Does activation change the interface for everyone? =
 
@@ -78,12 +87,22 @@ The software license grants no separate trademark license. Independent forks mus
 
 == Changelog ==
 
+= 0.3.0 =
+
+* Integrate stable GitHub releases with native WordPress plugin update checks and plugin details.
+* Respect the site's automatic-update preferences and WordPress/PHP compatibility checks.
+* Verify update ZIP checksums before installation and cache release metadata.
+
 = 0.2.0 =
 
 * Per-user admin appearance preferences and an independent front-end toolbar dock.
 * Compatibility fallback for existing Rounded Admin preferences.
 
 == Upgrade Notice ==
+
+= 0.3.0 =
+
+Install this updater-enabled version manually over 0.2.0 once. Later stable GitHub releases can then appear in WordPress. Automatic installation remains opt-in through the native Plugins screen.
 
 = 0.2.0 =
 
