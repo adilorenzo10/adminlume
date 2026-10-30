@@ -8,6 +8,19 @@
  * Author: Dilorsoft
  * Text Domain: adminlume
  * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
+ *
+ * @package Adminlume
+ * @copyright 2026 Dilorsoft
+ * @license GPL-2.0-or-later
+ *
+ * Adminlume is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation, either version 2 of the License, or (at your option) any later version.
+ *
+ * Adminlume is distributed WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the LICENSE file distributed with this plugin for the full terms.
  */
 
 declare(strict_types=1);
