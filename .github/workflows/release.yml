@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing stable tag to publish (for example v0.2.0)
+        description: Existing stable tag to publish (for example v0.3.0)
         required: true
         type: string
 
@@ -31,7 +31,7 @@ jobs:
       - name: Validate release tag
         run: |
           if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo 'Expected a stable release tag such as v0.2.0.' >&2
+            echo 'Expected a stable release tag such as v0.3.0.' >&2
             exit 1
           fi
           echo "RELEASE_VERSION=${RELEASE_TAG#v}" >> "$GITHUB_ENV"
@@ -67,6 +67,7 @@ jobs:
           gh release create "$RELEASE_TAG" \
             "dist/adminlume-$RELEASE_VERSION.zip" \
             "dist/adminlume-$RELEASE_VERSION.zip.sha256" \
+            "dist/adminlume-update.json" \
             --verify-tag \
             --title "Adminlume $RELEASE_VERSION" \
             --generate-notes

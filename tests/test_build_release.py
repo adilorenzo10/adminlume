@@ -1,6 +1,7 @@
 """Packaging checks; no WordPress, Docker, or third-party dependencies required."""
 
 import hashlib
+import json
 from pathlib import Path
 import re
 import shutil
@@ -54,6 +55,24 @@ class ReleaseBuildTests(unittest.TestCase):
         build_release(self.root, '1.2.3', self.output)
         self.assertEqual(first, archive.read_bytes())
         self.assertEqual(archive.with_suffix('.zip.sha256').read_text(), f'{hashlib.sha256(first).hexdigest()}  {archive.name}\n')
+
+    def test_update_manifest_matches_package_and_requirements(self):
+        archive = build_release(self.root, '1.2.3', self.output)
+        manifest = json.loads((self.output / 'adminlume-update.json').read_text())
+        self.assertEqual(manifest['schema'], 1)
+        self.assertEqual(manifest['version'], '1.2.3')
+        self.assertEqual(manifest['requires'], '6.5')
+        self.assertEqual(manifest['requires_php'], '8.1')
+        self.assertEqual(manifest['sha256'], hashlib.sha256(archive.read_bytes()).hexdigest())
+        self.assertEqual(manifest['package'], 'https://github.com/adilorenzo10/adminlume/releases/download/v1.2.3/adminlume-1.2.3.zip')
+        self.assertEqual(manifest['url'], 'https://github.com/adilorenzo10/adminlume/releases/tag/v1.2.3')
+        self.assertEqual(manifest['changelog'], '* Test release.')
+
+    def test_invalid_requirements_are_rejected(self):
+        header = (self.root / 'adminlume.php').read_text().replace('Requires PHP: 8.1', 'Requires PHP: invalid')
+        (self.root / 'adminlume.php').write_text(header)
+        with self.assertRaisesRegex(ValueError, 'requirement'):
+            build_release(self.root, '1.2.3', self.output)
 
     def test_mismatched_version_is_rejected(self):
         with self.assertRaisesRegex(ValueError, 'must match'):

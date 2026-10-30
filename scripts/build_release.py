@@ -3,6 +3,7 @@
 
 import argparse
 import hashlib
+import json
 from pathlib import Path
 import re
 import zipfile
@@ -67,6 +68,13 @@ def build_release(root: Path, version: str, output: Path) -> Path:
     """Package runtime files under adminlume/ and write a SHA-256 sidecar."""
     validate_version(root, version)
     files = release_files(root)
+    header = (root / 'adminlume.php').read_text(encoding='utf-8')
+    requirements = {}
+    for label, key in (('Requires at least', 'requires'), ('Requires PHP', 'requires_php')):
+        value = re.search(r'^\s*\* ' + re.escape(label) + r':\s*(\S+)\s*$', header, re.MULTILINE)
+        if not value or not re.fullmatch(r'\d+\.\d+(?:\.\d+)?', value.group(1)):
+            raise ValueError(f'Missing or invalid plugin requirement: {label}')
+        requirements[key] = value.group(1)
     output.mkdir(parents=True, exist_ok=True)
     archive = output / f'adminlume-{version}.zip'
     with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as bundle:
@@ -78,6 +86,20 @@ def build_release(root: Path, version: str, output: Path) -> Path:
             bundle.writestr(info, file.read_bytes(), compresslevel=9)
     digest = hashlib.sha256(archive.read_bytes()).hexdigest()
     archive.with_suffix('.zip.sha256').write_text(f'{digest}  {archive.name}\n', encoding='ascii')
+    readme = (root / 'readme.txt').read_text(encoding='utf-8')
+    changelog = readme.partition('== Changelog ==')[2].split('\n== ', 1)[0]
+    notes = changelog.partition(f'= {version} =')[2].split('\n= ', 1)[0].strip()
+    repository = 'https://github.com/adilorenzo10/adminlume'
+    manifest = {
+        'schema': 1,
+        'version': version,
+        **requirements,
+        'url': f'{repository}/releases/tag/v{version}',
+        'package': f'{repository}/releases/download/v{version}/{archive.name}',
+        'sha256': digest,
+        'changelog': notes,
+    }
+    (output / 'adminlume-update.json').write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
     return archive
 
 
@@ -90,7 +112,7 @@ def main() -> None:
         archive = build_release(ROOT, args.version, args.output_dir)
     except ValueError as error:
         parser.exit(1, f'Release build failed: {error}\n')
-    print(f'Built {archive} and {archive.name}.sha256')
+    print(f'Built {archive}, {archive.name}.sha256, and adminlume-update.json')
 
 
 if __name__ == '__main__':
