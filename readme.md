@@ -1,75 +1,102 @@
 # Adminlume
 
-Autore: **Dilorsoft**. Plugin riutilizzabile per interfaccia amministrativa e dock frontend, già noto come Rounded Admin.
+A lightweight WordPress admin interface and front-end toolbar dock by **Dilorsoft**, formerly known as Rounded Admin.
 
-Skin amministrativa riutilizzabile per WordPress 6.5+ / PHP 8.1+. Nessuna dipendenza da WooCommerce, tema o plugin del sito. Non replica funzionalità o marchi Shopify: ne riprende la direzione visiva sobria, con sidebar scura, pannelli arrotondati e controlli compatti.
+Adminlume adds a dark sidebar, rounded panels, and compact controls without requiring WooCommerce, a particular theme, or site-specific code. It changes presentation, not roles, capabilities, menu order, or store data.
 
-## Utilizzo
+## Requirements
 
-1. Copiare `adminlume` in `wp-content/plugins` e attivare `adminlume.php`.
-2. Aprire **Utenti → Adminlume** (oppure **Profilo → Adminlume** per utenti senza accesso all'elenco utenti).
-3. Selezionare **Abilita Adminlume per me** e salvare.
+- WordPress 6.5 or later.
+- PHP 8.1 or later.
+- No build step, JavaScript framework, or Node.js dependency at runtime.
 
-Disattivata di default per tutti. Ogni utente può impostare il proprio colore principale e raggio pannelli (8/12/16 px), senza modificare altre preferenze utente. Nessuna impostazione globale, nessuna modifica di ruoli, dati ecommerce o permessi; le voci operative del menu non vengono riorganizzate. La disattivazione del plugin ripristina immediatamente l'aspetto nativo; le preferenze personali vengono conservate per una successiva riattivazione.
+Minimum requirements are not a claim of testing against every later release. Validate your WordPress, theme, and plugin combination on a local or staging site before deployment.
 
-**Sfondo sidebar e top bar** è un'impostazione personale del backend, separata dall'accento dei pulsanti: default `#000000`. Il colore viene validato e applicato anche a intestazione, track scrollbar e angoli dell'area contenuti. Testi, icone, ricerca e stati hover/attivi si adattano a una palette chiara/scura. Il dock frontend conserva la propria presentazione antracite semitrasparente.
+## Installation
 
-## Architettura e peso
+1. Copy the `adminlume` directory to `wp-content/plugins/`.
+2. Activate **Adminlume** on the **Plugins** screen.
+3. Open **Users → Adminlume**, or **Profile → Adminlume** if you cannot list users.
+4. Enable Adminlume for your account and save your preferences.
 
-- PHP per hook, preferenze in user meta e caricamento condizionale.
-- Un piccolo CSS base solo nel backend e solo per utenti che aderiscono.
-- CSS WooCommerce separato, solo sulle schermate pertinenti, senza dipendenza obbligatoria.
-- CSS media caricato solo quando WordPress attiva la libreria o le finestre media: filtri, anteprime, selezione e dialoghi arrotondati; su smartphone le finestre a tutto schermo restano edge-to-edge.
-- Pannelli Aiuto/Impostazioni schermata, tab e paginazione native coerenti con la skin.
-- Toolbar desktop a tutta larghezza e con bordi esterni squadrati, con padding interno di 10 px: il primo comando (es. Live di WooCommerce) non aderisce più al bordo. Solo comandi e menu a tendina sono rounded. Altezza nativa e toolbar mobile preservate.
-- Comandi toolbar desktop alti 26 px, con 3 px di spazio sopra e sotto all'interno della barra nativa da 32 px; menu a tendina ancorati sotto la barra. Voci sidebar desktop da 32 px con spaziatura compatta; target principali mobile di almeno 44 px.
-- Contenuto dei comandi toolbar centrato con flexbox: padding verticale aggiuntivo del badge Live neutralizzato, offset e float delle icone native rimossi solo sulla riga principale desktop. Etichette, shortcut e avatar condividono lo stesso centro verticale; menu a tendina e controlli mobile mantengono il layout nativo.
-- Separatori nativi del menu nascosti nella skin: nessuno spazio aggiuntivo tra gruppi come Commenti/WooCommerce o Marketing/Aspetto. Ordine e permessi delle voci restano invariati.
-- Controllo nativo Riduci menu riposizionato in alto a destra su desktop, con icona sidebar disegnata in CSS; comportamento, stato ARIA e preferenza WordPress preservati. Su tablet/mobile restano i controlli responsive nativi.
-- Nome del sito cliccabile nell'intestazione sidebar e rimozione di logo WordPress/nome sito dalla toolbar nel backend per utenti che aderiscono. Con menu ridotto il nome è nascosto; su mobile compare nell'intestazione del menu aperto. Sul frontend nome sito e logo WordPress restano nel dock con i propri link nativi.
-- Menu ridotto a 52 px su desktop, con 8 px ai lati delle icone; transizioni CSS di 180 ms sincronizzate con l'area contenuti, disabilitate con `prefers-reduced-motion`. Tablet, mobile e canvas Gutenberg mantengono il comportamento responsive nativo.
-- Sidebar desktop/tablet fissa con scroll interno e scrollbar sottile nativa personalizzata. Lo scroll non si propaga alla pagina; flyout posizionati nel viewport senza spostare i link fuori dal menu WordPress. Su mobile, Gutenberg e senza JavaScript resta il comportamento nativo. La visibilità persistente della scrollbar dipende anche dalle preferenze del sistema operativo.
-- Intestazione desktop separata dal contenitore scrollabile delle voci (`#ra-sidebar-navigation`), non sticky: nome sito e controllo nativo di riduzione non partecipano mai allo scroll. Lo script ricolloca i nodi originali senza clonarli e ripristina la struttura nativa passando al layout mobile.
-- Un piccolo script JavaScript vanilla per lo scroll indipendente e il posizionamento dei sottomenu: nessuna libreria, font remoto, chiamata HTTP esterna, cron o tabella custom.
-- Tipografia sidebar di sistema a 14 px con pesi 400/550, ritmo verticale uniforme e icone outline SVG locali per le principali voci standard (le icone di plugin sconosciuti vengono conservate).
-- Sottovoci della sezione aperta senza riquadro condiviso: sfondo trasparente, rientro allineato al titolo del padre, righe individuali rounded e stato attivo discreto. Flyout del menu ridotto preservati.
-- Sottovoci in colonna con gap di 1 px, identico alla distanza effettiva tra voci principali; niente margini cumulati tra una sottovoce e l'altra o alla fine del gruppo.
-- Quando è selezionata una sottovoce, solo quella riga ha lo sfondo attivo: il padre diventa un'intestazione neutra. Nel menu ridotto resta evidenziata l'icona della sezione per orientarsi.
-- Cerca nel menu persistente: filtra voci e nomi dei sottomenu già presenti, senza navigare o cercare nel database. `⌘K` / `Ctrl+K` porta il focus alla ricerca (anche dal menu ridotto); Escape cancella il filtro. Non è una ricerca di prodotti, ordini o contenuti. La ricerca è disponibile nel layout desktop, non nell'auto-fold tablet o nel menu mobile nativo.
-- Pulsante di cancellazione con vera icona SVG locale, a 4 px dal bordo destro dell'input. Compare solo con testo inserito, non si sovrappone alla scorciatoia e mantiene il focus nel campo dopo la cancellazione. Utilizzabile con Tab/Invio; decorazione nativa del browser disabilitata per evitare doppie X.
-- CSS circoscritto a `body.rounded-admin`, controlli nativi e pannelli standard; Gutenberg mantiene la propria canvas e i controlli.
-- `toolbar.css` è riservato al backend. Il frontend è gestito da `src/FrontendToolbar.php` con CSS/JS autonomi in `assets/css/frontend-toolbar.css` e `assets/js/frontend-toolbar.js`, senza dipendenze o build del tema. Nessun CSS del layout admin o JavaScript sidebar sul sito; nessun asset per visitatori anonimi, utenti non aderenti o barra nascosta.
-- Solo sul frontend la barra nativa diventa un dock inferiore centrato, a 20 px dal basso: fondo antracite con blur, azione Modifica accent, menu verso l'alto e azioni secondarie raggruppate su mobile. Nessuna riserva superiore; header e contenuti non vengono modificati. Il backend conserva aspetto e comportamento precedenti.
-- Non forza contenuti di applicazioni React o pagine plugin completamente personalizzate.
+Adminlume is disabled by default for each user. Each account opts in independently; there is no site-wide appearance setting. The current settings interface uses Italian labels, including **Abilita Adminlume per me** (enable) and **Salva preferenze** (save). English documentation does not change the interface language.
 
-Il contrasto nero/bianco dei pulsanti viene scelto dalla luminanza del colore personale. Focus tastiera visibile, menu nativo compresso e breakpoint WordPress preservati. In RTL si mantiene la larghezza nativa del menu. Nessun clipping dei pannelli per non tagliare menu contestuali e Select2.
+## Personal preferences
 
-## Sicurezza
+| Preference | Default | Behavior |
+| --- | --- | --- |
+| Enable Adminlume | Disabled | Applies the skin only to the current user. |
+| Sidebar and top bar background | `#000000` | Adjusts the admin header, sidebar, scrollbar track, and workspace corners. Text, icons, search, and interaction states adapt to a light or dark palette. |
+| Accent color | `#303030` | Controls the admin accent independently of the sidebar background. Black or white button text is selected using relative luminance. |
+| Panel corner radius | `16px` | Accepts `8px`, `12px`, or `16px`. |
 
-Salvataggio solo via POST autenticato, capability `read`, nonce legato all'utente corrente, senza ID utente ricevuto dal client. Colore validato come esadecimale e raggio limitato a una whitelist; output escaped. Le preferenze non contengono segreti. Nessuna opzione modifica l'aspetto degli altri utenti.
+The front-end dock retains its own dark presentation. Disabling the personal preference or deactivating the plugin restores the native interface. Deactivation retains user preferences for later reactivation. The plugin currently has no uninstall cleanup routine; do not assume deletion removes stored preferences.
 
-## Collaudo
+## Features
 
-Il test `tests/integration.php` va eseguito esclusivamente nel WordPress Docker locale. Verifica opt-in, sanitizzazione, contrasto, scope asset e preferenze isolate. Collaudare anche dashboard, prodotti, ordini HPOS, editor classico e Gutenberg, navigazione tastiera, menu compresso, smartphone, media modal e plugin specifici prima della distribuzione su altri siti. Una skin CSS non garantisce compatibilità visiva universale con plugin di terze parti.
+### Admin navigation
 
-```bash
-docker compose run --rm wpcli wp eval-file /var/www/html/wp-content/plugins/adminlume/tests/integration.php
-```
+- Fixed desktop/tablet sidebar with independent scrolling and a thin native scrollbar. Persistent scrollbar visibility also depends on operating-system preferences.
+- A separate, non-scrolling desktop header with a clickable site name and the native collapse control. Original WordPress nodes are moved, not cloned, and restored for the native mobile layout.
+- Compact 32px desktop menu rows, system typography, local outline SVG icons for standard menu items, and unchanged icons for unknown plugins.
+- A 52px collapsed desktop sidebar, with 180ms layout transitions disabled when reduced motion is requested.
+- Individually rounded submenu rows with a 1px gap. A selected submenu item receives the highlight; its parent remains a neutral heading. The collapsed section icon remains highlighted for orientation.
+- Menu search filters existing menu and submenu labels only. It does not query posts, products, orders, or the database. `Cmd+K` / `Ctrl+K` focuses search; Escape clears the filter. A keyboard-accessible clear button keeps focus in the field.
+- Search is available in the desktop layout, not the native tablet auto-fold or mobile menu. Native menu order, capabilities, collapse state, and responsive controls remain WordPress-owned.
 
-Test browser mirato alla toolbar (installazione Docker locale, skin abilitata per il primo amministratore, Node e Playwright disponibili nell'ambiente di test):
+### Admin surfaces and toolbar
 
-```bash
-node wordpress/wp-content/plugins/adminlume/tests/topbar-browser.cjs
-```
+- Rounded native panels, Help and Screen Options panels, tabs, pagination, and media dialogs. Mobile full-screen media dialogs remain edge-to-edge.
+- Separate WooCommerce styles loaded only on relevant screens, without making WooCommerce a required dependency.
+- A full-width desktop toolbar with square outer edges, 10px horizontal padding, 26px controls centered inside the native 32px bar, and dropdowns anchored below it.
+- Native mobile toolbar dimensions and primary touch targets of at least 44px are preserved where styled.
+- The site name moves to the admin sidebar header; the WordPress logo and site-name nodes are removed from the admin toolbar only for opted-in users. Both remain available in the front-end dock.
+- Native menu separators are visually hidden without changing item order or permissions.
 
-`PLAYWRIGHT_MODULE` e `PLAYWRIGHT_BROWSERS_PATH` possono indicare un'installazione esterna di Playwright. Il plugin non dipende da Node/Playwright a runtime. Il test non modifica le preferenze o i contenuti e rimuove la sessione temporanea alla fine.
+### Front-end dock
 
-Nel repository autonomo, impostare `ADMINLUME_WP_ROOT` sulla directory dell'ambiente WordPress Docker che contiene il servizio `wpcli`; installarvi prima la stessa versione del plugin. Esempio: `ADMINLUME_WP_ROOT=/percorso/sito node tests/topbar-browser.cjs`. La directory del repository non deve essere incorporata in un tema o in un progetto specifico. I test sono strumenti di sviluppo: non sono necessari a runtime e non devono essere eseguiti in produzione.
+- A 56px pill-shaped bottom dock, up to 850px wide, centered 22px above the safe area, with a solid `#17181B` background, a soft shadow, and no light halo.
+- Three sections: a site dropdown with native WordPress links, site name, Live status when available, and Dashboard; contextual editing and New actions; and an avatar account menu with profile, preferences, and logout.
+- Native edit labels follow the current post type (page, post, product, or a registered custom type). On the homepage, an existing Customizer action is promoted if no native edit action exists. No edit URL or permission is invented.
+- Comments, customization, and third-party controls remain available in More. On narrow screens, New also moves there; the primary action becomes an accessible icon on small phones.
+- Collapse and expand controls leave an always-available floating pill, preserve focus, and honor reduced motion. The existing per-user browser storage key is retained.
+- Menus open upward, support keyboard and touch input, and stay within the viewport. Focused site controls under the dock trigger temporary compression without overwriting the saved preference or changing the site layout.
+- No reserved toolbar space at the top of the page and no intentional changes to the public header or content.
+- No skin assets for anonymous visitors, opted-out users, or users whose native toolbar is hidden.
 
-### Toolbar frontend inclusa nel plugin
+## Compatibility and accessibility
 
-Il dock fa parte di Adminlume, non del tema Nerd Zone: continua a funzionare cambiando tema, senza flag di supporto o chiamate al codice del sito. Riutilizza link, ID, permessi e notifiche native. Test dedicato: `node wordpress/wp-content/plugins/adminlume/tests/frontend-toolbar-browser.cjs`. Il plugin non richiede Node a runtime e il frontend non richiede compilazione.
+Admin CSS is scoped to `body.rounded-admin` and native controls. The block editor retains its canvas and controls; the sidebar enhancement is not loaded in the block editor. Network admin and user admin screens are excluded from the admin skin.
 
-### Compatibilità con Rounded Admin
+Keyboard focus indicators, native WordPress breakpoints, and native collapsed-menu behavior are preserved. RTL layouts retain the native menu width. Panels are not clipped, so contextual menus and Select2 controls can extend beyond them. Sidebar enhancements fall back to native behavior on mobile, in the block editor, or without JavaScript.
 
-Il namespace PHP è `Adminlume`, il text domain è `adminlume`. Le preferenze nuove usano `adminlume_preferences`; quelle salvate in `rounded_admin_preferences` vengono lette come fallback, senza perdere le scelte degli utenti. Al successivo salvataggio si usa il nuovo metadato, senza eliminare quello precedente. CSS interni `rounded-admin`/`ra-*`, handle asset e chiavi di storage del dock restano intenzionalmente compatibili: non sono dipendenze da un tema o da Nerd Zone.
+Adminlume does not attempt to restyle arbitrary React application internals or completely custom plugin pages. A CSS skin cannot guarantee universal visual compatibility or complete accessibility conformance. Test third-party screens and assistive-technology workflows before release.
+
+## Privacy and security
+
+- Preferences are stored in WordPress user metadata and apply only to the current account.
+- Saving uses the authenticated WordPress POST handler, the `read` capability, and a nonce tied to the current user. No client-supplied user ID is accepted.
+- Colors are validated as hexadecimal values, panel radii use an allowlist, and rendered settings values are escaped.
+- The plugin adds no tracking, remote fonts, external HTTP requests, scheduled tasks, or custom database tables. Preferences should not contain secrets.
+- Existing WordPress or third-party toolbar features may retain their own external links or resources; Adminlume does not replace their privacy policies.
+
+## Developer documentation
+
+- [Development, architecture, and testing](docs/development.md)
+- [Front-end toolbar behavior and compatibility](docs/frontend-toolbar.md)
+- [Contributing and commit conventions](CONTRIBUTING.md)
+- [WordPress plugin readme](readme.txt)
+
+## Rounded Admin compatibility
+
+The PHP namespace is `Adminlume` and the text domain is `adminlume`. New preferences use `adminlume_preferences`. If that key does not exist, `rounded_admin_preferences` is read as a fallback. Saving writes the new key without deleting the legacy one; an explicit new opt-out takes precedence over legacy opt-in.
+
+Internal `rounded-admin`, `ra-*`, and `nzm-*` identifiers, asset handles, and dock storage keys are intentionally retained for compatibility. They do not require Rounded Admin, the Nerd Zone theme, or any other theme.
+
+## License
+
+Copyright (c) 2026 Dilorsoft. Adminlume is free and open-source software licensed under **GPL-2.0-or-later**: GNU GPL version 2 or, at your option, any later version. See [LICENSE](LICENSE) for the full terms and [COPYRIGHT.md](COPYRIGHT.md) for attribution and redistribution guidance.
+
+You may use, modify, fork, redistribute, and sell the software under the GPL. Preserve required notices and comply with the license's source-code and derivative-work obligations. The software is provided without warranty.
+
+The software license does not grant a separate trademark license. See [TRADEMARKS.md](TRADEMARKS.md) for guidance on distinguishing independent forks from official Adminlume releases. This does not restrict the freedoms granted by the GPL or claim that a trademark is registered.
