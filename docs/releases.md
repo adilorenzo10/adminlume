@@ -50,6 +50,8 @@ shasum -a 256 -c adminlume-0.2.0.zip.sha256
 
 ## Failures and immutable versions
 
+If the tag exists but no run was started, use **Actions → Release plugin → Run workflow** on `main` and enter the existing tag, such as `v0.2.0`. This recovery path validates and checks out that exact tag, not the current branch, and does not move or recreate it. It uses the same build and publication steps as a tag push. Future tags still publish automatically on push.
+
 Check the **Release plugin** run under the repository's **Actions** tab. If validation fails, no release is created. If the job fails before publication, fix the issue and use a new version when source changes are required; do not move an already shared tag. A transient failure without source changes can be retried from Actions.
 
 The publication step does not overwrite an existing release or its assets. If a release already exists, the job fails rather than silently replacing a published package. Diagnose the existing release and publish a new version for corrections. Do not delete/recreate shared tags or force-push them as part of routine release work.
