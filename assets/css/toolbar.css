@@ -1,0 +1,124 @@
+/* Adminlume backend toolbar. Public-site dock is isolated in frontend-toolbar.css. */
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar {
+    background: var(--ra-chrome-bg, #000);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-item,
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-label {
+    color: var(--ra-chrome-text);
+}
+
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-icon::before,
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-item::before {
+    color: var(--ra-chrome-strong);
+}
+
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-sub-wrapper,
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-submenu {
+    background: var(--ra-chrome-submenu);
+}
+
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-top-menu>li:hover>.ab-item,
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-top-menu>li.hover>.ab-item,
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-top-menu>li>.ab-item:focus,
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-submenu .ab-item:hover,
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-submenu .ab-item:focus {
+    background: var(--ra-chrome-hover);
+    color: var(--ra-chrome-strong);
+}
+
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-top-menu>li:hover>.ab-item::before,
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-top-menu>li.hover>.ab-item::before,
+body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-top-menu>li:hover>.ab-item .ab-icon::before {
+    color: var(--ra-chrome-strong);
+}
+
+@media (min-width: 783px) {
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar {
+        inset-inline: 0;
+        width: 100%;
+        padding-inline: 10px;
+        box-sizing: border-box;
+        border-radius: 0;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #wp-toolbar .ab-top-menu>li {
+        margin: 3px 2px;
+        padding-block: 0;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #wp-toolbar .ab-top-menu>li>.ab-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        height: 26px;
+        line-height: 26px;
+        border-radius: 8px;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #wp-toolbar :is(#wp-admin-bar-root-default, #wp-admin-bar-top-secondary)>li>.ab-item .ab-icon {
+        position: static;
+        float: none;
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        margin: 0;
+        flex: 0 0 20px;
+        line-height: 20px;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #wp-toolbar .ab-top-menu>li>.ab-item .ab-icon::before {
+        display: block;
+        top: 0;
+        line-height: 20px;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #wp-toolbar .ab-top-menu>li>.ab-item::before {
+        position: static;
+        float: none;
+        padding: 0;
+        margin: 0;
+        line-height: 20px;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #wp-toolbar .ab-top-menu>li>.ab-item :is(.ab-label, kbd) {
+        height: auto;
+        line-height: 20px;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #wp-toolbar .ab-top-menu>li>.ab-item>img.avatar {
+        margin: 0;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-top-menu>li.menupop>.ab-sub-wrapper {
+        top: 29px;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #wp-toolbar .ab-top-menu>li>.ab-item:focus-visible {
+        outline: 2px solid var(--ra-chrome-strong);
+        outline-offset: -2px;
+        box-shadow: none;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-sub-wrapper {
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgb(0 0 0 / 18%);
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-submenu {
+        border-radius: 10px;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-submenu .ab-item {
+        border-radius: 6px;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #adminbarsearch {
+        height: 26px;
+    }
+
+    body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar #adminbarsearch::before {
+        top: 3px;
+    }
+}

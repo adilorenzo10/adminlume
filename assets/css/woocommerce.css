@@ -1,0 +1,21 @@
+/* Adminlume classic WooCommerce surfaces; never override React component internals. */
+body.rounded-admin #woocommerce-product-data ul.wc-tabs {
+  background: #fafafa;
+  border-start-start-radius: var(--ra-radius);
+}
+body.rounded-admin #woocommerce-product-data ul.wc-tabs li.active a {
+  background: #fff;
+  color: #252525;
+  font-weight: 600;
+}
+body.rounded-admin #woocommerce-product-data .woocommerce_options_panel {
+  border-start-end-radius: var(--ra-radius);
+}
+body.rounded-admin .order-status {
+  border-radius: 7px;
+  font-weight: 500;
+}
+body.rounded-admin .woocommerce table.form-table { background: transparent; }
+body.rounded-admin .woocommerce .woocommerce-message,
+body.rounded-admin .woocommerce .woocommerce-error,
+body.rounded-admin .woocommerce .woocommerce-info { border-radius: 8px; }

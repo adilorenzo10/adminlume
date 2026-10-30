@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+*.log
+*.sql
+*.sql.gz
+*.key
+*.pem
+node_modules/
+vendor/
+.idea/
+.vscode/
+test-results/
+playwright-report/

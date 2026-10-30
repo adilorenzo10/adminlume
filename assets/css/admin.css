@@ -1,0 +1,689 @@
+/* Adminlume: native layout, menu behavior and responsive breakpoints remain WordPress-owned. */
+body.rounded-admin #footer-thankyou { display: none; }
+body.rounded-admin {
+  --ra-accent: #303030;
+  --ra-accent-text: #fff;
+  --ra-chrome-bg: #000000;
+  --ra-radius: 16px;
+  --ra-border: #dedede;
+  --ra-muted: #616161;
+  --ra-shadow: 0 1px 3px rgb(0 0 0 / 5%), 0 0 0 1px rgb(0 0 0 / 2%);
+  background: #f3f3f3;
+  color: #252525;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body.rounded-admin #adminmenuback,
+body.rounded-admin #adminmenuwrap,
+body.rounded-admin #adminmenu {
+  background: var(--ra-chrome-bg);
+}
+
+body.rounded-admin #adminmenu { padding-top: 10px; }
+@media (min-width: 783px) {
+  /* Fixed, independently scrollable navigation; native layout remains the no-JS fallback. */
+  body.rounded-admin.ra-sidebar-scroll #adminmenuwrap {
+    position: fixed !important;
+    top: 32px !important;
+    bottom: 0;
+    height: auto !important;
+    max-height: calc(100dvh - 32px);
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    transform: none;
+  }
+  body.rounded-admin #ra-sidebar-navigation {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #656565 var(--ra-chrome-bg);
+  }
+  body.rounded-admin #ra-sidebar-navigation::-webkit-scrollbar { width: 6px; }
+  body.rounded-admin #ra-sidebar-navigation::-webkit-scrollbar-track { background: var(--ra-chrome-bg); }
+  body.rounded-admin #ra-sidebar-navigation::-webkit-scrollbar-thumb {
+    background: #656565;
+    border: 1px solid var(--ra-chrome-bg);
+    border-radius: 8px;
+  }
+  body.rounded-admin #ra-sidebar-navigation::-webkit-scrollbar-thumb:hover { background: #909090; }
+  /* Fixed descendants escape the scrollport, without moving links out of their native menu. */
+  body.rounded-admin.ra-sidebar-scroll #adminmenu li.opensub > .ra-flyout,
+  body.rounded-admin.ra-sidebar-scroll #adminmenu li:focus-within > .ra-flyout,
+  body.rounded-admin.ra-sidebar-scroll #adminmenu a.menu-top:focus + .ra-flyout,
+  body.rounded-admin.ra-sidebar-scroll #adminmenu .ra-flyout.sub-open {
+    position: fixed !important;
+    top: var(--ra-flyout-top, -10000px) !important;
+    left: var(--ra-flyout-left, -10000px) !important;
+    right: auto !important;
+    bottom: auto;
+    margin: 0 !important;
+    max-height: calc(100dvh - 48px);
+    max-width: calc(100vw - 64px);
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #656565 var(--ra-chrome-submenu);
+    z-index: 10000;
+  }
+}
+body.rounded-admin #adminmenu > li { margin: 3px 8px; }
+body.rounded-admin #adminmenu a.menu-top {
+  min-height: 36px;
+  border-radius: 9px;
+  color: var(--ra-chrome-text);
+}
+body.rounded-admin #adminmenu .wp-menu-name { font-weight: 500; }
+body.rounded-admin #adminmenu .wp-menu-image::before { color: var(--ra-chrome-muted); }
+body.rounded-admin #adminmenu li.menu-top:hover > a,
+body.rounded-admin #adminmenu li.opensub > a.menu-top,
+body.rounded-admin #adminmenu li > a.menu-top:focus,
+body.rounded-admin #adminmenu li.current > a.menu-top,
+body.rounded-admin #adminmenu li.wp-has-current-submenu > a.wp-has-current-submenu {
+  background: var(--ra-chrome-hover);
+  color: var(--ra-chrome-strong);
+}
+body.rounded-admin #adminmenu li.menu-top:hover,
+body.rounded-admin #adminmenu li.opensub { background: transparent; }
+body.rounded-admin #adminmenu .wp-submenu a:hover,
+body.rounded-admin #adminmenu .wp-submenu a:focus {
+  background: var(--ra-chrome-hover);
+  color: var(--ra-chrome-strong);
+}
+body.rounded-admin #adminmenu li:hover .wp-menu-image::before,
+body.rounded-admin #adminmenu li.current .wp-menu-image::before,
+body.rounded-admin #adminmenu .wp-has-current-submenu .wp-menu-image::before { color: var(--ra-chrome-strong); }
+body.rounded-admin #adminmenu .wp-submenu {
+  background: var(--ra-chrome-submenu);
+  border-radius: 10px;
+  padding-block: 6px;
+}
+body.rounded-admin #adminmenu .wp-submenu a { color: var(--ra-chrome-text); }
+body.rounded-admin #adminmenu .wp-submenu-head { background: var(--ra-chrome-submenu); color: var(--ra-chrome-strong); }
+body.rounded-admin #adminmenu .wp-submenu a:hover,
+body.rounded-admin #adminmenu .wp-submenu a:focus,
+body.rounded-admin #adminmenu .wp-submenu li.current a { color: var(--ra-chrome-strong); }
+body.rounded-admin #adminmenu .wp-has-current-submenu .wp-submenu { margin-top: 4px; }
+body.rounded-admin #adminmenu li.wp-has-current-submenu > a.wp-has-current-submenu::after,
+body.rounded-admin #adminmenu li.current > a.menu-top::after { display: none; }
+body.rounded-admin #adminmenu > li.menu-top > a.menu-top::after,
+body.rounded-admin #adminmenu > li.menu-top.wp-has-submenu::after { content: none; }
+body.rounded-admin #adminmenu a:focus-visible {
+  outline: 2px solid var(--ra-chrome-strong);
+  outline-offset: -3px;
+}
+body.rounded-admin #adminmenu .awaiting-mod,
+body.rounded-admin #adminmenu .update-plugins { border-radius: 6px; }
+
+body.rounded-admin #ra-site-link {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 12px;
+  inset-inline-end: 52px;
+  margin: 0;
+  height: 32px;
+}
+body.rounded-admin #ra-site-link > a {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 0 4px;
+  border-radius: 6px;
+  color: var(--ra-chrome-strong);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 32px;
+  text-decoration: none;
+}
+body.rounded-admin #ra-site-link > a:hover { background: var(--ra-chrome-hover); }
+
+/* The header is outside the scrollport: no sticky repositioning during wheel input. */
+body.rounded-admin #ra-sidebar-header {
+  position: relative;
+  flex: 0 0 56px;
+  height: 56px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--ra-chrome-bg);
+  z-index: 10001;
+}
+body.rounded-admin #ra-sidebar-header #ra-site-link { top: 12px; }
+body.rounded-admin #ra-sidebar-header #collapse-menu {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 10px;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+}
+body.rounded-admin.ra-sidebar-scroll #adminmenu { padding-top: 0; margin-top: 8px; }
+@media (min-width: 783px) and (max-width: 960px) {
+  body.rounded-admin.auto-fold #ra-sidebar-header { display: none; }
+}
+
+/* Restyle the native collapse control; WordPress retains behavior and aria state. */
+@media (min-width: 783px) {
+  body.rounded-admin #adminmenu {
+    position: relative;
+    padding-top: 52px;
+  }
+  body.rounded-admin #adminmenu #collapse-menu {
+    position: absolute;
+    top: 0;
+    inset-inline-end: 10px;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+  }
+  body.rounded-admin #collapse-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ra-chrome-muted);
+    box-shadow: none;
+  }
+  body.rounded-admin #collapse-button:hover,
+  body.rounded-admin #collapse-button:focus {
+    background: var(--ra-chrome-hover);
+    color: var(--ra-chrome-strong);
+    box-shadow: none;
+  }
+  body.rounded-admin #collapse-button:focus-visible {
+    outline: 2px solid var(--ra-chrome-strong);
+    outline-offset: 2px;
+  }
+  body.rounded-admin #collapse-button .collapse-button-label { display: none; }
+  body.rounded-admin #collapse-button .collapse-button-icon {
+    position: relative;
+    top: auto;
+    left: auto;
+    box-sizing: border-box;
+    width: 18px;
+    height: 16px;
+    border: 1.5px solid currentColor;
+    border-radius: 4px;
+  }
+  body.rounded-admin #collapse-button .collapse-button-icon::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    inset-inline-start: 4px;
+    width: 0;
+    border-inline-start: 1.5px solid currentColor;
+    transform: none;
+    transition: none;
+  }
+  body.rounded-admin.folded #adminmenu #collapse-menu { inset-inline-end: 2px; }
+  body.rounded-admin.folded #collapse-button .collapse-button-icon::after {
+    inset-inline-start: auto;
+    inset-inline-end: 4px;
+  }
+}
+@media (min-width: 783px) and (max-width: 960px) {
+  /* Native auto-fold has no manual collapse button at this breakpoint. */
+  body.rounded-admin.auto-fold #adminmenu { padding-top: 10px; }
+  body.rounded-admin.auto-fold #ra-site-link { display: none; }
+}
+@media (max-width: 782px) {
+  body.rounded-admin #adminmenu { position: relative; padding-top: 52px; }
+  body.rounded-admin #adminmenu #ra-site-link { inset-inline-end: 12px; }
+}
+
+/* Quieter type, balanced rows and a compact menu-only search. */
+body.rounded-admin #adminmenu {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+body.rounded-admin #adminmenu > li.menu-top { margin-block: 1px; min-height: 32px; }
+body.rounded-admin #adminmenu > li.wp-menu-separator {
+  display: none;
+  height: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+body.rounded-admin #adminmenu > li.menu-top > a.menu-top { min-height: 32px; }
+body.rounded-admin #adminmenu > li.menu-top > a.menu-top > .wp-menu-image { height: 32px; }
+body.rounded-admin #adminmenu .wp-menu-name {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: -.01em;
+  padding-block: 6px;
+}
+body.rounded-admin #adminmenu li.current > a .wp-menu-name,
+body.rounded-admin #adminmenu li.wp-has-current-submenu > a .wp-menu-name { font-weight: 550; }
+body.rounded-admin #adminmenu li.current > a.menu-top,
+body.rounded-admin #adminmenu li.wp-has-current-submenu > a.wp-has-current-submenu {
+  background-image: linear-gradient(var(--ra-chrome-selected-top), var(--ra-chrome-selected-bottom));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%), inset 0 0 0 1px rgb(255 255 255 / 4%);
+}
+body.rounded-admin #adminmenu .wp-submenu a { font-size: 13px; font-weight: 400; line-height: 19px; }
+body.rounded-admin #adminmenu .wp-submenu li.current a { font-weight: 500; }
+/* Expanded sections: independent rounded rows, not a single submenu card. */
+body.rounded-admin:not(.folded) #adminmenu .wp-has-current-submenu > .wp-submenu:not(.ra-flyout) {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-block: 1px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+body.rounded-admin:not(.folded) #adminmenu .wp-has-current-submenu > .wp-submenu:not(.ra-flyout) > li {
+  margin-block: 0;
+}
+body.rounded-admin:not(.folded) #adminmenu .wp-has-current-submenu > .wp-submenu:not(.ra-flyout) > li > a {
+  padding-block: 6px;
+  padding-inline: 36px 10px;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ra-chrome-muted);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  box-shadow: none;
+}
+body.rounded-admin:not(.folded) #adminmenu .wp-has-current-submenu > .wp-submenu:not(.ra-flyout) > li > a:hover,
+body.rounded-admin:not(.folded) #adminmenu .wp-has-current-submenu > .wp-submenu:not(.ra-flyout) > li > a:focus,
+body.rounded-admin:not(.folded) #adminmenu .wp-has-current-submenu > .wp-submenu:not(.ra-flyout) > li.current > a {
+  background: var(--ra-chrome-selected);
+  color: var(--ra-chrome-strong);
+}
+/* A selected child owns the highlight; its parent is just the section heading. */
+body.rounded-admin:not(.folded) #adminmenu > li.ra-has-current-child > a.menu-top {
+  background: transparent;
+  box-shadow: none;
+  color: var(--ra-chrome-strong);
+}
+body.rounded-admin:not(.folded) #adminmenu > li.ra-has-current-child > a.menu-top .wp-menu-name { font-weight: 400; }
+body.rounded-admin:not(.folded) #adminmenu > li.ra-has-current-child > a.menu-top:hover,
+body.rounded-admin:not(.folded) #adminmenu > li.ra-has-current-child > a.menu-top:focus-visible {
+  background: var(--ra-chrome-hover);
+}
+body.rounded-admin:not(.folded) #adminmenu > li.ra-has-current-child > .wp-submenu:not(.ra-flyout) > li.current > a,
+body.rounded-admin:not(.folded) #adminmenu > li.ra-has-current-child > .wp-submenu:not(.ra-flyout) > li > a[aria-current="page"] {
+  background: linear-gradient(var(--ra-chrome-selected-top), var(--ra-chrome-selected-bottom));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%), inset 0 0 0 1px rgb(255 255 255 / 4%);
+  color: var(--ra-chrome-strong);
+  font-weight: 500;
+}
+body.rounded-admin #adminmenu > li[hidden] { display: none !important; }
+body.rounded-admin #ra-sidebar-search {
+  position: relative;
+  flex: 0 0 32px;
+  height: 32px;
+  margin: 0 12px 12px;
+  border-radius: 10px;
+  background: linear-gradient(var(--ra-chrome-search-top), var(--ra-chrome-search-bottom));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 9%);
+}
+body.rounded-admin #ra-menu-search {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0 45px 0 34px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ra-chrome-strong);
+  font-family: inherit;
+  font-size: 13px;
+  box-shadow: none;
+  appearance: none;
+}
+body.rounded-admin #ra-menu-search::placeholder { color: var(--ra-chrome-muted); opacity: 1; }
+body.rounded-admin #ra-menu-search::-webkit-search-cancel-button { display: none; appearance: none; }
+body.rounded-admin #ra-sidebar-search.ra-has-query #ra-menu-search { padding-inline-end: 32px; }
+body.rounded-admin #ra-sidebar-search.ra-has-query kbd { display: none; }
+body.rounded-admin #ra-sidebar-search .ra-search-clear {
+  position: absolute;
+  inset-inline-end: 4px;
+  top: 4px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ra-chrome-muted);
+  cursor: pointer;
+}
+body.rounded-admin #ra-sidebar-search .ra-search-clear[hidden] { display: none; }
+body.rounded-admin #ra-sidebar-search .ra-search-clear::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='m6 6 12 12M18 6 6 18'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+body.rounded-admin #ra-sidebar-search .ra-search-clear:hover {
+  background: var(--ra-chrome-hover);
+  color: var(--ra-chrome-strong);
+}
+body.rounded-admin #ra-sidebar-search .ra-search-clear:focus-visible {
+  outline: 2px solid var(--ra-chrome-strong);
+  outline-offset: -2px;
+}
+body.rounded-admin #ra-menu-search:hover { border-color: #666; }
+body.rounded-admin #ra-menu-search:focus {
+  border-color: var(--ra-chrome-focus);
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--ra-chrome-focus);
+}
+body.rounded-admin #ra-sidebar-search kbd {
+  position: absolute;
+  top: 7px;
+  inset-inline-end: 9px;
+  padding: 0;
+  background: transparent;
+  color: var(--ra-chrome-muted);
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 18px;
+  pointer-events: none;
+}
+body.rounded-admin #ra-sidebar-search:focus-within kbd { opacity: 0; }
+body.rounded-admin .ra-search-toggle {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ra-chrome-muted);
+  cursor: pointer;
+}
+body.rounded-admin .ra-search-toggle::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='7'/%3E%3Cpath d='m16 16 5 5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+body.rounded-admin .ra-search-toggle:focus-visible { outline: 2px solid var(--ra-chrome-strong); outline-offset: 1px; }
+body.rounded-admin:not(.folded) #ra-sidebar-search .ra-search-toggle:hover,
+body.rounded-admin:not(.folded) #ra-sidebar-search .ra-search-toggle:focus {
+  background: transparent;
+  color: var(--ra-chrome-strong);
+  box-shadow: none;
+}
+@media (forced-colors: active) {
+  body.rounded-admin #ra-menu-search:focus {
+    outline: 2px solid Highlight;
+    outline-offset: -3px;
+  }
+}
+body.rounded-admin .ra-menu-search-status { margin: 12px 16px; color: var(--ra-chrome-muted); font-size: 13px; }
+body.rounded-admin .ra-menu-search-status:empty { display: none; }
+body.rounded-admin.folded #ra-sidebar-search { margin-inline: 10px; background: transparent; box-shadow: none; }
+body.rounded-admin.folded #ra-menu-search,
+body.rounded-admin.folded #ra-sidebar-search kbd,
+body.rounded-admin.folded #ra-sidebar-search .ra-search-clear { display: none; }
+body.rounded-admin.folded .ra-search-toggle:hover { background: var(--ra-chrome-hover); color: var(--ra-chrome-strong); }
+body.rounded-admin.rtl #ra-menu-search { padding-inline-start: 34px; padding-inline-end: 45px; }
+@media (min-width: 783px) and (max-width: 960px) {
+  body.rounded-admin.auto-fold #ra-sidebar-search { display: none; }
+}
+
+/* Local outline glyphs for standard entries; unknown plugin icons stay untouched. */
+body.rounded-admin #menu-dashboard { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Cpath d='m3 10 9-7 9 7v10H3Z M9 20v-6h6v6'/%3E%3C/svg%3E"); }
+body.rounded-admin :is(#menu-posts, #menu-posts-post) { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Cpath d='M7 8h4v4H7Z M14 8h3 M14 12h3 M7 16h10'/%3E%3C/svg%3E"); }
+body.rounded-admin #menu-pages { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Cpath d='M5 3h9l5 5v13H5Z M14 3v6h5 M8 13h8 M8 17h6'/%3E%3C/svg%3E"); }
+body.rounded-admin #menu-media { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='3'/%3E%3Ccircle cx='8' cy='8' r='1.5'/%3E%3Cpath d='m3 17 6-6 4 4 3-3 5 5'/%3E%3C/svg%3E"); }
+body.rounded-admin #menu-comments { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Cpath d='M4 3h16v13H9l-5 5Z M8 7h8 M8 11h6'/%3E%3C/svg%3E"); }
+body.rounded-admin #menu-posts-product { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Cpath d='M3 3h9l9 9-9 9-9-9Z'/%3E%3Ccircle cx='8' cy='8' r='1.5'/%3E%3C/svg%3E"); }
+body.rounded-admin #toplevel_page_woocommerce { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Cpath d='M4 7h16l1 14H3Z M8 8V6a4 4 0 0 1 8 0v2'/%3E%3C/svg%3E"); }
+body.rounded-admin #menu-users { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round'%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3Cpath d='M4 21v-2a8 8 0 0 1 16 0v2Z'/%3E%3C/svg%3E"); }
+body.rounded-admin #menu-appearance { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Cpath d='m14 3 7 7-9 9-7-7Z M5 12l-3 9 9-3 M11 6l7 7'/%3E%3C/svg%3E"); }
+body.rounded-admin #menu-plugins { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Cpath d='M8 3v5H3v5h5v8h5v-5h8V8h-8V3Z'/%3E%3C/svg%3E"); }
+body.rounded-admin #menu-tools { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linejoin='round'%3E%3Cpath d='M14 3a6 6 0 0 0-6 8L2 17l5 5 6-6a6 6 0 0 0 8-6l-4 3-4-4 3-4Z'/%3E%3C/svg%3E"); }
+body.rounded-admin #menu-settings { --ra-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round'%3E%3Cpath d='M3 6h5m4 0h9M3 12h11m4 0h3M3 18h3m4 0h11'/%3E%3Ccircle cx='10' cy='6' r='2'/%3E%3Ccircle cx='16' cy='12' r='2'/%3E%3Ccircle cx='8' cy='18' r='2'/%3E%3C/svg%3E"); }
+body.rounded-admin #adminmenu #toplevel_page_woocommerce > a > .wp-menu-image { background-image: none !important; }
+body.rounded-admin #adminmenu #toplevel_page_woocommerce > a > .wp-menu-image img { display: none; }
+body.rounded-admin #adminmenu :is(#menu-dashboard, #menu-posts, #menu-posts-post, #menu-pages, #menu-media, #menu-comments, #menu-posts-product, #toplevel_page_woocommerce, #menu-users, #menu-appearance, #menu-plugins, #menu-tools, #menu-settings) > a > .wp-menu-image::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin-top: 7px;
+  padding: 0;
+  background: currentColor;
+  mask: var(--ra-icon) center / contain no-repeat;
+}
+@media (max-width: 782px) {
+  /* Compact desktop rows should not shrink the mobile touch targets. */
+  body.rounded-admin #adminmenu > li.menu-top > a.menu-top { min-height: 44px; }
+  body.rounded-admin #adminmenu > li.menu-top > a.menu-top > .wp-menu-name { padding-block: 12px; }
+  body.rounded-admin #adminmenu > li.menu-top > a.menu-top > .wp-menu-image { box-sizing: border-box; height: 44px; padding-top: 6px; }
+}
+@media (min-width: 961px) {
+  /* 36px native icon column plus 8px of breathing room on each side. */
+  body.rounded-admin.folded:not(.block-editor-page) #adminmenu,
+  body.rounded-admin.folded:not(.block-editor-page) #adminmenuwrap,
+  body.rounded-admin.folded:not(.block-editor-page) #adminmenuback { width: 52px; }
+  body.rounded-admin.folded:not(.block-editor-page) #adminmenu > li.menu-top { margin-inline: 8px; }
+  body.rounded-admin.folded:not(.block-editor-page) #adminmenu #collapse-menu { inset-inline-end: 10px; }
+  body.rounded-admin.folded #ra-site-link { display: none; }
+  body.rounded-admin.folded:not(.block-editor-page):not(.rtl) #wpcontent,
+  body.rounded-admin.folded:not(.block-editor-page):not(.rtl) #wpfooter { margin-left: 52px; }
+  body.rounded-admin.folded:not(.block-editor-page).rtl #wpcontent,
+  body.rounded-admin.folded:not(.block-editor-page).rtl #wpfooter { margin-right: 52px; }
+  body.rounded-admin.folded:not(.block-editor-page):not(.rtl) #adminmenu .wp-submenu { left: 44px; }
+  body.rounded-admin.folded:not(.block-editor-page).rtl #adminmenu .wp-submenu { right: 44px; }
+}
+@media (min-width: 961px) and (prefers-reduced-motion: no-preference) {
+  body.rounded-admin:not(.block-editor-page) #adminmenu,
+  body.rounded-admin:not(.block-editor-page) #adminmenuwrap,
+  body.rounded-admin:not(.block-editor-page) #adminmenuback {
+    transition: width 180ms ease-out;
+  }
+  body.rounded-admin:not(.block-editor-page) #wpcontent,
+  body.rounded-admin:not(.block-editor-page) #wpfooter {
+    transition: margin-left 180ms ease-out, margin-right 180ms ease-out;
+  }
+  body.rounded-admin:not(.block-editor-page) #wpcontent::before,
+  body.rounded-admin:not(.block-editor-page) #wpcontent::after {
+    transition: inset-inline-start 180ms ease-out;
+  }
+}
+
+/* Round the workspace corner without clipping dropdowns or fixed WooCommerce headers. */
+@media (min-width: 783px) {
+  body.rounded-admin:not(.block-editor-page) {
+    --ra-menu-width: 160px;
+    --ra-shell-radius: calc(var(--ra-radius) + 8px);
+  }
+  body.rounded-admin:not(.block-editor-page) #wpcontent::before,
+  body.rounded-admin:not(.block-editor-page) #wpcontent::after {
+    content: "";
+    position: fixed;
+    inset-inline-start: var(--ra-menu-width);
+    width: var(--ra-shell-radius);
+    height: var(--ra-shell-radius);
+    pointer-events: none;
+    z-index: 1002;
+  }
+  body.rounded-admin:not(.block-editor-page) #wpcontent::before {
+    top: 32px;
+    background: radial-gradient(circle at bottom right, transparent var(--ra-shell-radius), var(--ra-chrome-bg) calc(var(--ra-shell-radius) + .5px));
+  }
+  body.rounded-admin:not(.block-editor-page) #wpcontent::after {
+    bottom: 0;
+    background: radial-gradient(circle at top right, transparent var(--ra-shell-radius), var(--ra-chrome-bg) calc(var(--ra-shell-radius) + .5px));
+  }
+  body.rounded-admin.rtl:not(.block-editor-page) #wpcontent::before {
+    background: radial-gradient(circle at bottom left, transparent var(--ra-shell-radius), var(--ra-chrome-bg) calc(var(--ra-shell-radius) + .5px));
+  }
+  body.rounded-admin.rtl:not(.block-editor-page) #wpcontent::after {
+    background: radial-gradient(circle at top left, transparent var(--ra-shell-radius), var(--ra-chrome-bg) calc(var(--ra-shell-radius) + .5px));
+  }
+  body.rounded-admin.folded:not(.block-editor-page) { --ra-menu-width: 36px; }
+}
+@media (min-width: 1100px) {
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) { --ra-menu-width: 220px; }
+}
+@media (min-width: 961px) {
+  body.rounded-admin.folded:not(.block-editor-page) { --ra-menu-width: 52px; }
+}
+@media (min-width: 783px) and (max-width: 960px) {
+  body.rounded-admin.auto-fold:not(.block-editor-page) { --ra-menu-width: 36px; }
+}
+
+/* Do not restyle the editor canvas or every div/table belonging to other plugins. */
+body.rounded-admin:not(.block-editor-page) .wrap > h1 {
+  font-weight: 650;
+  letter-spacing: -.025em;
+  padding-bottom: 15px;
+}
+body.rounded-admin:not(.block-editor-page) .postbox,
+body.rounded-admin:not(.block-editor-page) .stuffbox,
+body.rounded-admin:not(.block-editor-page) .card,
+body.rounded-admin:not(.block-editor-page) .widefat,
+body.rounded-admin:not(.block-editor-page) #welcome-panel {
+  border: 1px solid var(--ra-border);
+  border-radius: var(--ra-radius);
+  box-shadow: var(--ra-shadow);
+  background: #fff;
+}
+body.rounded-admin:not(.block-editor-page) .postbox-header {
+  border-bottom-color: #ececec;
+  border-radius: var(--ra-radius) var(--ra-radius) 0 0;
+}
+body.rounded-admin:not(.block-editor-page) .postbox .hndle { font-weight: 600; }
+body.rounded-admin:not(.block-editor-page) .postbox .inside { padding: 8px 16px 14px; }
+body.rounded-admin:not(.block-editor-page) table.widefat { border-spacing: 0; }
+body.rounded-admin:not(.block-editor-page) .widefat thead th,
+body.rounded-admin:not(.block-editor-page) .widefat thead td {
+  background: #fafafa;
+  border-bottom-color: #e5e5e5;
+  font-weight: 600;
+}
+body.rounded-admin:not(.block-editor-page) .widefat thead tr > :first-child { border-start-start-radius: var(--ra-radius); }
+body.rounded-admin:not(.block-editor-page) .widefat thead tr > :last-child { border-start-end-radius: var(--ra-radius); }
+body.rounded-admin:not(.block-editor-page) .widefat tfoot tr > :first-child { border-end-start-radius: var(--ra-radius); }
+body.rounded-admin:not(.block-editor-page) .widefat tfoot tr > :last-child { border-end-end-radius: var(--ra-radius); }
+body.rounded-admin:not(.block-editor-page) .striped > tbody > :nth-child(odd) { background: #fafafa; }
+body.rounded-admin:not(.block-editor-page) .wp-list-table > tbody > tr:hover { background: #f5f6f6; }
+body.rounded-admin:not(.block-editor-page) .tablenav { margin-block: 12px; }
+body.rounded-admin:not(.block-editor-page) .subsubsub { margin-bottom: 10px; }
+
+body.rounded-admin:not(.block-editor-page) .wp-core-ui .button,
+body.rounded-admin:not(.block-editor-page).wp-core-ui .button,
+body.rounded-admin:not(.block-editor-page) .page-title-action {
+  border-radius: 8px;
+  border-color: #c7c7c7;
+  background: #fff;
+  color: #303030;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 5%);
+  font-weight: 500;
+}
+body.rounded-admin:not(.block-editor-page).wp-core-ui .button-primary {
+  background: var(--ra-accent);
+  border-color: var(--ra-accent);
+  color: var(--ra-accent-text);
+  text-shadow: none;
+}
+body.rounded-admin:not(.block-editor-page).wp-core-ui .button-primary:hover { filter: brightness(.93); }
+body.rounded-admin:not(.block-editor-page).wp-core-ui .button:not(.button-primary):hover,
+body.rounded-admin:not(.block-editor-page) .wrap .page-title-action:hover {
+  background: #f1f1f1;
+  border-color: #999;
+  color: #252525;
+}
+body.rounded-admin:not(.block-editor-page).wp-core-ui .button:disabled,
+body.rounded-admin:not(.block-editor-page).wp-core-ui .button.disabled {
+  background: #eee !important;
+  border-color: #ddd !important;
+  color: #777 !important;
+  box-shadow: none !important;
+}
+body.rounded-admin:not(.block-editor-page) .wrap :is(input[type="text"], input[type="search"], input[type="email"], input[type="url"], input[type="password"], input[type="number"], select, textarea) {
+  border-radius: 8px;
+  border-color: #b8b8b8;
+}
+body.rounded-admin:not(.block-editor-page) .wrap :is(input, select, textarea, .button, .page-title-action):focus-visible {
+  outline: 2px solid #2271b1;
+  outline-offset: 2px;
+  box-shadow: none;
+}
+body.rounded-admin:not(.block-editor-page) .notice {
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+}
+body.rounded-admin:not(.block-editor-page) #screen-meta {
+  border-radius: 0 0 var(--ra-radius) var(--ra-radius);
+  border-color: var(--ra-border);
+  box-shadow: var(--ra-shadow);
+}
+body.rounded-admin:not(.block-editor-page) #screen-options-wrap,
+body.rounded-admin:not(.block-editor-page) #contextual-help-wrap { border-radius: inherit; }
+body.rounded-admin:not(.block-editor-page) #screen-meta-links .show-settings {
+  border-radius: 0 0 8px 8px;
+  border-color: var(--ra-border);
+}
+body.rounded-admin:not(.block-editor-page) #contextual-help-back { background: #f6f6f6; }
+body.rounded-admin:not(.block-editor-page) .contextual-help-tabs .active {
+  background: #f6f6f6;
+  border-inline-start-color: #616161;
+}
+body.rounded-admin:not(.block-editor-page) .contextual-help-tabs .active a { color: #252525; }
+body.rounded-admin:not(.block-editor-page) .nav-tab { border-radius: 8px 8px 0 0; }
+body.rounded-admin:not(.block-editor-page) .tablenav-pages-navspan { border-radius: 6px; }
+body.rounded-admin:not(.block-editor-page) .wp-list-table img.avatar { border-radius: 8px; }
+body.rounded-admin .ra-preferences { max-width: 860px; }
+body.rounded-admin .ra-preferences form {
+  background: #fff;
+  border: 1px solid var(--ra-border);
+  border-radius: var(--ra-radius);
+  padding: 8px 24px;
+  margin-top: 24px;
+  box-shadow: var(--ra-shadow);
+}
+
+@media (min-width: 1100px) {
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) #adminmenu,
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) #adminmenuwrap,
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) #adminmenuback { width: 220px; }
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) #wpcontent,
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) #wpfooter { margin-left: 220px; }
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) #adminmenu li:not(.wp-has-current-submenu) > .wp-submenu { left: 212px; }
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) #adminmenu .wp-has-current-submenu .wp-submenu { width: auto; }
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) #adminmenu .wp-menu-name { padding-right: 8px; }
+  body.rounded-admin:not(.block-editor-page) #wpbody-content > .wrap { margin: 26px 28px 0 8px; }
+}
+@media (min-width: 961px) and (max-width: 1099px) {
+  body.rounded-admin:not(.block-editor-page):not(.folded):not(.rtl) #adminmenu li:not(.wp-has-current-submenu) > .wp-submenu { left: 152px; }
+}
+@media (max-width: 960px) and (min-width: 783px) {
+  body.rounded-admin.auto-fold #adminmenu > li { margin-inline: 0; }
+}
+body.rounded-admin.folded #adminmenu > li { margin-inline: 0; }
+@media (max-width: 782px) {
+  body.rounded-admin #adminmenu > li { margin-inline: 4px; }
+  body.rounded-admin .ra-preferences form { padding-inline: 14px; }
+}

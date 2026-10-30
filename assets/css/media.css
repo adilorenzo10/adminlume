@@ -1,0 +1,57 @@
+/* Adminlume native media dialogs: keep selection badges outside the preview. */
+body.rounded-admin .media-frame.mode-grid .media-toolbar {
+  border: 1px solid var(--ra-border);
+  border-radius: var(--ra-radius);
+  background: #fff;
+  box-shadow: var(--ra-shadow);
+}
+body.rounded-admin .media-frame .attachment-preview,
+body.rounded-admin .media-frame .attachment-preview .thumbnail {
+  border-radius: 10px;
+}
+body.rounded-admin .media-frame .attachment-preview,
+body.rounded-admin .media-frame .attachment-preview .thumbnail { overflow: hidden; }
+body.rounded-admin .media-frame .attachment .filename { border-radius: 0 0 10px 10px; }
+body.rounded-admin .media-frame .attachment .check { border-radius: 6px; }
+body.rounded-admin .media-frame .attachment:focus-visible {
+  outline: 2px solid #2271b1;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+body.rounded-admin .media-frame :is(select, input[type="search"], input[type="text"], textarea),
+body.rounded-admin .media-modal :is(select, input[type="search"], input[type="text"], input[type="url"], textarea) {
+  border-radius: 8px;
+}
+body.rounded-admin .media-modal :is(input, select, textarea, button):focus-visible {
+  outline: 2px solid #2271b1;
+  outline-offset: 2px;
+}
+body.rounded-admin .media-modal-content {
+  border-radius: var(--ra-radius);
+  box-shadow: 0 16px 64px rgb(0 0 0 / 24%);
+}
+body.rounded-admin .media-modal .media-frame-menu .media-menu {
+  border-start-start-radius: var(--ra-radius);
+  border-end-start-radius: var(--ra-radius);
+}
+body.rounded-admin .media-modal .media-frame-title { border-start-end-radius: var(--ra-radius); }
+body.rounded-admin .media-modal .media-frame-toolbar .media-toolbar { border-end-end-radius: var(--ra-radius); }
+body.rounded-admin .media-modal .media-frame-content .attachment-details .attachment-info { border-radius: var(--ra-radius); }
+body.rounded-admin .upload-ui,
+body.rounded-admin .media-frame .uploader-inline,
+body.rounded-admin #drag-drop-area { border-radius: var(--ra-radius); }
+/* Attachment details have their own full-width header and a sidebar reaching the bottom. */
+body.rounded-admin .edit-attachment-frame .edit-media-header {
+  border-start-start-radius: var(--ra-radius);
+  border-start-end-radius: var(--ra-radius);
+}
+body.rounded-admin .edit-attachment-frame .attachment-info { border-end-end-radius: var(--ra-radius); }
+body.rounded-admin .edit-attachment-frame .attachment-media-view { border-end-start-radius: var(--ra-radius); }
+@media (max-width: 600px) {
+  /* WordPress uses edge-to-edge media dialogs on small screens. */
+  body.rounded-admin .media-modal-content,
+  body.rounded-admin .media-modal .media-menu,
+  body.rounded-admin .edit-attachment-frame .edit-media-header,
+  body.rounded-admin .edit-attachment-frame .attachment-info,
+  body.rounded-admin .edit-attachment-frame .attachment-media-view { border-radius: 0; }
+}
