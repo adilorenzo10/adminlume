@@ -12,3 +12,6 @@ vendor/
 .vscode/
 test-results/
 playwright-report/
+dist/
+__pycache__/
+*.pyc

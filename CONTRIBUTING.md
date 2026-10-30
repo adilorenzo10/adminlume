@@ -60,6 +60,8 @@ See [LICENSE](LICENSE), [COPYRIGHT.md](COPYRIGHT.md), and [TRADEMARKS.md](TRADEM
 
 ## Release documentation
 
+See [the release guide](docs/releases.md) for version tags, automated GitHub Releases, and installable ZIP packaging.
+
 - Keep the plugin header version and the `readme.txt` stable tag aligned with the intended release.
 - Record user-facing changes and any upgrade steps in the WordPress readme changelog.
 - Set `Tested up to` only after verifying the actual WordPress release. It is intentionally omitted until that verification is available.

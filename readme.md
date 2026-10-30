@@ -14,6 +14,8 @@ Minimum requirements are not a claim of testing against every later release. Val
 
 ## Installation
 
+Download the installable `adminlume-X.Y.Z.zip` asset from [GitHub Releases](https://github.com/adilorenzo10/adminlume/releases) and upload it through **Plugins → Add New Plugin → Upload Plugin**, or install manually:
+
 1. Copy the `adminlume` directory to `wp-content/plugins/`.
 2. Activate **Adminlume** on the **Plugins** screen.
 3. Open **Users → Adminlume**, or **Profile → Adminlume** if you cannot list users.
@@ -84,6 +86,7 @@ Adminlume does not attempt to restyle arbitrary React application internals or c
 
 - [Development, architecture, and testing](docs/development.md)
 - [Front-end toolbar behavior and compatibility](docs/frontend-toolbar.md)
+- [Automated releases and installable ZIPs](docs/releases.md)
 - [Contributing and commit conventions](CONTRIBUTING.md)
 - [WordPress plugin readme](readme.txt)
 
