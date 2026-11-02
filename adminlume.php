@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Adminlume
  * Description: A lightweight WordPress admin interface and frontend dock with personal preferences.
- * Version: 0.3.7
+ * Version: 0.3.9
  * Requires at least: 6.5
  * Requires PHP: 8.1
  * Author: Dilorsoft
