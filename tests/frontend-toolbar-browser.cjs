@@ -110,6 +110,20 @@ const waitAnimation = page => page.waitForFunction(() => !document.querySelector
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.locator('#ra-dock-show').waitFor({ state: 'visible' });
     check(await page.locator('#wpadminbar').isHidden(), 'Collapsed preference survives navigation');
+    await page.locator('#ra-dock-show').hover();
+    check(await page.locator('#ra-dock-show').evaluate(element => {
+      const style = getComputedStyle(element);
+      const background = style.backgroundColor.match(/[\d.]+/g).map(Number);
+      const svg = element.querySelector('svg');
+      return background.slice(0, 3).every(channel => channel < 80) && (background[3] ?? 1) >= .9 &&
+        style.color === 'rgb(255, 255, 255)' && getComputedStyle(svg).stroke === style.color;
+    }), 'Collapsed reopen control stays dark on hover with a visible white icon');
+    await page.mouse.move(0, 0);
+    await page.locator('#ra-dock-show').focus();
+    check(await page.locator('#ra-dock-show').evaluate(element => {
+      const style = getComputedStyle(element);
+      return element === document.activeElement && style.backgroundColor === 'rgb(41, 41, 41)' && style.outlineStyle !== 'none';
+    }), 'Collapsed reopen control keeps a dark keyboard-focus state and visible outline');
     await page.locator('#ra-dock-show').click();
     await waitAnimation(page);
     check(await page.locator('#ra-dock-hide').evaluate(element => element === document.activeElement), 'Expand restores toolbar focus');

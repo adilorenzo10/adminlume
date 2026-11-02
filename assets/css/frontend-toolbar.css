@@ -51,8 +51,7 @@ body.nzm-frontend-toolbar #ra-dock-show {
 }
 body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide { order: 2; font-size: 12px; line-height: 20px; }
 body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide .ra-dock-hide-label { font: inherit; }
-body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide:hover,
-body.nzm-frontend-toolbar #ra-dock-show:hover { background: rgb(255 255 255 / 11%); border-color: rgb(255 255 255 / 24%); color: #fff; }
+body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide:hover { background: rgb(255 255 255 / 11%); border-color: rgb(255 255 255 / 24%); color: #fff; }
 body.nzm-frontend-toolbar .ra-dock-visibility:focus-visible { outline: 2px solid #ff874d; outline-offset: 3px; }
 body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide svg,
 body.nzm-frontend-toolbar #ra-dock-show svg { display: block; flex: 0 0 18px; width: 18px; height: 18px; }
@@ -70,6 +69,14 @@ body.nzm-frontend-toolbar #ra-dock-show {
   backdrop-filter: blur(14px);
   box-shadow: 0 8px 24px rgb(0 0 0 / 26%);
   z-index: 99999;
+}
+/* This control sits over the site, not over the dock's dark background. */
+body.nzm-frontend-toolbar #ra-dock-show:hover,
+body.nzm-frontend-toolbar #ra-dock-show:focus-visible,
+body.nzm-frontend-toolbar #ra-dock-show:active {
+  background: #292929;
+  border-color: rgb(255 255 255 / 24%);
+  color: #fff;
 }
 body.nzm-frontend-toolbar #wpadminbar::before {
   content: "";
