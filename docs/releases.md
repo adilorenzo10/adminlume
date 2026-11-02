@@ -6,7 +6,7 @@ No personal access token or third-party release action is needed: the workflow u
 
 ## Prepare a release
 
-1. Finish code review and local WordPress/browser regression checks. The release job checks syntax and packaging, not the full Docker/Playwright integration suite.
+1. Finish code review and local WordPress/browser regression checks. The release job checks syntax, packaging, and translation catalogs, not the full WordPress/Docker/Playwright integration suites.
 2. **Before creating the tag**, synchronize the version and changelog with the preparation command (replace the example with your next unused version):
 
    ```bash
@@ -18,7 +18,7 @@ No personal access token or third-party release action is needed: the workflow u
 4. Run the local packaging tests and build (Python 3.9+; standard library only):
 
    ```bash
-   python3 -m unittest discover -s tests -p 'test_*release.py' -v
+   python3 -m unittest discover -s tests -p 'test_*.py' -v
    python3 scripts/build_release.py --version 0.3.5
    ```
 

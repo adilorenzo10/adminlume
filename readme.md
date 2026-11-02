@@ -21,7 +21,9 @@ Download the installable `adminlume-X.Y.Z.zip` asset from [GitHub Releases](http
 3. Open **Users → Adminlume**, or **Profile → Adminlume** if you cannot list users.
 4. Enable Adminlume for your account and save your preferences.
 
-Adminlume is disabled by default for each user. Each account opts in independently; there is no site-wide appearance setting. The current settings interface uses Italian labels, including **Abilita Adminlume per me** (enable) and **Salva preferenze** (save). English documentation does not change the interface language.
+Adminlume is disabled by default for each user. Each account opts in independently; there is no site-wide appearance setting. Select **Enable Adminlume for me** and **Save preferences** (or their translations in your WordPress language).
+
+The interface uses English source strings and includes an Italian (`it_IT`) translation. WordPress chooses the active locale: the admin area respects the user's language preference, while the public site follows WordPress's front-end locale. Unsupported locales fall back to English. See [translation maintenance](docs/translations.md).
 
 ## Personal preferences
 
@@ -97,6 +99,7 @@ Adminlume does not attempt to restyle arbitrary React application internals or c
 - [Front-end toolbar behavior and compatibility](docs/frontend-toolbar.md)
 - [Automated releases and installable ZIPs](docs/releases.md)
 - [Native WordPress updates](docs/updates.md)
+- [Translations and WordPress internationalization](docs/translations.md)
 - [Plugin icon and WordPress.org submission checklist](docs/wordpress-org.md)
 - [Contributing and commit conventions](CONTRIBUTING.md)
 - [WordPress plugin readme](readme.txt)

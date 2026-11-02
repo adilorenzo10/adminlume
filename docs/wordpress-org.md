@@ -43,7 +43,7 @@ SVG icons need a PNG fallback. File dimensions must match their names. See the o
 4. Keep the `adminlume` slug/text domain consistent with the approved directory slug. Availability is determined by the Plugins Team; the name is not reserved by this repository.
 5. Add the verified WordPress.org account username to `Contributors` in `readme.txt`. Do not infer the account name from GitHub or the Dilorsoft brand.
 6. Retain GPL-compatible licensing and all required notices. Audit all bundled code and artwork for provenance. The original icon source and PNGs are covered by the existing project license.
-7. Review security, output escaping, capability/nonce checks, accessibility, per-user opt-in, WooCommerce compatibility, and internationalization. For broad localization, migrate the existing Italian source strings to English with appropriate translation catalogs; keep the `adminlume` text domain. Do not claim untested compatibility.
+7. Review security, output escaping, capability/nonce checks, accessibility, per-user opt-in, WooCommerce compatibility, and internationalization. English source strings, an Italian PO/MO catalog, and a POT template are provided; keep the `adminlume` text domain, regenerate catalogs for changed strings, and verify user-locale behavior. Do not claim untested compatibility.
 8. Set matching plugin `Version`, readme `Stable tag`, and changelog. Set `Tested up to` only after actually testing that WordPress version. Use the release-preparation workflow before tagging; do not reuse an existing public tag.
 
 ## Validate before submission

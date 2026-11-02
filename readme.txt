@@ -29,7 +29,7 @@ Preferences are stored in user metadata. Dock visibility uses browser local stor
 
 Update checks contact the official public GitHub repository and its download CDN over HTTPS. Requests are cached and do not include account details, the site URL, or installed-version parameters. GitHub receives normal connection information such as the server IP address. Package downloads use WordPress's HTTP API, whose default user agent may include WordPress and site information. See https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement for GitHub's privacy policy.
 
-The current settings interface uses Italian labels. This English readme does not include an English interface translation.
+The interface uses English source strings and includes an Italian (it_IT) translation. The admin area follows the user's WordPress language preference; the public site uses the active front-end locale. Missing translations fall back to English.
 
 Adminlume was previously known as Rounded Admin. Legacy preferences are read as a fallback; saving new preferences does not delete the old metadata.
 
@@ -38,8 +38,8 @@ Adminlume was previously known as Rounded Admin. Legacy preferences are read as 
 1. Upload the adminlume folder to /wp-content/plugins/.
 2. Activate Adminlume from the Plugins screen.
 3. Open Users > Adminlume, or Profile > Adminlume if your account cannot list users.
-4. Select "Abilita Adminlume per me" (enable Adminlume for me).
-5. Choose your appearance preferences and select "Salva preferenze" (save preferences).
+4. Select "Enable Adminlume for me" (or the translated label).
+5. Choose your appearance preferences and select "Save preferences".
 
 WordPress 6.5 or later and PHP 8.1 or later are required. Test on a local or staging site before deployment.
 

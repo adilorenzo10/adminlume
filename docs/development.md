@@ -16,6 +16,7 @@
 | `assets/css/woocommerce.css` | Relevant classic WooCommerce surfaces. |
 | `assets/js/sidebar.js` | Independent sidebar scrolling, flyout positioning, and menu-label filtering. |
 | `assets/css/frontend-toolbar.css`, `assets/js/frontend-toolbar.js` | Standalone public-site dock; no theme build dependency. |
+| `languages/` | Gettext POT template and bundled Italian PO/MO catalogs; English source fallback. |
 
 The plugin has no compilation step. PHP uses WordPress hooks and user metadata; JavaScript uses browser APIs without a framework. Network admin and user admin are excluded from the admin skin.
 
@@ -61,6 +62,8 @@ docker compose run --rm wpcli wp eval-file /var/www/html/wp-content/plugins/admi
 ```
 
 It mocks outbound HTTP, exercises `wp_update_plugins()` and the native plugin-details API, checks no-update/downgrade behavior, caches, compatibility requirements, checksum verification, malformed responses, failures, and isolation from unrelated plugins. It does not install an update, change automatic-update preferences, or contact GitHub. Download fixtures are temporary and update transients are restored during cleanup. Run only on the isolated local environment described above; an interrupted process may require clearing its test update transients.
+
+For English/Italian runtime checks, run `tests/i18n-integration.php` through the same local WP-CLI setup. It requires the Italian core language pack and creates/deletes a temporary user. See [translations.md](translations.md) for catalog generation, locale behavior, and the standalone translation tests included in release CI.
 
 ### Browser regression tests
 
