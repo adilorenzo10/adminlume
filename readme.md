@@ -97,6 +97,7 @@ Adminlume does not attempt to restyle arbitrary React application internals or c
 - [Front-end toolbar behavior and compatibility](docs/frontend-toolbar.md)
 - [Automated releases and installable ZIPs](docs/releases.md)
 - [Native WordPress updates](docs/updates.md)
+- [Plugin icon and WordPress.org submission checklist](docs/wordpress-org.md)
 - [Contributing and commit conventions](CONTRIBUTING.md)
 - [WordPress plugin readme](readme.txt)
 

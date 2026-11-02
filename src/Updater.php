@@ -15,9 +15,15 @@ final class Updater {
 	public const MANIFEST = self::REPOSITORY . '/releases/latest/download/adminlume-update.json';
 	public const CACHE_KEY = 'adminlume_release_manifest_v1';
 	private string $basename;
+	private array $icons;
 
 	public function __construct( string $plugin_file ) {
 		$this->basename = plugin_basename( $plugin_file );
+		$this->icons = array(
+			'svg' => plugins_url( 'assets/images/icon.svg', $plugin_file ),
+			'1x'  => plugins_url( 'assets/images/icon-128x128.png', $plugin_file ),
+			'2x'  => plugins_url( 'assets/images/icon-256x256.png', $plugin_file ),
+		);
 	}
 
 	/** Register only native update, details, and package download integration. */
@@ -52,6 +58,7 @@ final class Updater {
 			'package'      => $release['package'],
 			'requires'     => $release['requires'],
 			'requires_php' => $release['requires_php'],
+			'icons'        => $this->icons,
 		);
 	}
 
@@ -81,6 +88,7 @@ final class Updater {
 			'requires_php'  => $release['requires_php'],
 			'download_link' => $release['package'],
 			'external'      => true,
+			'icons'         => $this->icons,
 			'sections'      => array(
 				'description' => esc_html__( 'A lightweight WordPress admin interface and front-end dock with personal preferences. Updates are supplied by the official Adminlume GitHub repository.', 'adminlume' ),
 				'changelog'   => nl2br( esc_html( $release['changelog'] ) ),

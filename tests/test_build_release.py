@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import shutil
+import struct
 import sys
 import tempfile
 import unittest
@@ -24,6 +25,9 @@ class ReleaseBuildTests(unittest.TestCase):
             shutil.copyfile(ROOT / name, self.root / name)
         for name in ('src', 'assets', 'tests', 'docs', '.github', 'languages'):
             (self.root / name).mkdir()
+        (self.root / 'assets/images').mkdir()
+        for name in ('icon.svg', 'icon-128x128.png', 'icon-256x256.png'):
+            shutil.copyfile(ROOT / 'assets/images' / name, self.root / 'assets/images' / name)
         (self.root / 'src/Runtime.php').write_text('<?php // Runtime fixture.\n')
         (self.root / 'assets/toolbar.css').write_text('/* Runtime fixture. */\n')
         (self.root / 'languages/adminlume-en_US.mo').write_bytes(b'fixture')
@@ -47,7 +51,18 @@ class ReleaseBuildTests(unittest.TestCase):
                 *('adminlume/' + name for name in REQUIRED_FILES),
                 'adminlume/src/Runtime.php', 'adminlume/assets/toolbar.css',
                 'adminlume/languages/adminlume-en_US.mo',
+                'adminlume/assets/images/icon.svg',
+                'adminlume/assets/images/icon-128x128.png',
+                'adminlume/assets/images/icon-256x256.png',
             })
+
+    def test_icon_fallbacks_have_the_documented_dimensions(self):
+        for size in (128, 256):
+            with self.subTest(size=size):
+                data = (self.root / f'assets/images/icon-{size}x{size}.png').read_bytes()
+                self.assertEqual(data[:8], b'\x89PNG\r\n\x1a\n')
+                self.assertEqual(struct.unpack('>II', data[16:24]), (size, size))
+                self.assertLess(len(data), 1024 * 1024)
 
     def test_reproducible_archive_and_checksum(self):
         archive = build_release(self.root, '1.2.3', self.output)

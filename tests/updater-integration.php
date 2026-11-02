@@ -76,6 +76,9 @@ try {
 	$update = apply_filters( 'update_plugins_github.com', false, $headers, $basename, array( 'it_IT' ) );
 	$check( '99.0.0' === $update['version'] && $payload['package'] === $update['package'], 'native hostname hook returns the stable package' );
 	$check( ! isset( $update['autoupdate'] ), 'the updater never forces automatic installation' );
+	$check( str_ends_with( $update['icons']['svg'], '/plugins/adminlume/assets/images/icon.svg' ) &&
+		str_ends_with( $update['icons']['1x'], '/plugins/adminlume/assets/images/icon-128x128.png' ) &&
+		str_ends_with( $update['icons']['2x'], '/plugins/adminlume/assets/images/icon-256x256.png' ), 'update metadata uses bundled SVG and PNG plugin icons' );
 	$updater->update( false, $headers, $basename, array() );
 	$check( 1 === $calls, 'valid metadata is cached across checks' );
 
@@ -88,6 +91,7 @@ try {
 
 	$info = plugins_api( 'plugin_information', (object) array( 'slug' => 'adminlume' ) );
 	$check( ! is_wp_error( $info ) && $payload['package'] === $info->download_link, 'native plugin details use the installable release asset' );
+	$check( $info->icons === $update['icons'], 'plugin information provides the same local icon variants' );
 	$check( ! str_contains( $info->sections['changelog'], '<script>' ) && str_contains( $info->sections['changelog'], '&lt;script&gt;' ), 'release notes are rendered as escaped text' );
 	$sentinel = (object) array( 'unrelated' => true );
 	$check( $sentinel === $updater->information( $sentinel, 'plugin_information', (object) array( 'slug' => 'other' ) ), 'other plugin detail requests are preserved' );

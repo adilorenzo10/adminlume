@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title description">
+  <title id="title">Adminlume</title>
+  <desc id="description">A light A monogram with an orange crossbar and spark on a rounded charcoal square.</desc>
+  <rect width="256" height="256" rx="56" fill="#17181b"/>
+  <rect x="1" y="1" width="254" height="254" rx="55" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="2"/>
+  <path d="m64 186 49-113a16 16 0 0 1 30 0l49 113" fill="none" stroke="#f5f5f7" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M88 145h80" fill="none" stroke="#ff4b0b" stroke-width="22" stroke-linecap="round"/>
+  <path d="m196 36 5 15 15 5-15 5-5 15-5-15-15-5 15-5Z" fill="#ff4b0b"/>
+</svg>
