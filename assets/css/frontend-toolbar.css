@@ -1,183 +1,150 @@
-/* Adminlume: only the authenticated public-site toolbar, never wp-admin. */
+/* Adminlume: authenticated frontend toolbar only, independent of the theme. */
 html:has(> body.nzm-frontend-toolbar) {
   margin-top: 0 !important;
   --wp-admin--admin-bar--height: 0px;
+  scroll-padding-bottom: 96px;
 }
 body.nzm-frontend-toolbar #wpadminbar {
   position: fixed !important;
-  inset: auto max(12px, env(safe-area-inset-right)) calc(22px + env(safe-area-inset-bottom, 0px) + var(--nzm-viewport-offset, 0px)) max(12px, env(safe-area-inset-left));
   top: auto !important;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: 16px;
+  right: 16px;
   width: max-content;
-  max-width: min(850px, calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  max-width: calc(100% - 32px);
   min-width: 0;
-  height: 56px;
+  height: auto;
   min-height: 56px;
   margin: 0 auto;
-  padding: 5px;
+  padding: 7px 10px;
   box-sizing: border-box;
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 999px;
-  background: #17181b;
-  box-shadow: 0 8px 28px rgb(0 0 0 / 24%);
-  color: #f1f1f3;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 22px;
+  background: transparent;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 26%), inset 0 1px 0 rgb(255 255 255 / 13%);
+  color: #eee;
+  isolation: isolate;
   overflow: visible;
   z-index: 99999;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  -webkit-font-smoothing: antialiased;
 }
-/* No translucent gradient or inset highlight: avoid the old white halo. */
-body.nzm-frontend-toolbar #wpadminbar::before,
-body.nzm-frontend-toolbar #wpadminbar::after { content: none; }
 body.nzm-frontend-toolbar #wpadminbar[hidden],
 body.nzm-frontend-toolbar #ra-dock-show[hidden] { display: none !important; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar,
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  float: none;
-  width: auto;
-  min-width: 0;
-  height: 44px;
-  margin: 0;
-  padding: 0;
-}
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu:empty { display: none; }
-body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-root-default { order: 0; }
-body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-top-secondary { order: 1; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li {
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 44px;
-  float: none;
-  flex: 0 1 auto;
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-}
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li > .ab-item,
 body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide,
 body.nzm-frontend-toolbar #ra-dock-show {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
+  flex: 0 0 auto;
   width: auto;
-  min-width: 44px;
-  height: 44px;
+  height: 38px;
+  padding: 0 10px;
   margin: 0;
-  padding: 0 12px;
-  box-sizing: border-box;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: transparent;
-  color: #e4e4e8;
-  font: 500 13px/20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  text-decoration: none;
-  text-indent: 0;
-  white-space: nowrap;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 4%);
+  color: #eee;
+  font: 500 12px/20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   cursor: pointer;
-  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
-  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
 }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li > .ab-item:hover,
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li.nzm-open > .ab-item,
+body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide { order: 2; font-size: 12px; line-height: 20px; }
+body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide .ra-dock-hide-label { font: inherit; }
 body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide:hover,
-body.nzm-frontend-toolbar #ra-dock-show:hover {
-  background: #292a2e;
-  color: #fff;
-}
-/* Site / quick actions / account: quiet separators instead of individual cards. */
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-nzm-toolbar-site {
-  margin-inline-end: 4px;
-  padding-inline-end: 8px;
-  border-inline-end: 1px solid rgb(255 255 255 / 10%);
-}
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-my-account {
-  margin: 0;
-  padding-inline-start: 8px;
-  border-inline-start: 1px solid rgb(255 255 255 / 10%);
-}
-body.nzm-frontend-toolbar #wpadminbar .nzm-site-label {
-  display: block;
-  max-width: 170px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 20px;
-}
-body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-nzm-toolbar-site .dashicons-arrow-up-alt2 { width: 12px; flex-basis: 12px; opacity: .55; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > :is(#wp-admin-bar-edit, .nzm-primary-action) > .ab-item {
-  background: #ff5a26;
-  border-color: transparent;
-  color: #17181b;
-  font-weight: 600;
-  max-width: 250px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > :is(#wp-admin-bar-edit, .nzm-primary-action) > .ab-item:hover { background: #ff764b; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account > .ab-item {
-  width: 44px;
-  padding: 0;
-  font-size: 0;
-  gap: 0;
-}
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account > .ab-item::before { content: none; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account > .ab-item img.avatar.nzm-avatar-unavailable { display: none; }
-body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-my-account > .ab-item :is(.display-name, .nzm-account-greeting) { display: none; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account > .ab-item img.avatar {
-  display: block;
-  position: static;
-  width: 30px;
-  height: 30px;
-  margin: 0;
-  padding: 0;
-  border: 1px solid rgb(255 255 255 / 12%);
-  border-radius: 50%;
-}
-body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide {
-  order: 2;
-  flex: 0 0 44px;
-  width: 44px;
-  padding: 0;
-  color: #a5a7af;
-}
+body.nzm-frontend-toolbar #ra-dock-show:hover { background: rgb(255 255 255 / 11%); border-color: rgb(255 255 255 / 24%); color: #fff; }
+body.nzm-frontend-toolbar .ra-dock-visibility:focus-visible { outline: 2px solid #ff874d; outline-offset: 3px; }
+body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide svg,
+body.nzm-frontend-toolbar #ra-dock-show svg { display: block; flex: 0 0 18px; width: 18px; height: 18px; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact #ra-dock-hide { width: 28px; padding: 0; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact .ra-dock-hide-label { display: none; }
 body.nzm-frontend-toolbar #ra-dock-show {
   position: fixed;
-  inset: auto auto calc(22px + env(safe-area-inset-bottom, 0px) + var(--nzm-viewport-offset, 0px)) 50%;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: 50%;
   transform: translateX(-50%);
-  width: 72px;
+  width: 44px;
   height: 44px;
-  padding: 0 12px;
-  border: 1px solid rgb(255 255 255 / 10%);
-  background: #17181b;
-  box-shadow: 0 6px 20px rgb(0 0 0 / 24%);
+  border-radius: 16px;
+  background: rgb(24 24 24 / 94%);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 26%);
   z-index: 99999;
 }
-body.nzm-frontend-toolbar #ra-dock-show.nzm-yield-left { left: max(12px, env(safe-area-inset-left)); transform: none; }
-body.nzm-frontend-toolbar #ra-dock-show.nzm-yield-right { left: auto; right: max(12px, env(safe-area-inset-right)); transform: none; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-item .ab-icon,
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-root-default .ab-item .ab-icon,
-body.nzm-frontend-toolbar #wpadminbar #ra-dock-hide .ab-icon,
-body.nzm-frontend-toolbar #ra-dock-show .ab-icon {
+body.nzm-frontend-toolbar #wpadminbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(rgb(36 36 36 / 94%), rgb(9 9 9 / 94%));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  pointer-events: none;
+  z-index: -1;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar,
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  float: none;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar { gap: 12px; }
+body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-root-default { order: 0; }
+body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-top-secondary { order: 1; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li {
+  position: relative;
+  display: block;
+  float: none;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li > .ab-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  width: auto;
+  height: 38px;
+  margin: 0;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 4%);
+  color: #eee;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color .16s ease, border-color .16s ease;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li > .ab-item:hover,
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li.nzm-open > .ab-item {
+  background: rgb(255 255 255 / 11%);
+  border-color: rgb(255 255 255 / 24%);
+  color: #fff;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar :is(#wp-admin-bar-root-default, #wp-admin-bar-top-secondary) > li > .ab-item .ab-icon {
   position: static;
-  display: inline-block;
+  display: block;
   float: none;
   flex: 0 0 18px;
   width: 18px;
   height: 18px;
-  margin: 0;
   padding: 0;
-  color: inherit;
-  font: 18px/18px dashicons !important;
+  margin: 0;
+  font-size: 18px;
+  line-height: 18px;
 }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-item::before,
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-icon::before,
-body.nzm-frontend-toolbar #ra-dock-show .ab-icon::before {
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-item .ab-icon::before,
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-item::before {
   position: static;
   float: none;
   margin: 0;
@@ -186,26 +153,73 @@ body.nzm-frontend-toolbar #ra-dock-show .ab-icon::before {
   font-size: 18px;
   line-height: 18px;
 }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-site-name > .ab-item::before { display: none; }
 body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-label {
-  position: static;
-  display: inline-flex;
-  align-items: center;
-  clip-path: none;
-  width: auto;
   height: auto;
-  margin: 0;
-  overflow: visible;
+  border-radius: 5px;
   color: inherit;
   font-size: 12px;
   line-height: 20px;
 }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-wp-logo > .ab-item,
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-site-name > .ab-item,
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-my-account > .ab-item {
+  background: transparent;
+  border-color: transparent;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-site-name > .ab-item::before { display: none !important; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-site-name > .ab-item {
+  max-width: 170px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 36px;
+  text-indent: 0;
+  padding-inline: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-woocommerce-site-visibility-badge { padding: 0; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-woocommerce-site-visibility-badge > .ab-item {
+  height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: #e6f2e8;
+  color: #00450c;
+  font-size: 11px;
+  line-height: 24px;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-woocommerce-site-visibility-badge:not(.woocommerce-site-status-badge-live) > .ab-item { background: #fff2c6; color: #5e4300; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-edit > .ab-item {
+  background: #ff4b0b;
+  border-color: #ff641f;
+  color: #fff;
+  box-shadow: 0 3px 12px rgb(255 75 11 / 16%);
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-edit > .ab-item:hover { background: #e83e00; }
+body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-my-account > .ab-item img.avatar {
+  order: -1;
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 50%;
+  margin: 0 3px 0 0;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-nzm-toolbar-dashboard,
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-my-account {
+  margin-inline-start: 8px;
+  padding-inline-start: 12px;
+  border-inline-start: 1px solid rgb(255 255 255 / 18%);
+}
 body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .menupop > .ab-sub-wrapper {
   display: none !important;
   position: fixed !important;
-  inset: var(--nzm-menu-top, auto) auto auto var(--nzm-menu-left, 12px) !important;
-  width: 260px;
-  min-width: 0;
+  top: var(--nzm-menu-top, auto) !important;
+  left: var(--nzm-menu-left, 16px) !important;
+  right: auto !important;
+  bottom: auto !important;
+  min-width: 180px;
+  width: 220px;
   max-width: calc(100vw - 24px);
   max-height: var(--nzm-menu-max-height, calc(100dvh - 110px));
   margin: 0 !important;
@@ -214,106 +228,176 @@ body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .menupop > .ab-sub-wrapper {
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  border: 1px solid rgb(255 255 255 / 10%);
-  border-radius: 16px;
-  background: #1d1e22;
-  box-shadow: 0 8px 28px rgb(0 0 0 / 26%);
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 13px;
+  background: #202020;
+  box-shadow: 0 10px 36px rgb(0 0 0 / 32%);
   z-index: 100001;
 }
 body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .menupop.nzm-open > .ab-sub-wrapper { display: block !important; }
+/* Functional native links/menus remain available if the enhancement script is blocked. */
+body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar,
+body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar > .ab-top-menu { flex-wrap: wrap; justify-content: center; }
+body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar .menupop > .ab-sub-wrapper {
+  position: absolute !important;
+  top: auto !important;
+  bottom: calc(100% + 8px) !important;
+  left: 0 !important;
+}
+body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar .menupop:hover > .ab-sub-wrapper,
+body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar .menupop:focus-within > .ab-sub-wrapper { display: block !important; }
+body.nzm-frontend-toolbar #wpadminbar .ab-submenu { background: transparent; padding: 0; margin: 0; }
+/* Neutralize native group offsets (notably appearance's -12px margin). */
 body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-sub-wrapper ul.ab-submenu {
-  float: none;
-  width: auto;
-  min-width: 0;
   margin: 0;
   padding: 0;
   background: transparent;
 }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu > li { display: block; float: none; margin: 0; padding: 0; }
+body.nzm-frontend-toolbar #wpadminbar .ab-submenu > li { display: block; float: none; margin: 0; padding: 0; }
+body.nzm-frontend-toolbar #wpadminbar #nzm-toolbar-overflow > #wp-admin-bar-comments { display: block; }
 body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu .ab-item {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  width: 100%;
-  max-width: none;
+  gap: 7px;
+  height: auto;
+  width: auto;
   min-width: 0;
-  min-height: 44px;
+  max-width: none;
+  min-height: 34px;
+  padding: 6px 10px;
+  box-sizing: border-box;
+  border-radius: 7px;
+  background: transparent;
+  color: #ddd;
+  font-size: 12px;
+  line-height: 20px;
+  white-space: nowrap;
+  text-indent: 0;
+  text-align: start;
+  justify-content: flex-start;
+  overflow: visible;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu .ab-item::before {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  text-indent: 0;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu .ab-icon {
+  position: static;
+  float: none;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-icon {
+  font-size: 18px !important;
+  line-height: 18px !important;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-icon::before {
+  top: 0 !important;
+  width: 18px;
+  height: 18px !important;
+  font-size: 18px !important;
+  line-height: 18px !important;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu .ab-label {
+  display: inline-flex;
+  position: static;
+  clip-path: none;
+  width: auto;
   height: auto;
   margin: 0;
-  padding: 10px;
-  box-sizing: border-box;
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
-  color: #e4e4e8;
-  font: 400 13px/20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  text-align: start;
-  text-decoration: none;
-  text-indent: 0;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  transition: background-color 180ms ease;
+  overflow: visible;
+  color: inherit;
 }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu a.ab-item:hover,
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu a.ab-item:focus,
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu .nzm-open > .ab-item { background: #303137; color: #fff; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-woocommerce-site-visibility-badge > .ab-item { color: #86d9a6; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-woocommerce-site-visibility-badge:not(.woocommerce-site-status-badge-live) > .ab-item { color: #f1cd83; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-comments .ab-label { padding-inline: 5px; border-radius: 4px; background: rgb(255 255 255 / 8%); }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu #adminbarsearch { width: 100%; height: auto; padding: 0; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu #adminbarsearch::before { top: 12px; left: 8px; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-comments .ab-label {
+  min-width: 20px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  justify-content: center;
+  background: rgb(255 255 255 / 12%);
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu #adminbarsearch { height: auto; width: 100%; padding: 0; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu #adminbarsearch::before { top: 6px; left: 6px; }
 body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu #adminbarsearch .adminbar-input {
   width: 100%;
-  height: 44px;
+  height: 32px;
   margin: 0;
-  padding: 0 8px 0 32px;
+  padding: 0 8px 0 30px;
   box-sizing: border-box;
-  border: 1px solid #45464f;
-  border-radius: 8px;
-  background: #292a2e;
+  border-radius: 6px;
+  background: #333;
   color: #fff;
 }
-/* Remove core's reserved large-avatar column, retaining every account link. */
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account #wp-admin-bar-user-actions,
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account #wp-admin-bar-user-actions > li { width: auto; min-width: 0; margin: 0; padding: 0; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-user-info > .ab-item { flex-direction: column; align-items: flex-start; gap: 2px; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-user-info > .ab-item > span { display: block; width: 100%; height: auto; margin: 0; padding: 0; line-height: 20px; white-space: normal; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu a.ab-item:hover,
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu a.ab-item:focus {
+  background: #393939;
+  color: #fff;
+}
+/* Core reserves 88px for a large avatar; this compact popup has no such column. */
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account #wp-admin-bar-user-actions {
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account #wp-admin-bar-user-actions > li {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-user-info > .ab-item {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  white-space: normal;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-user-info > .ab-item > span {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  line-height: 20px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-user-info .display-name:not(.edit-profile) { color: #fff; font-weight: 600; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-user-info :is(.username, .edit-profile) { color: #bbb; font-size: 12px; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account > .ab-item:hover,
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-my-account.nzm-open > .ab-item {
+  background: rgb(255 255 255 / 10%);
+  border-color: rgb(255 255 255 / 18%);
+}
 body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-user-info .avatar { display: none; }
-body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-user-info { height: auto; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-user-info .display-name { font-weight: 600; }
-body.nzm-frontend-toolbar #wpadminbar :is(a, button, input):focus-visible,
-body.nzm-frontend-toolbar #ra-dock-show:focus-visible { outline: 2px solid #ffb28e; outline-offset: -3px; }
+body.nzm-frontend-toolbar #wpadminbar #wp-admin-bar-user-info { height: auto; margin: 0; }
+body.nzm-frontend-toolbar #wpadminbar :is(a, button, input):focus-visible { outline: 2px solid #ffb28e; outline-offset: -2px; }
 body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-nzm-toolbar-more { display: none; }
-body.nzm-frontend-toolbar #wpadminbar.nzm-has-overflow #wp-toolbar > .ab-top-menu > #wp-admin-bar-nzm-toolbar-more { display: flex; }
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li[hidden],
-body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .ab-submenu > li[hidden] { display: none; }
-html.no-customize-support body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .hide-if-no-customize,
-html.customize-support body.nzm-frontend-toolbar #wpadminbar #wp-toolbar .hide-if-customize { display: none; }
-/* Without the enhancement, retain native links and CSS-accessible menus. */
-body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) { height: auto; border-radius: 24px; }
-body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar,
-body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar > .ab-top-menu { height: auto; flex-wrap: wrap; justify-content: center; }
-body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar .menupop > .ab-sub-wrapper { position: absolute !important; inset: auto auto calc(100% + 4px) 0 !important; }
-body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar .menupop:hover > .ab-sub-wrapper,
-body.nzm-frontend-toolbar #wpadminbar:not(.nzm-dock-ready) #wp-toolbar .menupop:focus-within > .ab-sub-wrapper { display: block !important; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-has-overflow #wp-toolbar > .ab-top-menu > #wp-admin-bar-nzm-toolbar-more { display: block; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact #wp-toolbar { gap: 4px; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact #wp-admin-bar-site-name > .ab-item { max-width: 112px; font-size: 12px; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact #wp-toolbar > .ab-top-menu > #wp-admin-bar-my-account { border: 0; padding: 0; margin: 0; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact #wp-admin-bar-my-account > .ab-item { font-size: 0; gap: 0; padding: 0 4px; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact #wp-admin-bar-my-account .display-name { display: none; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact #wp-admin-bar-my-account .nzm-account-greeting { display: none; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact #wp-admin-bar-edit > .ab-item { max-width: 135px; overflow: hidden; text-overflow: ellipsis; }
+body.nzm-frontend-toolbar #wpadminbar.nzm-dock-compact #wp-admin-bar-nzm-toolbar-more .nzm-more-label { display: none; }
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li[hidden] { display: none; }
 @media (max-width: 600px) {
+  body.nzm-frontend-toolbar #wpadminbar { left: 8px; right: 8px; max-width: calc(100% - 16px); padding: 6px; min-height: 50px; border-radius: 18px; }
   body.nzm-frontend-toolbar #wpadminbar #wp-toolbar,
   body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu { gap: 2px; }
-  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-nzm-toolbar-site { margin: 0; padding: 0; border: 0; }
-  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > #wp-admin-bar-my-account { padding: 0; border: 0; }
-  body.nzm-frontend-toolbar #wpadminbar .nzm-site-label { max-width: 80px; }
-  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li > .ab-item { padding-inline: 10px; }
-  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > :is(#wp-admin-bar-edit, .nzm-primary-action) > .ab-item { max-width: 160px; }
+  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > li > .ab-item { height: 36px; padding-inline: 7px; }
+  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-site-name > .ab-item { width: 88px; max-width: 88px; line-height: 34px; }
+  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-wp-logo > .ab-item { padding-inline: 3px; }
+  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-edit > .ab-item { max-width: 112px; font-size: 11px; }
 }
-@media (max-width: 480px) {
-  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > :is(#wp-admin-bar-edit, .nzm-primary-action) > .ab-item { font-size: 0; width: 44px; padding: 0; gap: 0; }
-  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar > .ab-top-menu > :is(#wp-admin-bar-edit, .nzm-primary-action) > .ab-item::before { content: "\f464"; font-family: dashicons; font-size: 18px; }
-  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-root-default #wp-admin-bar-nzm-toolbar-site .dashicons-arrow-up-alt2 { display: none; }
-  body.nzm-frontend-toolbar #wpadminbar .nzm-site-label { max-width: 52px; font-size: 12px; }
-  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-nzm-toolbar-site > .ab-item { padding-inline: 8px; }
+@media (max-width: 420px) {
+  body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-edit > .ab-item { font-size: 0; width: 36px; padding-inline: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  body.nzm-frontend-toolbar #wpadminbar *,
-  body.nzm-frontend-toolbar #ra-dock-show { transition: none !important; animation: none !important; }
+  body.nzm-frontend-toolbar #wpadminbar * { transition: none !important; }
 }

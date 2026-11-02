@@ -1,353 +1,253 @@
-/* Adminlume: enhance the one native toolbar, never clone third-party controls. */
+/* Adminlume standalone asset: no theme build or external dependencies. */
 (() => {
-  const init = () => {
-    const bar = document.getElementById('wpadminbar');
-    if (!bar || !document.body.classList.contains('nzm-frontend-toolbar') || bar.dataset.nzmDockInitialized) return;
-    const toolbar = bar.querySelector('#wp-toolbar');
-    const root = bar.querySelector('#wp-admin-bar-root-default');
-    if (!toolbar || !root) return;
-    bar.dataset.nzmDockInitialized = 'true';
-    const labels = window.roundedAdminDock || {};
-    toolbar.setAttribute('aria-label', labels.toolbar || 'Site actions');
-    const timers = new Map();
-    const records = new Set();
-    const groups = () => [...toolbar.children].filter(node => node.matches('ul.ab-top-menu'));
-    let frame = 0;
-    let dirty = true;
-    let compact = false;
-    let collapsed = false;
-    let animation = null;
-    let suppressFocus = false;
-    let lastWidth = -1;
-    let pointerMenu = null;
-    const trigger = item => item?.querySelector(':scope > .ab-item');
-    const panel = item => item?.querySelector(':scope > .ab-sub-wrapper');
-    const icon = name => {
-      const span = document.createElement('span');
-      span.className = `ab-icon dashicons dashicons-${name}`;
-      span.setAttribute('aria-hidden', 'true');
-      return span;
-    };
-    const menu = (id, label, glyph) => {
-      const item = document.createElement('li');
-      item.id = id;
-      item.className = 'menupop nzm-generated-menu';
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'ab-item';
-      button.setAttribute('role', 'menuitem');
-      button.setAttribute('aria-haspopup', 'true');
-      button.setAttribute('aria-expanded', 'false');
-      button.setAttribute('aria-label', label);
-      button.title = label;
-      button.append(icon(glyph));
-      const popup = document.createElement('div');
-      popup.className = 'ab-sub-wrapper';
-      const list = document.createElement('ul');
-      list.className = 'ab-submenu';
-      list.id = `${id}-items`;
-      list.setAttribute('role', 'menu');
-      list.setAttribute('aria-label', label);
-      button.setAttribute('aria-controls', list.id);
-      popup.append(list);
-      item.append(button, popup);
-      return { item, button, list };
-    };
-    const site = menu('wp-admin-bar-nzm-toolbar-site', labels.siteMenu || 'Site menu', 'wordpress');
-    const siteLabel = document.createElement('span');
-    siteLabel.className = 'nzm-site-label';
-    siteLabel.textContent = labels.site || trigger(bar.querySelector('#wp-admin-bar-site-name'))?.textContent.trim() || 'WordPress';
-    site.button.append(siteLabel, icon('arrow-up-alt2'));
-    const more = menu('wp-admin-bar-nzm-toolbar-more', labels.more || 'More actions', 'ellipsis');
-    more.list.id = 'nzm-toolbar-overflow';
-    more.button.setAttribute('aria-controls', more.list.id);
-    const collect = () => groups().forEach(group => [...group.children].forEach(node => {
-      if (node !== site.item && node !== more.item) records.add(node);
-    }));
-    collect();
-    root.prepend(site.item);
-    root.append(more.item);
+const init = () => {
+  const bar = document.getElementById('wpadminbar');
+  if (!bar || !document.body.classList.contains('nzm-frontend-toolbar') || bar.dataset.nzmDockInitialized) return;
+  const root = bar.querySelector('#wp-admin-bar-root-default');
+  const groups = [...bar.querySelectorAll('#wp-toolbar > .ab-top-menu')];
+  if (!root) return;
+  bar.dataset.nzmDockInitialized = 'true';
+  const timers = new Map();
+  const records = new Map();
+  let suppressFocus = false;
+  let frame = 0;
+  let layoutWidth = -1;
+  let structureDirty = true;
+  let visibilityAnimation = null;
 
-    // Visually replace the greeting, retaining the native account link and menu.
-    const account = trigger(bar.querySelector('#wp-admin-bar-my-account'));
-    if (account) {
-      account.setAttribute('aria-label', labels.account || 'Account menu');
-      account.title = labels.account || 'Account menu';
-      [...account.childNodes].forEach(node => {
-        if (node.nodeType !== Node.TEXT_NODE) return;
-        const greeting = document.createElement('span');
-        greeting.className = 'nzm-account-greeting';
-        node.before(greeting);
-        greeting.append(node);
-      });
-      const avatar = account.querySelector('img.avatar');
-      const fallback = () => {
-        avatar?.classList.add('nzm-avatar-unavailable');
-        if (!account.querySelector('.dashicons-admin-users')) account.append(icon('admin-users'));
-      };
-      if (!avatar) fallback();
-      else {
-        avatar.addEventListener('error', fallback, { once: true });
-        if (avatar.complete && !avatar.naturalWidth) fallback();
-      }
-    }
+  const comments = bar.querySelector('#wp-admin-bar-comments > .ab-item');
+  if (comments) {
+    const label = document.createElement('span');
+    label.className = 'nzm-dock-label';
+    label.textContent = window.roundedAdminDock?.comments || 'Comments';
+    comments.querySelector('.ab-label')?.before(label);
+  }
+  const account = bar.querySelector('#wp-admin-bar-my-account > .ab-item');
+  if (account) [...account.childNodes].forEach(node => {
+    if (node.nodeType !== Node.TEXT_NODE || !node.textContent.trim()) return;
+    const greeting = document.createElement('span');
+    greeting.className = 'nzm-account-greeting';
+    node.before(greeting);
+    greeting.append(node);
+  });
+  const more = document.createElement('li');
+  more.id = 'wp-admin-bar-nzm-toolbar-more';
+  more.className = 'menupop';
+  const toggle = document.createElement('a');
+  toggle.href = '#';
+  toggle.className = 'ab-item';
+  toggle.setAttribute('role', 'menuitem');
+  toggle.setAttribute('aria-haspopup', 'true');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-label', window.roundedAdminDock?.more || 'More actions');
+  const glyph = document.createElement('span');
+  glyph.className = 'ab-icon dashicons-before dashicons-ellipsis';
+  glyph.setAttribute('aria-hidden', 'true');
+  const title = document.createElement('span');
+  title.className = 'nzm-more-label';
+  title.textContent = toggle.getAttribute('aria-label');
+  toggle.append(glyph, title);
+  const wrapper = document.createElement('div');
+  wrapper.className = 'ab-sub-wrapper';
+  const overflow = document.createElement('ul');
+  overflow.id = 'nzm-toolbar-overflow';
+  overflow.className = 'ab-submenu';
+  overflow.setAttribute('role', 'menu');
+  wrapper.append(overflow);
+  more.append(toggle, wrapper);
+  root.append(more);
 
-    // Keep compatibility IDs and the previous per-user local-storage key.
-    const collapse = document.createElement('button');
-    collapse.id = 'ra-dock-hide';
-    collapse.type = 'button';
-    collapse.className = 'ra-dock-visibility';
-    collapse.setAttribute('aria-label', labels.collapse || 'Collapse toolbar');
-    collapse.title = collapse.getAttribute('aria-label');
-    collapse.setAttribute('aria-controls', 'wpadminbar');
-    collapse.append(icon('minus'));
-    toolbar.append(collapse);
-    const expand = document.createElement('button');
-    expand.id = 'ra-dock-show';
-    expand.type = 'button';
-    expand.className = 'ra-dock-visibility';
-    expand.setAttribute('aria-label', labels.expand || 'Expand toolbar');
-    expand.title = expand.getAttribute('aria-label');
-    expand.setAttribute('aria-controls', 'wpadminbar');
-    expand.setAttribute('aria-expanded', 'false');
-    expand.append(icon('wordpress'), icon('arrow-up-alt2'));
-    expand.hidden = true;
-    document.body.append(expand);
+  // Keep visibility controls outside the native groups and responsive overflow.
+  const hide = document.createElement('button');
+  hide.type = 'button';
+  hide.id = 'ra-dock-hide';
+  hide.className = 'ra-dock-visibility';
+  hide.setAttribute('aria-label', window.roundedAdminDock?.hide || 'Hide admin toolbar');
+  hide.title = hide.getAttribute('aria-label');
+  const visibilityIcon = hidden => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${hidden ? '<path d="m3 3 18 18 M10.6 10.6a2 2 0 0 0 2.8 2.8 M9.8 5.2A11 11 0 0 1 12 5c6 0 10 7 10 7a19 19 0 0 1-3.2 3.8 M6.2 6.2A22 22 0 0 0 2 12s4 7 10 7a11 11 0 0 0 5.8-1.8"/>' : '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>'}</svg>`;
+  hide.innerHTML = visibilityIcon(true);
+  const hideLabel = document.createElement('span');
+  hideLabel.className = 'ra-dock-hide-label';
+  hideLabel.textContent = window.roundedAdminDock?.hideLabel || 'Hide';
+  hide.append(hideLabel);
+  bar.querySelector('#wp-toolbar').append(hide);
+  const show = document.createElement('button');
+  show.type = 'button';
+  show.id = 'ra-dock-show';
+  show.className = 'ra-dock-visibility';
+  show.setAttribute('aria-label', window.roundedAdminDock?.show || 'Show admin toolbar');
+  show.title = show.getAttribute('aria-label');
+  show.setAttribute('aria-controls', 'wpadminbar');
+  show.setAttribute('aria-expanded', 'true');
+  show.innerHTML = visibilityIcon(false);
+  show.hidden = true;
+  document.body.append(show);
 
-    const close = item => {
-      item.classList.remove('nzm-open', 'hover');
-      trigger(item)?.setAttribute('aria-expanded', 'false');
-      clearTimeout(timers.get(item));
-      item.querySelectorAll('.nzm-open').forEach(close);
-    };
-    const position = item => {
-      const popup = panel(item);
-      const anchor = trigger(item);
-      if (!popup || !anchor) return;
-      const viewport = window.visualViewport;
-      const leftEdge = (viewport?.offsetLeft || 0) + 8;
-      const topEdge = (viewport?.offsetTop || 0) + 8;
-      const rightEdge = leftEdge + (viewport?.width || innerWidth) - 16;
-      const bottom = bar.getBoundingClientRect().top - 10;
-      popup.style.setProperty('--nzm-menu-max-height', `${Math.max(44, bottom - topEdge)}px`);
-      const bounds = anchor.getBoundingClientRect();
-      const rect = popup.getBoundingClientRect();
-      popup.style.setProperty('--nzm-menu-left', `${Math.max(leftEdge, Math.min(bounds.left, rightEdge - rect.width))}px`);
-      // Nested panels also open above the dock, with their own scroll container.
-      popup.style.setProperty('--nzm-menu-top', `${Math.max(topEdge, bottom - rect.height)}px`);
-    };
-    const open = item => {
-      if (!panel(item)) return;
-      clearTimeout(timers.get(item));
-      for (const sibling of item.parentElement.children) {
-        if (sibling !== item && sibling.classList.contains('nzm-open')) close(sibling);
-      }
-      item.classList.add('nzm-open');
-      trigger(item)?.setAttribute('aria-haspopup', 'true');
-      trigger(item)?.setAttribute('aria-expanded', 'true');
-      position(item);
-    };
-    const reveal = element => {
-      const parents = [];
-      for (let owner = element.closest('.ab-sub-wrapper')?.parentElement; owner; owner = owner.parentElement?.closest('.ab-sub-wrapper')?.parentElement) parents.unshift(owner);
-      parents.forEach(open);
-    };
-    const observer = new MutationObserver(mutations => {
-      if (mutations.some(mutation => mutation.type === 'childList' &&
-        (mutation.target === toolbar || groups().includes(mutation.target) || mutation.target === site.list || mutation.target === more.list) &&
-        [...mutation.addedNodes, ...mutation.removedNodes].some(node => node.nodeType === Node.ELEMENT_NODE))) dirty = true;
-      schedule();
-    });
-    const siteIds = new Set(['wp-admin-bar-wp-logo', 'wp-admin-bar-site-name', 'wp-admin-bar-woocommerce-site-visibility-badge', 'wp-admin-bar-nzm-toolbar-dashboard']);
-    const layout = () => {
-      frame = 0;
-      if (collapsed || bar.inert) return;
-      if (lastWidth === innerWidth && !dirty) {
-        bar.querySelectorAll('.nzm-open').forEach(position);
-        return;
-      }
-      lastWidth = innerWidth;
-      dirty = false;
-      observer.disconnect();
-      collect();
-      const active = bar.contains(document.activeElement) ? document.activeElement : null;
-      bar.querySelectorAll('.nzm-open').forEach(close);
-      const primary = [...records].find(node => node.id === 'wp-admin-bar-edit') || [...records].find(node => node.classList.contains('nzm-primary-action'));
-      compact = innerWidth <= 600;
-      bar.classList.toggle('nzm-dock-compact', compact);
-      records.forEach(node => {
-        if (!bar.contains(node)) { records.delete(node); return; }
-        if (siteIds.has(node.id)) site.list.append(node);
-        else if (node.id === 'wp-admin-bar-my-account') {
-          (bar.querySelector('#wp-admin-bar-top-secondary') || root).append(node);
-        } else if (node === primary || (!compact && node.id === 'wp-admin-bar-new-content')) root.insertBefore(node, more.item);
-        else more.list.append(node);
-      });
-      if (primary?.parentElement === root) site.item.after(primary);
-      // Long translations or third-party labels must not force horizontal overflow.
-      if (!compact && bar.scrollWidth > bar.clientWidth + 1) {
-        compact = true;
-        bar.classList.add('nzm-dock-compact');
-        const create = bar.querySelector('#wp-admin-bar-new-content');
-        if (create) more.list.append(create);
-      }
-      bar.classList.toggle('nzm-has-overflow', more.list.children.length > 0);
-      bar.querySelectorAll('.menupop').forEach(item => {
-        if (!panel(item)) return;
-        const button = trigger(item);
-        button?.setAttribute('aria-haspopup', 'true');
-        button?.setAttribute('aria-expanded', 'false');
-        if (button && !button.title) button.title = button.textContent.trim() || button.getAttribute('aria-label') || '';
-      });
-      bar.querySelectorAll('.ab-top-menu > li > .ab-item').forEach(button => {
-        const label = button.textContent.trim() || button.getAttribute('aria-label');
-        if (label && !button.title) button.title = label;
-        if (label && !button.hasAttribute('aria-label')) button.setAttribute('aria-label', label);
-      });
-      if (active?.isConnected) {
-        reveal(active);
-        suppressFocus = true;
-        active.focus({ preventScroll: true });
-        suppressFocus = false;
-      }
-      observer.observe(toolbar, { childList: true, subtree: true });
-    };
-    const schedule = () => { if (!frame) frame = requestAnimationFrame(layout); };
-    const setCollapsed = (value, { focus = true, persist = true } = {}) => {
-      collapsed = value;
-      animation?.cancel();
-      animation = null;
-      bar.querySelectorAll('.nzm-open').forEach(close);
-      const animate = focus && typeof bar.animate === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-      bar.hidden = value && !animate;
-      bar.inert = value;
-      expand.hidden = !value;
-      expand.setAttribute('aria-expanded', String(!value));
-      if (!value) { dirty = true; layout(); }
-      if (!value) expand.classList.remove('nzm-yield-left', 'nzm-yield-right');
-      if (focus) (value ? expand : collapse).focus({ preventScroll: true });
-      if (animate) {
-        const visible = { opacity: 1, transform: 'translateY(0) scale(1)' };
-        const small = { opacity: 0, transform: 'translateY(8px) scale(.96)' };
-        const current = bar.animate(value ? [visible, small] : [small, visible], { duration: 180, easing: 'ease-out' });
-        animation = current;
-        current.finished.then(() => {
-          if (animation !== current) return;
-          bar.hidden = value;
-          animation = null;
-        }).catch(() => { /* A quick reopen cancels the outgoing animation. */ });
-      }
-      if (persist) {
-        try { if (labels.storageKey) localStorage.setItem(labels.storageKey, value ? 'hidden' : 'visible'); }
-        catch (_) { /* Browser storage is optional. */ }
-      }
-    };
-    collapse.addEventListener('click', () => setCollapsed(true));
-    expand.addEventListener('click', () => setCollapsed(false));
-    [site, more].forEach(entry => entry.button.addEventListener('click', event => {
-      event.preventDefault();
-      event.stopPropagation();
-      if (entry.item.classList.contains('nzm-open')) close(entry.item);
-      else open(entry.item);
-    }));
-    bar.addEventListener('pointerdown', event => {
-      const item = event.target.closest('.menupop');
-      pointerMenu = item ? { item, open: item.classList.contains('nzm-open'), touch: event.pointerType === 'touch' } : null;
-    }, true);
-    // Core's touch handling uses .hover; synchronize our popovers without
-    // swallowing plugin actions or modified clicks on native links.
-    bar.addEventListener('click', event => {
-      const item = event.target.closest('.menupop');
-      if (!item || item.classList.contains('nzm-generated-menu') || !panel(item) || !trigger(item)?.contains(event.target)) return;
-      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button) return;
-      const previous = pointerMenu?.item === item ? pointerMenu : null;
-      pointerMenu = null;
-      if (item.id === 'wp-admin-bar-my-account' || (previous?.touch && !previous.open)) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        if (item.id === 'wp-admin-bar-my-account' && previous?.touch && previous.open) close(item);
-        else open(item);
-      }
-    }, true);
-    bar.addEventListener('pointerover', event => {
-      if (event.pointerType === 'touch' || !matchMedia('(hover: hover)').matches) return;
-      const item = event.target.closest('.menupop');
-      if (item?.classList.contains('nzm-generated-menu')) clearTimeout(timers.get(item));
-      else if (item) open(item);
-    });
-    bar.addEventListener('pointerout', event => {
-      const item = event.target.closest('.menupop');
-      if (item && !item.contains(event.relatedTarget)) {
-        timers.set(item, setTimeout(() => { if (!item.contains(document.activeElement)) close(item); }, 180));
-      }
-    });
-    bar.addEventListener('focusin', event => {
-      if (suppressFocus) return;
-      reveal(event.target);
-      const item = event.target.closest('.menupop');
-      if (item && !item.classList.contains('nzm-generated-menu') && event.target === trigger(item)) open(item);
-    });
-    bar.addEventListener('focusout', () => setTimeout(() => {
-      bar.querySelectorAll('.nzm-open').forEach(item => { if (!item.contains(document.activeElement)) close(item); });
-    }, 0));
-    bar.addEventListener('keydown', event => {
-      const item = event.target.closest('.menupop');
-      const currentPanel = event.target.closest('.ab-sub-wrapper');
-      const links = popup => popup ? [...popup.querySelectorAll('a.ab-item[href], button, input')].filter(element => element.closest('.ab-sub-wrapper') === popup && element.getClientRects().length && !element.disabled && element.tabIndex >= 0) : [];
-      if (event.target.matches('input, textarea, select') && event.key !== 'Escape') return;
-      if (event.key === 'Escape' || (event.key === 'ArrowLeft' && currentPanel)) {
-        const owner = currentPanel?.parentElement || item;
-        if (!owner) return;
-        event.preventDefault(); event.stopPropagation();
-        close(owner);
-        suppressFocus = true; trigger(owner)?.focus(); suppressFocus = false;
-      } else if (['ArrowUp', 'ArrowDown', 'ArrowRight'].includes(event.key) && item && event.target === trigger(item) && panel(item)) {
-        event.preventDefault(); event.stopPropagation(); open(item);
-        const entries = links(panel(item));
-        (event.key === 'ArrowUp' ? entries.at(-1) : entries[0])?.focus();
-      } else if (currentPanel && ['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
-        const entries = links(currentPanel);
-        if (!entries.length) return;
-        event.preventDefault(); event.stopPropagation();
-        const index = entries.indexOf(document.activeElement);
-        const next = event.key === 'Home' ? 0 : event.key === 'End' ? entries.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + entries.length) % entries.length;
-        entries[next]?.focus();
-      }
-    });
-    document.addEventListener('pointerdown', event => {
-      if (!bar.contains(event.target)) bar.querySelectorAll('.nzm-open').forEach(close);
-    });
-    // Yield to focused site controls without scrolling or changing the site layout.
-    document.addEventListener('focusin', event => {
-      const target = event.target;
-      if (bar.contains(target) || target === expand || !target.matches('a, button, input, textarea, select, [contenteditable="true"], [tabindex]')) return;
-      const rect = target.getBoundingClientRect();
-      const intersects = dock => rect.bottom > dock.top && rect.top < dock.bottom && rect.right > dock.left && rect.left < dock.right;
-      if (!collapsed && intersects(bar.getBoundingClientRect())) {
-        setCollapsed(true, { focus: false, persist: false });
-      }
-      if (collapsed && intersects(expand.getBoundingClientRect())) {
-        expand.classList.toggle('nzm-yield-left', rect.left + rect.width / 2 > innerWidth / 2);
-        expand.classList.toggle('nzm-yield-right', rect.left + rect.width / 2 <= innerWidth / 2);
-      }
-    });
-    const viewport = () => {
-      const visual = window.visualViewport;
-      const offset = visual ? Math.max(0, innerHeight - visual.height - visual.offsetTop) : 0;
-      bar.style.setProperty('--nzm-viewport-offset', `${offset}px`);
-      expand.style.setProperty('--nzm-viewport-offset', `${offset}px`);
-      schedule();
-    };
-    window.addEventListener('resize', viewport, { passive: true });
-    window.visualViewport?.addEventListener('resize', viewport, { passive: true });
-    window.visualViewport?.addEventListener('scroll', viewport, { passive: true });
-    document.fonts?.ready.then(() => { dirty = true; schedule(); });
-    bar.classList.add('nzm-dock-ready');
-    layout();
-    viewport();
-    try { if (labels.storageKey && localStorage.getItem(labels.storageKey) === 'hidden') setCollapsed(true, { focus: false, persist: false }); }
-    catch (_) { /* Keep the default expanded toolbar. */ }
+  const trigger = item => item.querySelector(':scope > .ab-item');
+  const panel = item => item.querySelector(':scope > .ab-sub-wrapper');
+  const close = item => {
+    item.classList.remove('nzm-open', 'hover');
+    trigger(item)?.setAttribute('aria-expanded', 'false');
+    item.querySelectorAll('.nzm-open').forEach(close);
+    clearTimeout(timers.get(item));
   };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
+  const position = item => {
+    const popup = panel(item);
+    const anchor = trigger(item);
+    if (!popup || !anchor) return;
+    const available = Math.max(60, bar.getBoundingClientRect().top - 18);
+    popup.style.setProperty('--nzm-menu-max-height', `${available}px`);
+    const bounds = anchor.getBoundingClientRect();
+    const width = popup.getBoundingClientRect().width;
+    const height = popup.getBoundingClientRect().height;
+    const left = Math.max(8, Math.min(bounds.left, innerWidth - width - 8));
+    const top = Math.max(8, bounds.top - height - 10);
+    popup.style.setProperty('--nzm-menu-left', `${left}px`);
+    popup.style.setProperty('--nzm-menu-top', `${top}px`);
+  };
+  const open = item => {
+    if (!panel(item)) return;
+    clearTimeout(timers.get(item));
+    for (const sibling of item.parentElement.children) if (sibling !== item && sibling.classList.contains('nzm-open')) close(sibling);
+    item.classList.add('nzm-open');
+    trigger(item)?.setAttribute('aria-expanded', 'true');
+    position(item);
+  };
+  const observer = new MutationObserver(() => { structureDirty = true; schedule(); });
+  const observe = () => groups.forEach(group => observer.observe(group, { childList: true }));
+  const keep = new Set(['wp-admin-bar-wp-logo', 'wp-admin-bar-site-name', 'wp-admin-bar-edit', 'wp-admin-bar-my-account']);
+  const desktopKeep = new Set([...keep, 'wp-admin-bar-woocommerce-site-visibility-badge', 'wp-admin-bar-nzm-toolbar-dashboard', 'wp-admin-bar-customize', 'wp-admin-bar-comments', 'wp-admin-bar-new-content']);
+  const layout = () => {
+    frame = 0;
+    if (bar.hidden || bar.inert) return;
+    if (innerWidth === layoutWidth && !structureDirty) {
+      bar.querySelectorAll('.nzm-open').forEach(position);
+      return;
+    }
+    layoutWidth = innerWidth;
+    structureDirty = false;
+    observer.disconnect();
+    const active = bar.contains(document.activeElement) ? document.activeElement : null;
+    groups.forEach(group => [...group.children].forEach(node => {
+      if (node !== more && !records.has(node)) records.set(node, group);
+    }));
+    bar.querySelectorAll('.nzm-open').forEach(close);
+    records.forEach((group, node) => {
+      if (!node.isConnected) { records.delete(node); return; }
+      if (group === root) root.insertBefore(node, more);
+      else group.append(node);
+    });
+    bar.classList.remove('nzm-dock-compact');
+    bar.classList.remove('nzm-has-overflow');
+    const compact = innerWidth <= 1100 || bar.scrollWidth > bar.clientWidth + 1;
+    if (compact) {
+      bar.classList.add('nzm-dock-compact');
+    }
+    records.forEach((group, node) => { if (!(compact ? keep : desktopKeep).has(node.id)) overflow.append(node); });
+    bar.classList.toggle('nzm-has-overflow', overflow.children.length > 0);
+    bar.querySelectorAll('.menupop').forEach(item => {
+      if (panel(item)) {
+        trigger(item)?.setAttribute('aria-haspopup', 'true');
+        trigger(item)?.setAttribute('aria-expanded', 'false');
+      }
+    });
+    if (active?.isConnected) {
+      if (overflow.contains(active)) open(more);
+      suppressFocus = true;
+      active.focus({ preventScroll: true });
+      suppressFocus = false;
+    }
+    observe();
+  };
+  const schedule = () => { if (!frame) frame = requestAnimationFrame(layout); };
+  const setHidden = (hidden, focus = true) => {
+    visibilityAnimation?.cancel();
+    visibilityAnimation = null;
+    bar.querySelectorAll('.nzm-open').forEach(close);
+    const animate = focus && typeof bar.animate === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    bar.hidden = hidden && !animate;
+    bar.inert = hidden;
+    show.hidden = !hidden;
+    show.setAttribute('aria-expanded', String(!hidden));
+    if (!hidden) { structureDirty = true; layout(); }
+    if (focus) (hidden ? show : hide).focus({ preventScroll: true });
+    if (animate) {
+      const visible = { opacity: 1, transform: 'translateY(0) scale(1)' };
+      const collapsed = { opacity: 0, transform: 'translateY(12px) scale(.98)' };
+      const animation = bar.animate(hidden ? [visible, collapsed] : [collapsed, visible], { duration: 180, easing: 'ease-out' });
+      visibilityAnimation = animation;
+      animation.finished.then(() => {
+        if (visibilityAnimation !== animation) return;
+        bar.hidden = hidden;
+        visibilityAnimation = null;
+      }).catch(() => { /* A quick reopen cancels the previous animation. */ });
+    }
+    try {
+      if (window.roundedAdminDock?.storageKey) localStorage.setItem(window.roundedAdminDock.storageKey, hidden ? 'hidden' : 'visible');
+    } catch (_) { /* Storage may be disabled; controls still work. */ }
+  };
+  hide.addEventListener('click', () => setHidden(true));
+  show.addEventListener('click', () => setHidden(false));
+  toggle.addEventListener('click', event => {
+    event.preventDefault();
+    if (more.classList.contains('nzm-open')) close(more);
+    else open(more);
+  });
+  bar.addEventListener('pointerover', event => {
+    const item = event.target.closest('.menupop');
+    if (item === more) { clearTimeout(timers.get(more)); return; }
+    if (item && event.pointerType !== 'touch') open(item);
+  });
+  bar.addEventListener('pointerout', event => {
+    const item = event.target.closest('.menupop');
+    if (item && !item.contains(event.relatedTarget)) {
+      timers.set(item, setTimeout(() => { if (!item.contains(document.activeElement)) close(item); }, 220));
+    }
+  });
+  bar.addEventListener('focusin', event => {
+    if (suppressFocus) return;
+    const item = event.target.closest('.menupop');
+    if (item && item !== more && event.target === trigger(item)) open(item);
+  });
+  bar.addEventListener('focusout', () => setTimeout(() => {
+    bar.querySelectorAll('.nzm-open').forEach(item => { if (!item.contains(document.activeElement)) close(item); });
+  }, 0));
+  bar.addEventListener('keydown', event => {
+    const item = event.target.closest('.menupop');
+    const currentPanel = event.target.closest('.ab-sub-wrapper');
+    const links = popup => [...popup.querySelectorAll('a.ab-item[href], button')].filter(el => el.closest('.ab-sub-wrapper') === popup && el.getClientRects().length);
+    if (event.key === 'Escape' || (event.key === 'ArrowLeft' && currentPanel)) {
+      const owner = currentPanel?.parentElement || item;
+      if (!owner) return;
+      event.preventDefault(); event.stopPropagation();
+      close(owner);
+      suppressFocus = true; trigger(owner)?.focus(); suppressFocus = false;
+    } else if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && item && event.target === trigger(item)) {
+      event.preventDefault(); open(item);
+      const entries = links(panel(item));
+      (event.key === 'ArrowUp' ? entries.at(-1) : entries[0])?.focus();
+    } else if (currentPanel && ['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
+      event.preventDefault();
+      const entries = links(currentPanel);
+      const index = entries.indexOf(document.activeElement);
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? entries.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + entries.length) % entries.length;
+      entries[next]?.focus();
+    } else if (event.key === 'ArrowRight' && item && event.target === trigger(item)) {
+      event.preventDefault(); open(item); links(panel(item))[0]?.focus();
+    }
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!bar.contains(event.target)) bar.querySelectorAll('.nzm-open').forEach(close);
+  });
+  window.addEventListener('resize', schedule, { passive: true });
+  window.visualViewport?.addEventListener('resize', schedule, { passive: true });
+  document.fonts?.ready.then(schedule);
+  bar.classList.add('nzm-dock-ready');
+  layout();
+  try {
+    if (window.roundedAdminDock?.storageKey && localStorage.getItem(window.roundedAdminDock.storageKey) === 'hidden') setHidden(true, false);
+  } catch (_) { /* Keep the default visible toolbar. */ }
+};
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
+else init();
 })();

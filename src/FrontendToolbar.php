@@ -33,12 +33,9 @@ final class FrontendToolbar {
 		wp_localize_script( 'rounded-admin-frontend-toolbar', 'roundedAdminDock', array(
 			'more' => __( 'Altre azioni', 'adminlume' ),
 			'comments' => __( 'Commenti', 'adminlume' ),
-			'site' => wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES ),
-			'siteMenu' => __( 'Site menu', 'adminlume' ),
-			'account' => __( 'Account menu', 'adminlume' ),
-			'collapse' => __( 'Collapse toolbar', 'adminlume' ),
-			'expand' => __( 'Expand toolbar', 'adminlume' ),
-			'toolbar' => __( 'Site actions', 'adminlume' ),
+			'hide' => __( 'Nascondi barra amministrativa', 'adminlume' ),
+			'hideLabel' => __( 'Nascondi', 'adminlume' ),
+			'show' => __( 'Mostra barra amministrativa', 'adminlume' ),
 			'storageKey' => 'rounded-admin-dock-' . get_current_blog_id() . '-' . get_current_user_id(),
 		) );
 	}
@@ -52,31 +49,15 @@ final class FrontendToolbar {
 				'href' => admin_url(),
 			) );
 		}
-		// Restyle existing, capability-checked actions; never invent an edit URL.
-		$edit = $bar->get_node( 'edit' );
-		if ( $edit && is_singular() && ! empty( $edit->href ) ) {
-			$post_type = get_post_type_object( get_post_type( get_queried_object_id() ) );
-			if ( $post_type ) {
-				$bar->add_node( array( 'id' => 'edit', 'title' => esc_html( $post_type->labels->edit_item ) ) );
-			}
+		$roots = array();
+		foreach ( $bar->get_nodes() as $node ) {
+			if ( empty( $node->parent ) && ! $node->group ) $roots[$node->id] = $node;
 		}
-		$customize = $bar->get_node( 'customize' );
-		if ( ! $edit && is_front_page() && $customize && ! empty( $customize->href ) ) {
-			$meta = (array) $customize->meta;
-			$meta['class'] = trim( ( $meta['class'] ?? '' ) . ' nzm-primary-action' );
-			$bar->add_node( array(
-				'id' => 'customize',
-				'title' => esc_html__( 'Customize site', 'adminlume' ),
-				'meta' => $meta,
-			) );
-		}
-		if ( current_user_can( 'read' ) && $bar->get_node( 'my-account' ) ) {
-			$bar->add_node( array(
-				'id' => 'nzm-toolbar-preferences',
-				'parent' => 'user-actions',
-				'title' => esc_html__( 'Toolbar preferences', 'adminlume' ),
-				'href' => admin_url( ( current_user_can( 'list_users' ) ? 'users.php' : 'profile.php' ) . '?page=' . Settings::PAGE ),
-			) );
-		}
+		$order = array( 'wp-logo', 'site-name', 'woocommerce-site-visibility-badge', 'nzm-toolbar-dashboard', 'customize', 'comments', 'new-content', 'edit' );
+		$ordered = array();
+		foreach ( $order as $id ) if ( isset( $roots[$id] ) ) { $ordered[$id] = $roots[$id]; unset( $roots[$id] ); }
+		$ordered += $roots;
+		foreach ( $ordered as $id => $node ) $bar->remove_node( $id );
+		foreach ( $ordered as $node ) $bar->add_node( (array) $node );
 	}
 }

@@ -137,20 +137,20 @@ try {
 		$context_bar->add_node( array( 'id' => 'edit', 'title' => 'Original edit', 'href' => '/native-editor', 'meta' => array( 'class' => 'plugin-edit', 'target' => '_blank' ) ) );
 		$frontend->nodes( $context_bar );
 		$edit = $context_bar->get_node( 'edit' );
-		$check( esc_html( get_post_type_object( $type )->labels->edit_item ) === $edit->title, $type . ' uses its contextual edit label' );
+		$check( 'Original edit' === $edit->title, $type . ' preserves the native edit label' );
 		$check( '/native-editor' === $edit->href && 'plugin-edit' === $edit->meta['class'] && '_blank' === $edit->meta['target'], $type . ' preserves native edit URL and third-party metadata' );
 	}
 	$query->is_singular = false;
 	$query->is_home = true;
 	add_filter( 'pre_option_show_on_front', $front_page_option );
 	$home_bar = new WP_Admin_Bar();
-	$home_bar->add_node( array( 'id' => 'customize', 'href' => '/native-customizer', 'meta' => array( 'class' => 'hide-if-no-customize', 'target' => '_blank' ) ) );
+	$home_bar->add_node( array( 'id' => 'customize', 'title' => 'Native Customize', 'href' => '/native-customizer', 'meta' => array( 'class' => 'hide-if-no-customize', 'target' => '_blank' ) ) );
 	$home_bar->add_node( array( 'id' => 'my-account', 'href' => '/native-profile' ) );
 	$frontend->nodes( $home_bar );
 	$customize = $home_bar->get_node( 'customize' );
-	$check( str_contains( $customize->meta['class'], 'nzm-primary-action' ) && str_contains( $customize->meta['class'], 'hide-if-no-customize' ), 'homepage promotes only an existing customizer action and retains its visibility class' );
+	$check( 'Native Customize' === $customize->title && 'hide-if-no-customize' === $customize->meta['class'], 'homepage preserves native customizer presentation' );
 	$check( '/native-customizer' === $customize->href && '_blank' === $customize->meta['target'], 'homepage customizer keeps original destination and metadata' );
-	$check( str_contains( $home_bar->get_node( 'nzm-toolbar-preferences' )->href, 'profile.php?page=adminlume' ), 'account preferences respect subscriber capabilities' );
+	$check( '/native-profile' === $home_bar->get_node( 'my-account' )->href && ! $home_bar->get_node( 'nzm-toolbar-preferences' ), 'native account link is preserved without extra profile actions' );
 	$empty_bar = new WP_Admin_Bar();
 	$frontend->nodes( $empty_bar );
 	$check( ! $empty_bar->get_node( 'edit' ) && ! $empty_bar->get_node( 'customize' ), 'no edit or customize action is invented when WordPress provides none' );
