@@ -9,6 +9,7 @@
  * Plugin URI: https://github.com/adilorenzo10/adminlume
  * Update URI: https://github.com/adilorenzo10/adminlume
  * Text Domain: adminlume
+ * Domain Path: /languages
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *

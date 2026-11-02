@@ -36,11 +36,13 @@ final class Chrome {
 		}
 
 		$name = get_bloginfo( 'name' );
-		$name = '' !== trim( $name ) ? $name : __( 'Visita il sito', 'adminlume' );
+		$name = '' !== trim( $name ) ? $name : __( 'Visit site', 'adminlume' );
+		/* translators: %s: Site name. */
+		$title = sprintf( __( 'Visit site: %s', 'adminlume' ), $name );
 		printf(
 			'<li id="ra-site-link"><a href="%s" title="%s">%s</a></li>',
 			esc_url( home_url( '/' ) ),
-			esc_attr( sprintf( __( 'Visita il sito: %s', 'adminlume' ), $name ) ),
+			esc_attr( $title ),
 			esc_html( $name )
 		);
 	}

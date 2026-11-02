@@ -48,7 +48,7 @@ final class Settings {
 	}
 
 	public function links( array $links ): array {
-		array_unshift( $links, '<a href="' . esc_url( $this->url() ) . '">' . esc_html__( 'Preferenze personali', 'adminlume' ) . '</a>' );
+		array_unshift( $links, '<a href="' . esc_url( $this->url() ) . '">' . esc_html__( 'Personal preferences', 'adminlume' ) . '</a>' );
 		return $links;
 	}
 
@@ -58,7 +58,7 @@ final class Settings {
 
 	public function save(): void {
 		if ( ! current_user_can( 'read' ) ) {
-			wp_die( esc_html__( 'Accesso non consentito.', 'adminlume' ), '', array( 'response' => 403 ) );
+			wp_die( esc_html__( 'Access denied.', 'adminlume' ), '', array( 'response' => 403 ) );
 		}
 
 		check_admin_referer( 'adminlume_save_' . get_current_user_id() );
@@ -77,37 +77,37 @@ final class Settings {
 		?>
 		<div class="wrap ra-preferences">
 			<h1><?php esc_html_e( 'Adminlume', 'adminlume' ); ?></h1>
-			<p><?php esc_html_e( 'Un’interfaccia più morbida, senza cambiare il modo in cui lavori. Queste preferenze valgono solo per il tuo utente.', 'adminlume' ); ?></p>
+			<p><?php esc_html_e( 'A softer interface without changing how you work. These preferences apply only to your account.', 'adminlume' ); ?></p>
 			<?php if ( isset( $_GET['saved'] ) ) : ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Preferenze salvate.', 'adminlume' ); ?></p></div>
+				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Preferences saved.', 'adminlume' ); ?></p></div>
 			<?php endif; ?>
 			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="adminlume_save">
 				<?php wp_nonce_field( 'adminlume_save_' . get_current_user_id() ); ?>
 				<table class="form-table" role="presentation">
-					<tr><th scope="row"><?php esc_html_e( 'Aspetto', 'adminlume' ); ?></th><td>
-						<label><input type="checkbox" name="preferences[enabled]" value="1" <?php checked( $preferences['enabled'] ); ?>> <?php esc_html_e( 'Abilita Adminlume per me', 'adminlume' ); ?></label>
-						<p class="description"><?php esc_html_e( 'Puoi tornare all’aspetto WordPress standard in qualsiasi momento.', 'adminlume' ); ?></p>
+					<tr><th scope="row"><?php esc_html_e( 'Appearance', 'adminlume' ); ?></th><td>
+						<label><input type="checkbox" name="preferences[enabled]" value="1" <?php checked( $preferences['enabled'] ); ?>> <?php esc_html_e( 'Enable Adminlume for me', 'adminlume' ); ?></label>
+						<p class="description"><?php esc_html_e( 'You can return to the default WordPress appearance at any time.', 'adminlume' ); ?></p>
 					</td></tr>
-					<tr><th scope="row"><label for="ra-chrome-background"><?php esc_html_e( 'Sfondo sidebar e top bar', 'adminlume' ); ?></label></th><td>
+					<tr><th scope="row"><label for="ra-chrome-background"><?php esc_html_e( 'Sidebar and top bar background', 'adminlume' ); ?></label></th><td>
 						<input type="color" id="ra-chrome-background" name="preferences[chrome_background]" value="<?php echo esc_attr( $preferences['chrome_background'] ); ?>">
-						<p class="description"><?php esc_html_e( 'Predefinito: nero (#000000). Testi e icone si adattano ai colori chiari o scuri. Il colore dei pulsanti rimane indipendente.', 'adminlume' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Default: black (#000000). Text and icons adapt to light or dark backgrounds. Button colors remain independent.', 'adminlume' ); ?></p>
 					</td></tr>
-					<tr><th scope="row"><label for="ra-accent"><?php esc_html_e( 'Colore principale', 'adminlume' ); ?></label></th><td>
+					<tr><th scope="row"><label for="ra-accent"><?php esc_html_e( 'Accent color', 'adminlume' ); ?></label></th><td>
 						<input type="color" id="ra-accent" name="preferences[accent]" value="<?php echo esc_attr( $preferences['accent'] ); ?>">
-						<p class="description"><?php esc_html_e( 'Il contrasto del testo sui pulsanti viene adattato automaticamente.', 'adminlume' ); ?></p>
+						<p class="description"><?php esc_html_e( 'Button text contrast adjusts automatically.', 'adminlume' ); ?></p>
 					</td></tr>
-					<tr><th scope="row"><label for="ra-radius"><?php esc_html_e( 'Arrotondamento pannelli', 'adminlume' ); ?></label></th><td>
+					<tr><th scope="row"><label for="ra-radius"><?php esc_html_e( 'Panel corner radius', 'adminlume' ); ?></label></th><td>
 						<select id="ra-radius" name="preferences[radius]">
-							<?php foreach ( array( 8 => __( 'Discreto', 'adminlume' ), 12 => __( 'Medio', 'adminlume' ), 16 => __( 'Morbido', 'adminlume' ) ) as $value => $label ) : ?>
+							<?php foreach ( array( 8 => _x( 'Subtle', 'panel corner radius', 'adminlume' ), 12 => _x( 'Medium', 'panel corner radius', 'adminlume' ), 16 => _x( 'Soft', 'panel corner radius', 'adminlume' ) ) as $value => $label ) : ?>
 								<option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $preferences['radius'], $value ); ?>><?php echo esc_html( $label ); ?></option>
 							<?php endforeach; ?>
 						</select>
 					</td></tr>
 				</table>
-				<?php submit_button( __( 'Salva preferenze', 'adminlume' ) ); ?>
+				<?php submit_button( __( 'Save preferences', 'adminlume' ) ); ?>
 			</form>
-			<p><?php esc_html_e( 'Sul sito, solo la tua barra amministrativa riceve lo stesso stile: nessuna modifica per i visitatori. Nessun font remoto, tracciamento o framework. Editor a blocchi e plugin esterni mantengono i propri controlli.', 'adminlume' ); ?></p>
+			<p><?php esc_html_e( 'On your site, only your admin toolbar is restyled; visitors see no changes. No remote fonts, tracking, or frameworks. The block editor and third-party plugins keep their own controls.', 'adminlume' ); ?></p>
 		</div>
 		<?php
 	}

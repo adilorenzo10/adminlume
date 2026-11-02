@@ -30,7 +30,8 @@ class ReleaseBuildTests(unittest.TestCase):
             shutil.copyfile(ROOT / 'assets/images' / name, self.root / 'assets/images' / name)
         (self.root / 'src/Runtime.php').write_text('<?php // Runtime fixture.\n')
         (self.root / 'assets/toolbar.css').write_text('/* Runtime fixture. */\n')
-        (self.root / 'languages/adminlume-en_US.mo').write_bytes(b'fixture')
+        for name in ('adminlume.pot', 'adminlume-it_IT.po', 'adminlume-it_IT.mo'):
+            shutil.copyfile(ROOT / 'languages' / name, self.root / 'languages' / name)
         (self.root / 'tests/private.php').write_text('<?php // Excluded.\n')
         (self.root / 'assets/.env').write_text('PRIVATE=excluded\n')
         (self.root / 'assets/debug.log').write_text('Excluded.\n')
@@ -50,7 +51,9 @@ class ReleaseBuildTests(unittest.TestCase):
             self.assertEqual(set(bundle.namelist()), {
                 *('adminlume/' + name for name in REQUIRED_FILES),
                 'adminlume/src/Runtime.php', 'adminlume/assets/toolbar.css',
-                'adminlume/languages/adminlume-en_US.mo',
+                'adminlume/languages/adminlume.pot',
+                'adminlume/languages/adminlume-it_IT.po',
+                'adminlume/languages/adminlume-it_IT.mo',
                 'adminlume/assets/images/icon.svg',
                 'adminlume/assets/images/icon-128x128.png',
                 'adminlume/assets/images/icon-256x256.png',

@@ -32,9 +32,9 @@ final class Assets {
 			wp_enqueue_script( 'rounded-admin-sidebar', plugins_url( 'assets/js/sidebar.js', $this->plugin_file ), array(),
 				(string) filemtime( dirname( $this->plugin_file ) . '/assets/js/sidebar.js' ), true );
 			wp_localize_script( 'rounded-admin-sidebar', 'roundedAdminSidebar', array(
-				'search' => __( 'Cerca nel menu', 'adminlume' ),
-				'empty'  => __( 'Nessuna voce trovata.', 'adminlume' ),
-				'clear'  => __( 'Cancella ricerca', 'adminlume' ),
+				'search' => __( 'Search menu', 'adminlume' ),
+				'empty'  => __( 'No menu items found.', 'adminlume' ),
+				'clear'  => __( 'Clear search', 'adminlume' ),
 			) );
 		}
 		$this->style( 'rounded-admin-toolbar', 'toolbar.css', array( 'admin-bar' ) );

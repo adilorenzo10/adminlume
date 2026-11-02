@@ -31,11 +31,11 @@ final class FrontendToolbar {
 		wp_enqueue_style( 'rounded-admin-frontend-toolbar', plugins_url( 'assets/css/frontend-toolbar.css', $this->plugin_file ), array( 'admin-bar', 'dashicons' ), (string) filemtime( $base . 'css/frontend-toolbar.css' ) );
 		wp_enqueue_script( 'rounded-admin-frontend-toolbar', plugins_url( 'assets/js/frontend-toolbar.js', $this->plugin_file ), array( 'admin-bar' ), (string) filemtime( $base . 'js/frontend-toolbar.js' ), true );
 		wp_localize_script( 'rounded-admin-frontend-toolbar', 'roundedAdminDock', array(
-			'more' => __( 'Altre azioni', 'adminlume' ),
-			'comments' => __( 'Commenti', 'adminlume' ),
-			'hide' => __( 'Nascondi barra amministrativa', 'adminlume' ),
-			'hideLabel' => __( 'Nascondi', 'adminlume' ),
-			'show' => __( 'Mostra barra amministrativa', 'adminlume' ),
+			'more' => __( 'More actions', 'adminlume' ),
+			'comments' => __( 'Comments', 'adminlume' ),
+			'hide' => __( 'Hide admin toolbar', 'adminlume' ),
+			'hideLabel' => __( 'Hide', 'adminlume' ),
+			'show' => __( 'Show admin toolbar', 'adminlume' ),
 			'storageKey' => 'rounded-admin-dock-' . get_current_blog_id() . '-' . get_current_user_id(),
 		) );
 	}

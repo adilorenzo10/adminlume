@@ -53,8 +53,8 @@ jobs:
           node --check tests/topbar-browser.cjs
           node --check tests/frontend-toolbar-browser.cjs
 
-      - name: Test release packaging
-        run: python3 -m unittest discover -s tests -p 'test_*release.py' -v
+      - name: Test packaging and translation catalogs
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Build installable ZIP and checksum
         run: python3 scripts/build_release.py --version "$RELEASE_VERSION"
