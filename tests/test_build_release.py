@@ -75,8 +75,16 @@ class ReleaseBuildTests(unittest.TestCase):
             build_release(self.root, '1.2.3', self.output)
 
     def test_mismatched_version_is_rejected(self):
-        with self.assertRaisesRegex(ValueError, 'must match'):
+        with self.assertRaisesRegex(ValueError, 'must match') as raised:
             build_release(self.root, '1.2.4', self.output)
+        self.assertIn('Requested=1.2.4, plugin=1.2.3, Stable tag=1.2.3', str(raised.exception))
+
+    def test_mismatched_stable_tag_is_reported(self):
+        readme = (self.root / 'readme.txt').read_text().replace('Stable tag: 1.2.3', 'Stable tag: 1.2.4')
+        (self.root / 'readme.txt').write_text(readme)
+        with self.assertRaisesRegex(ValueError, 'must match') as raised:
+            build_release(self.root, '1.2.3', self.output)
+        self.assertIn('Requested=1.2.3, plugin=1.2.3, Stable tag=1.2.4', str(raised.exception))
 
     def test_invalid_versions_are_rejected(self):
         for version in ('v1.2.3', '1.2.3-rc.1', '../1.2.3', '01.2.3'):

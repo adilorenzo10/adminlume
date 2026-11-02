@@ -51,6 +51,8 @@ shasum -a 256 -c adminlume-0.3.0.zip.sha256
 
 ## Failures and immutable versions
 
+Creating a tag does not update the plugin version. For example, tagging files that still declare `Version: 0.3.0` and `Stable tag: 0.3.0` as `v0.3.2` must fail validation. Editing `main` afterward or retrying that tag does not fix it: the workflow checks out the tagged commit. Update both metadata fields and the changelog, validate locally, commit the changes, then create a fresh version tag on that commit. Do not bypass the check or silently rewrite versions only inside the ZIP; installed versions must agree with the tagged source.
+
 If an updater-enabled tag exists but no run was started, use **Actions → Release plugin → Run workflow** on `main` and enter the existing tag, such as `v0.3.0`. This recovery path validates and checks out that exact tag, not the current branch, and does not move or recreate it. It uses the same build and publication steps as a tag push. Future tags still publish automatically on push. Do not reuse this workflow to rebuild historical tags whose packaging scripts predate the update manifest; keep already published releases intact.
 
 Check the **Release plugin** run under the repository's **Actions** tab. If validation fails, no release is created. If the job fails before publication, fix the issue and use a new version when source changes are required; do not move an already shared tag. A transient failure without source changes can be retried from Actions.

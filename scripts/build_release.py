@@ -31,7 +31,12 @@ def validate_version(root: Path, version: str) -> None:
     plugin = re.search(r'^\s*\* Version:\s*(\S+)\s*$', header, re.MULTILINE)
     stable = re.search(r'^Stable tag:\s*(\S+)\s*$', readme, re.MULTILINE)
     if not plugin or not stable or plugin.group(1) != version or stable.group(1) != version:
-        raise ValueError('Release version must match the plugin header and readme.txt Stable tag.')
+        raise ValueError(
+            'Release version must match the plugin header and readme.txt Stable tag. '
+            f'Requested={version}, plugin={plugin.group(1) if plugin else "missing"}, '
+            f'Stable tag={stable.group(1) if stable else "missing"}. '
+            'Commit matching metadata and a changelog entry before creating a new tag.'
+        )
     changelog = readme.partition('== Changelog ==')[2].split('\n== ', 1)[0]
     if f'= {version} =' not in changelog.splitlines():
         raise ValueError(f'Missing readme.txt changelog entry for {version}.')

@@ -2,7 +2,7 @@
 Tags: admin, dashboard, toolbar, customization
 Requires at least: 6.5
 Requires PHP: 8.1
-Stable tag: 0.3.0
+Stable tag: 0.3.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -87,6 +87,12 @@ The software license grants no separate trademark license. Independent forks mus
 
 == Changelog ==
 
+= 0.3.3 =
+
+* Restore the original translucent front-end dock, separate desktop actions, and hide/reopen controls.
+* Preserve native action labels, destinations, and metadata while retaining the GitHub updater.
+* Align the plugin and release metadata and improve version-mismatch diagnostics.
+
 = 0.3.0 =
 
 * Integrate stable GitHub releases with native WordPress plugin update checks and plugin details.
@@ -99,6 +105,10 @@ The software license grants no separate trademark license. Independent forks mus
 * Compatibility fallback for existing Rounded Admin preferences.
 
 == Upgrade Notice ==
+
+= 0.3.3 =
+
+Restores the original front-end toolbar appearance without changing the backend or native updater. Sites still running 0.2.0 must install an updater-enabled release manually once.
 
 = 0.3.0 =
 
