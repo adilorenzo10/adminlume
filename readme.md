@@ -65,12 +65,12 @@ Checks use a cached manifest from the public GitHub release feed, not a WordPres
 
 ### Front-end dock
 
-- A 56px pill-shaped bottom dock, up to 850px wide, centered 22px above the safe area, with a solid `#17181B` background, a soft shadow, and no light halo.
-- Three sections: a site dropdown with native WordPress links, site name, Live status when available, and Dashboard; contextual editing and New actions; and an avatar account menu with profile, preferences, and logout.
-- Native edit labels follow the current post type (page, post, product, or a registered custom type). On the homepage, an existing Customizer action is promoted if no native edit action exists. No edit URL or permission is invented.
-- Comments, customization, and third-party controls remain available in More. On narrow screens, New also moves there; the primary action becomes an accessible icon on small phones.
-- Collapse and expand controls leave an always-available floating pill, preserve focus, and honor reduced motion. The existing per-user browser storage key is retained.
-- Menus open upward, support keyboard and touch input, and stay within the viewport. Focused site controls under the dock trigger temporary compression without overwriting the saved preference or changing the site layout.
+- The original translucent charcoal dock, centered 20px above the viewport bottom, with rounded corners, blur, a subtle border, and individually rounded controls.
+- Separate WordPress, site-name, Live status (when available), and Dashboard actions on desktop, alongside native customization, comments, New, edit, and account links.
+- Native edit labels and destinations remain unchanged; the edit action retains its original orange accent. The account greeting and name remain visible on desktop and become compact on smaller screens.
+- Secondary and third-party actions remain available in More. The compact layout also groups customization, comments, New, Dashboard, and status without duplicating their original nodes.
+- The original labeled Hide control and 44px reopen button preserve focus and saved visibility preferences. Animation lasts 180ms and respects reduced motion.
+- Upward-opening menus retain keyboard navigation and viewport positioning. The plugin does not automatically hide the dock when a site control receives focus.
 - No reserved toolbar space at the top of the page and no intentional changes to the public header or content.
 - No skin assets for anonymous visitors, opted-out users, or users whose native toolbar is hidden.
 

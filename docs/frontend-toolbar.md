@@ -2,38 +2,28 @@
 
 Adminlume enhances the existing `#wpadminbar` only for logged-in users who opted in and whose native toolbar is visible. It does not render a second toolbar, change the theme, or load front-end dock styles in `wp-admin`.
 
-## Layout and actions
+## Restored appearance and layout
 
-- **Shell:** 56px tall, content-sized up to 850px, fully rounded, `#17181B`, subtle border, soft shadow. Bottom spacing is 22px plus the device safe-area inset. Visual viewport changes account for an on-screen keyboard.
-- **Site:** a single generated dropdown contains the original WordPress, site-name, WooCommerce status (when present), and capability-checked Dashboard nodes. Existing nested menus and links remain attached to those nodes.
-- **Quick actions:** the original edit node remains the primary action. Its label uses the queried post type's native `edit_item` label, including custom post types. Its destination and metadata are not replaced. If the homepage has no edit action, an existing native Customizer action is promoted and labeled “Customize site”; no unsupported action is created.
-- **More:** comments, customization when not primary, search, and other plugin actions are grouped without cloning their elements. On screens up to 600px, New moves here too. A width-based fallback also groups New if desktop content would overflow.
-- **Account:** the native account link is presented as a 44px avatar control. The greeting is visually hidden while the account menu remains intact. A local Dashicon is used if the avatar is unavailable. An Adminlume preferences link is added for users with `read`, under Users or Profile according to their capabilities.
+The front-end dock uses the original appearance from before the compact, three-section redesign: a translucent charcoal gradient with blur, 22px corners on desktop, a subtle border and inset highlight, and individually rounded controls. It is centered 20px above the bottom of the viewport, or above the device's bottom safe-area inset when larger. Desktop minimum height is 56px; the mobile layout uses a 50px minimum height and 18px corners.
 
-On small phones, the edit action uses an icon while retaining an accessible name and a native title tooltip. Site names are truncated visually; the full site name remains in the dropdown. Native IDs, destinations, and plugin handlers are retained. Third-party code that assumes its node is always a direct child of a particular top-level list may need adaptation; no generic regrouping implementation can guarantee compatibility with every DOM-dependent extension.
+WordPress, site name, WooCommerce Live/status when available, Dashboard, customization, comments, New, edit, and account actions are separate on desktop. Native labels, destinations, permissions, and nested menus are preserved. The edit action uses the original orange accent; there is no new homepage customization promotion. The native account greeting and name are visible on desktop, with a compact avatar presentation on smaller screens. No extra Adminlume preferences link is added to the account menu; personal preferences remain under Users or Profile as before.
 
-## Interaction
+The compact layout activates at 1100px or when desktop content would overflow. It retains WordPress, site name, edit, and account directly in the dock and groups other actions in More. Original nodes are moved, not cloned, and return to their native groups when switching back to desktop. On small phones the edit label is visually reduced to an icon while retaining its native text for accessibility.
 
-- Buttons and menu rows have touch targets of at least 44px.
-- Generated dropdown buttons toggle on click or tap. Native links keep their destinations and modified-click behavior. Touch opens nested native menus before following their links.
-- Arrow keys enter menus and move between entries; Home and End move to the first and last entry. Right Arrow opens a nested menu. Escape or Left Arrow closes the current level and returns focus to its trigger.
-- Tab remains available for normal navigation. Input fields keep their editing keys. Clicking outside closes menus.
-- Native title tooltips, visible focus indicators, subdued hover states, and 180ms transitions provide feedback. Reduced motion disables transitions and collapse animation.
+## Menus and visibility
 
-Menus are viewport-clamped, open above the dock, and have independently scrollable contents. Native menu links remain available through a CSS fallback when JavaScript is unavailable.
+Menus open upward and are positioned inside the viewport with scrollable contents. Native menu hover/focus behavior, Arrow keys, Home/End, and Escape support remain available. More toggles on click or tap, and clicking outside closes open menus. A CSS fallback retains native links and menus when JavaScript is unavailable.
 
-## Compression and saved preferences
+The original **Hide** control is restored, including its desktop text label and local SVG visibility icon. It hides the dock and displays a 44px floating reopen button. Focus moves between the hide and reopen controls; the hidden dock becomes inert. Visibility transitions last 180ms and are skipped for reduced-motion preferences. Quick reopening cancels the outgoing animation.
 
-The minus control replaces the expanded toolbar with a 72px-wide, 44px-tall pill. The pill remains visible and restores the toolbar on activation. Focus moves between the two controls; the collapsed toolbar is inert so its hidden actions cannot receive focus.
+The existing `rounded-admin-dock-{blog_id}-{user_id}` browser storage key and `hidden` / `visible` values are unchanged. Controls work even when storage is unavailable. Visibility is a per-browser preference, not a server-synchronized setting. The dock no longer compresses automatically when a site control receives focus.
 
-The existing `rounded-admin-dock-{blog_id}-{user_id}` browser storage key and `hidden` / `visible` values are retained for compatibility. An old hidden preference now displays the compact pill. This is a per-browser preference, not a server-synchronized account setting; controls continue working if storage is blocked.
+A floating overlay can cover site elements. Use Hide when needed and test sticky carts, chat widgets, cookie banners, and mobile interactions on the actual site. The plugin does not add layout padding to the theme or reposition its controls.
 
-When a site control receives focus underneath the toolbar, the dock compresses without taking focus, scrolling the page, or overwriting the user's stored choice. The pill moves toward a viewport edge if necessary to reduce overlap with that focused control. Expansion is explicit; the dock does not unexpectedly reopen during form entry.
+## Scope and validation
 
-**Overlap limitation:** an overlay cannot guarantee that it never covers arbitrary site controls while also leaving the site's layout untouched. Safe-area spacing, compact sizing, focus-triggered compression, and the persistent pill mitigate this without adding padding to the theme or moving its controls. Test sticky carts, chat widgets, cookie banners, full-screen dialogs, and virtual keyboards on the actual site.
+This restoration is limited to the front-end toolbar implementation. The backend skin, native updater, GitHub release automation, metadata compatibility, and personal preferences are unaffected. Existing tags and release assets are not rewritten.
 
-## Validation
+See [development.md](development.md) for test setup. Browser checks cover the restored appearance, separate desktop actions, native menu navigation, late plugin nodes and handlers, saved visibility, responsive grouping, native URLs, reduced motion, touch hide/reopen controls, blocked storage, no-JavaScript fallback, guests, and backend isolation. PHP checks verify that native action labels, destinations, and metadata remain unchanged.
 
-See [development.md](development.md) for local setup and test commands. Browser coverage includes native-node preservation, late plugin controls, nested menu handlers, keyboard and touch navigation, widths down to 320px, RTL layout, compression persistence, blocked storage, reduced motion, no-JavaScript fallback, guests, and backend isolation. PHP integration coverage checks contextual labels and preservation of native action metadata separately.
-
-These checks do not establish compatibility with every WordPress theme, plugin, browser, or assistive technology. Verify the exact deployment combination before release.
+Third-party code that assumes a fixed top-level DOM parent may require adaptation. These checks do not establish compatibility with every theme, plugin, browser, or assistive technology. Verify the exact deployment combination before release.

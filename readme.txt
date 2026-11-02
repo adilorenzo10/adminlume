@@ -20,8 +20,8 @@ Features include:
 * Independently scrolling desktop navigation and menu-only search.
 * Native WordPress navigation, permissions, and responsive controls.
 * Conditional styles for media dialogs and relevant WooCommerce screens.
-* A compact, dark front-end dock with site, contextual action, and avatar sections.
-* Native actions preserved in grouped menus, with keyboard-accessible compression to a persistent floating pill.
+* A translucent charcoal front-end dock with separate native site and account actions.
+* Native actions preserved in responsive menus, with keyboard-accessible hide and reopen controls.
 * Native WordPress update notices and optional automatic updates from stable GitHub releases.
 * No runtime build step, remote fonts, or tracking.
 

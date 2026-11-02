@@ -52,7 +52,7 @@ Run from the directory containing the local site's Compose file, not from this s
 docker compose run --rm wpcli wp eval-file /var/www/html/wp-content/plugins/adminlume/tests/integration.php
 ```
 
-Coverage includes opt-in defaults, sanitization, contrast selection, metadata isolation, legacy fallback, authenticated form markup, conditional admin/front-end asset loading, homepage customization fallback, and preservation of native action destinations and metadata. Contextual edit-label checks reuse existing page, post, and product fixtures when available; missing fixtures are skipped. These checks are not a complete security audit or a substitute for request-level authorization testing.
+Coverage includes opt-in defaults, sanitization, contrast selection, metadata isolation, legacy fallback, authenticated form markup, conditional admin/front-end asset loading, and preservation of native action labels, destinations, and metadata. Edit-action checks reuse existing page, post, and product fixtures when available; missing fixtures are skipped. These checks are not a complete security audit or a substitute for request-level authorization testing.
 
 The updater has a separate local integration suite:
 
