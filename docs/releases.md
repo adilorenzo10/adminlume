@@ -7,22 +7,30 @@ No personal access token or third-party release action is needed: the workflow u
 ## Prepare a release
 
 1. Finish code review and local WordPress/browser regression checks. The release job checks syntax and packaging, not the full Docker/Playwright integration suite.
-2. Set `Version` in `adminlume.php` and `Stable tag` in `readme.txt` to the same stable version, without `v`.
-3. Add the corresponding `= X.Y.Z =` entry under `== Changelog ==` in `readme.txt`, with relevant upgrade information.
+2. **Before creating the tag**, synchronize the version and changelog with the preparation command (replace the example with your next unused version):
+
+   ```bash
+   python3 scripts/prepare_release.py --version 0.3.5 --note "Fix the collapsed toolbar hover state."
+   ```
+
+   This updates `Version` in `adminlume.php`, `Stable tag` in `readme.txt`, and adds the matching changelog entry. Repeat `--note` for multiple bullets. It rejects existing local tags, equal/older versions, and inconsistent current metadata. It does not create commits or tags, push changes, or overwrite existing changelog entries. If the version is already prepared, skip this command and continue below.
+3. Review the changes and add upgrade notices manually when relevant. Creating a Git tag alone never updates these files.
 4. Run the local packaging tests and build (Python 3.9+; standard library only):
 
    ```bash
-   python3 -m unittest discover -s tests -p 'test_build_release.py' -v
-   python3 scripts/build_release.py --version 0.3.0
+   python3 -m unittest discover -s tests -p 'test_*release.py' -v
+   python3 scripts/build_release.py --version 0.3.5
    ```
 
 5. Install the resulting ZIP in an isolated WordPress environment and verify activation, assets, preferences, and compatibility. `dist/` is ignored by Git.
 6. Commit and push the reviewed release preparation and workflow before pushing the annotated tag:
 
    ```bash
+   git add adminlume.php readme.txt
+   git commit -m "chore(release): prepare version 0.3.5"
    git push origin main
-   git tag -a v0.3.0 -m "Release Adminlume 0.3.0"
-   git push origin v0.3.0
+   git tag -a v0.3.5 -m "Release Adminlume 0.3.5"
+   git push origin v0.3.5
    ```
 
 Replace the example version for later releases. Tags must use stable `vX.Y.Z` versions; prerelease tags and mismatched versions fail validation rather than publishing an incorrect ZIP. The first release used `v0.2.0`, matching the version declared at that time.

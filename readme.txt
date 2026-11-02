@@ -2,7 +2,7 @@
 Tags: admin, dashboard, toolbar, customization
 Requires at least: 6.5
 Requires PHP: 8.1
-Stable tag: 0.3.3
+Stable tag: 0.3.5
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -86,6 +86,11 @@ The software is distributed without warranty. See LICENSE for the complete licen
 The software license grants no separate trademark license. Independent forks must not be misleadingly presented as official Dilorsoft releases. See TRADEMARKS.md; that policy does not add restrictions to GPL rights or assert trademark registration.
 
 == Changelog ==
+
+= 0.3.5 =
+
+* Keep the collapsed toolbar reopen control dark on hover, keyboard focus, and press, with a visible white icon.
+* Add a release-preparation command to synchronize plugin version, Stable tag, and changelog before tagging.
 
 = 0.3.3 =
 
