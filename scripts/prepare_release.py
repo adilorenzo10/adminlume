@@ -27,7 +27,13 @@ def prepare_release(root: Path, version: str, notes: list[str]) -> None:
     if not current:
         raise ValueError('Missing plugin Version header.')
     old_version = current.group(2)
-    validate_version(root, old_version)
+    stable = re.search(r'^Stable tag:[ \t]*(\S+)[ \t]*$', readme, re.MULTILINE)
+    if not re.fullmatch(VERSION, old_version):
+        raise ValueError('The current plugin Version header is not a stable version.')
+    if not stable or stable.group(1) != old_version:
+        raise ValueError('The current plugin version and readme.txt Stable tag must match.')
+    # A failed/manual bump may have no changelog. Prepare a new complete release
+    # without inventing historical notes for that incomplete version.
     if tuple(map(int, version.split('.'))) <= tuple(map(int, old_version.split('.'))):
         raise ValueError(f'New version must be greater than {old_version}.')
     changelog = readme.partition('== Changelog ==')[2].split('\n== ', 1)[0]

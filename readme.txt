@@ -2,7 +2,7 @@
 Tags: admin, dashboard, toolbar, customization
 Requires at least: 6.5
 Requires PHP: 8.1
-Stable tag: 0.3.9
+Stable tag: 0.3.10
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -86,6 +86,14 @@ The software is distributed without warranty. See LICENSE for the complete licen
 The software license grants no separate trademark license. Independent forks must not be misleadingly presented as official Dilorsoft releases. See TRADEMARKS.md; that policy does not add restrictions to GPL rights or assert trademark registration.
 
 == Changelog ==
+
+= 0.3.10 =
+
+* Use English source strings and provide complete Italian PO/MO translations and a POT template.
+* Localize settings, sidebar search, front-end toolbar labels, and tooltips through WordPress gettext.
+* Add locale-switching, translation catalog, and packaging checks.
+* Correct the documented WP-CLI commands for refreshing update caches.
+* Allow release preparation after a manual version bump with missing changelog notes and improve build diagnostics.
 
 = 0.3.7 =
 

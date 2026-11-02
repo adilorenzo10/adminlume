@@ -39,7 +39,11 @@ def validate_version(root: Path, version: str) -> None:
         )
     changelog = readme.partition('== Changelog ==')[2].split('\n== ', 1)[0]
     if f'= {version} =' not in changelog.splitlines():
-        raise ValueError(f'Missing readme.txt changelog entry for {version}.')
+        raise ValueError(
+            f'Missing readme.txt changelog entry for {version}. '
+            f'Add "= {version} =" under "== Changelog ==" with release notes '
+            'before committing and creating a new tag.'
+        )
 
 
 def release_files(root: Path) -> list[Path]:

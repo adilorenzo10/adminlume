@@ -13,7 +13,7 @@ No personal access token or third-party release action is needed: the workflow u
    python3 scripts/prepare_release.py --version 0.3.5 --note "Fix the collapsed toolbar hover state."
    ```
 
-   This updates `Version` in `adminlume.php`, `Stable tag` in `readme.txt`, and adds the matching changelog entry. Repeat `--note` for multiple bullets. It rejects existing local tags, equal/older versions, and inconsistent current metadata. It does not create commits or tags, push changes, or overwrite existing changelog entries. If the version is already prepared, skip this command and continue below.
+    This updates `Version` in `adminlume.php`, `Stable tag` in `readme.txt`, and adds the matching changelog entry. Repeat `--note` for multiple bullets. It rejects existing local tags, equal/older versions, and mismatched current version headers. It can recover from a manual version bump that omitted a changelog by preparing a newer version with complete notes; it does not invent release notes for the incomplete version. It does not create commits or tags, push changes, or overwrite existing changelog entries. If the version is already prepared, skip this command and continue below.
 3. Review the changes and add upgrade notices manually when relevant. Creating a Git tag alone never updates these files.
 4. Run the local packaging tests and build (Python 3.9+; standard library only):
 
@@ -60,6 +60,8 @@ shasum -a 256 -c adminlume-0.3.0.zip.sha256
 ## Failures and immutable versions
 
 Creating a tag does not update the plugin version. For example, tagging files that still declare `Version: 0.3.0` and `Stable tag: 0.3.0` as `v0.3.2` must fail validation. Editing `main` afterward or retrying that tag does not fix it: the workflow checks out the tagged commit. Update both metadata fields and the changelog, validate locally, commit the changes, then create a fresh version tag on that commit. Do not bypass the check or silently rewrite versions only inside the ZIP; installed versions must agree with the tagged source.
+
+Updating only the two version fields is also incomplete. A release such as `0.3.9` additionally needs a heading exactly `= 0.3.9 =` **inside `== Changelog ==`**, followed by its notes. An entry only under `== Upgrade Notice ==` does not count. Use the preparation script with `--note` rather than editing just the version numbers. Always run the local build successfully before creating the tag.
 
 If an updater-enabled tag exists but no run was started, use **Actions → Release plugin → Run workflow** on `main` and enter the existing tag, such as `v0.3.0`. This recovery path validates and checks out that exact tag, not the current branch, and does not move or recreate it. It uses the same build and publication steps as a tag push. Future tags still publish automatically on push. Do not reuse this workflow to rebuild historical tags whose packaging scripts predate the update manifest; keep already published releases intact.
 

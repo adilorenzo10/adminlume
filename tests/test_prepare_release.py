@@ -59,6 +59,24 @@ class PrepareReleaseTests(unittest.TestCase):
             prepare_release(self.root, '0.3.5', ['Different note.'])
         self.assertEqual((self.root / 'readme.txt').read_text(), readme)
 
+    def test_prepares_release_after_a_manual_bump_without_changelog(self):
+        readme = self.readme.replace('= 0.3.3 =', '= 0.3.0 =')
+        (self.root / 'readme.txt').write_text(readme)
+        prepare_release(self.root, '0.3.10', ['Add complete release notes.'])
+        validate_version(self.root, '0.3.10')
+        prepared = (self.root / 'readme.txt').read_text()
+        self.assertIn('= 0.3.10 =\n\n* Add complete release notes.', prepared)
+        self.assertIn('= 0.3.0 =\n\n* Previous release.', prepared)
+        self.assertNotIn('= 0.3.3 =', prepared)
+
+    def test_missing_changelog_section_does_not_modify_files(self):
+        readme = self.readme.replace('== Changelog ==', '== Notes ==')
+        (self.root / 'readme.txt').write_text(readme)
+        with self.assertRaisesRegex(ValueError, 'Changelog section'):
+            prepare_release(self.root, '0.3.10', ['Valid note.'])
+        self.assertEqual((self.root / 'adminlume.php').read_text(), self.header)
+        self.assertEqual((self.root / 'readme.txt').read_text(), readme)
+
 
 if __name__ == '__main__':
     unittest.main()

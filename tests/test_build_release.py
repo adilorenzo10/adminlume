@@ -114,6 +114,11 @@ class ReleaseBuildTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'changelog'):
             build_release(self.root, '1.2.3', self.output)
 
+    def test_upgrade_notice_does_not_replace_a_changelog_entry(self):
+        (self.root / 'readme.txt').write_text('Stable tag: 1.2.3\n\n== Changelog ==\n\n= 1.2.2 =\n\n* Previous release.\n\n== Upgrade Notice ==\n\n= 1.2.3 =\n\nUpgrade safely.\n')
+        with self.assertRaisesRegex(ValueError, 'changelog entry for 1.2.3'):
+            build_release(self.root, '1.2.3', self.output)
+
     def test_missing_license_is_rejected(self):
         (self.root / 'LICENSE').unlink()
         with self.assertRaisesRegex(ValueError, 'required release file'):
