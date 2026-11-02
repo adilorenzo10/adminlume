@@ -40,11 +40,21 @@ Checksum validation detects a mismatched or corrupted artifact; it is not an ind
 ## Caching and troubleshooting
 
 - Valid metadata is cached in a site/network transient for six hours; failed checks are cached for 15 minutes. WordPress also caches plugin checks. A release notification is therefore not immediate.
-- Use **Dashboard → Updates → Check again** to request a native check, but note that the manifest cache still applies. Developers can clear just `adminlume_release_manifest_v1` with `wp site transient delete adminlume_release_manifest_v1`, then run `wp plugin list` or the native check. This is not required for normal operation.
+- Use **Dashboard → Updates → Check again** to request a native check, but note that the manifest cache still applies. Developers can clear just `adminlume_release_manifest_v1` with `wp transient delete adminlume_release_manifest_v1 --network`, then request a native check. `--network` targets WordPress site transients, including on single-site installations; `wp site transient` is not a valid command. This is not required for normal operation.
 - Allow outbound HTTPS to `github.com` and GitHub release download/CDN hosts such as `release-assets.githubusercontent.com`. Network restrictions, `WP_HTTP_BLOCK_EXTERNAL`, TLS errors, or unavailable GitHub services prevent checks or downloads without breaking the site.
 - Keep `adminlume/adminlume.php` as the normal installation path and use the installable ZIP asset, not GitHub's source-code archives. Update the code and manifest generator together if changing repository ownership, slug, package layout, or manifest schema.
 - If an update is rejected as incompatible, update WordPress/PHP first and check again. If a checksum fails, investigate the release asset; do not disable verification to work around it.
 - If auto-updates are not offered or do not run, check the native Plugins settings, multisite activation context, site restrictions, and cron health. Appearance opt-in is not involved.
+
+For the local Docker setup, run these from the directory containing the Compose file, not the host's `wordpress/` directory. Core WordPress files live in the container volume:
+
+```bash
+docker compose run --rm wpcli wp transient delete adminlume_release_manifest_v1 --network
+docker compose run --rm wpcli wp transient delete update_plugins --network
+docker compose run --rm wpcli wp eval 'wp_update_plugins();'
+```
+
+These commands clear only update metadata and request a check; they do not install an update.
 
 ## Privacy
 
