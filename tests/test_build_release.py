@@ -1,7 +1,6 @@
 """Packaging checks; no WordPress, Docker, or third-party dependencies required."""
 
 import hashlib
-import json
 from pathlib import Path
 import re
 import shutil
@@ -49,7 +48,7 @@ class ReleaseBuildTests(unittest.TestCase):
         with zipfile.ZipFile(archive) as bundle:
             self.assertIsNone(bundle.testzip())
             self.assertEqual(set(bundle.namelist()), {
-                *('adminlume/' + name for name in REQUIRED_FILES),
+                *('adminlume/' + name.replace('.md', '.txt') for name in REQUIRED_FILES),
                 'adminlume/src/Runtime.php', 'adminlume/assets/toolbar.css',
                 'adminlume/languages/adminlume.pot',
                 'adminlume/languages/adminlume-it_IT.po',
@@ -58,6 +57,8 @@ class ReleaseBuildTests(unittest.TestCase):
                 'adminlume/assets/images/icon-128x128.png',
                 'adminlume/assets/images/icon-256x256.png',
             })
+            self.assertIn(b'TRADEMARKS.txt', bundle.read('adminlume/COPYRIGHT.txt'))
+            self.assertNotIn('adminlume/TRADEMARKS.md', bundle.namelist())
 
     def test_icon_fallbacks_have_the_documented_dimensions(self):
         for size in (128, 256):
@@ -74,17 +75,20 @@ class ReleaseBuildTests(unittest.TestCase):
         self.assertEqual(first, archive.read_bytes())
         self.assertEqual(archive.with_suffix('.zip.sha256').read_text(), f'{hashlib.sha256(first).hexdigest()}  {archive.name}\n')
 
-    def test_update_manifest_matches_package_and_requirements(self):
-        archive = build_release(self.root, '1.2.3', self.output)
-        manifest = json.loads((self.output / 'adminlume-update.json').read_text())
-        self.assertEqual(manifest['schema'], 1)
-        self.assertEqual(manifest['version'], '1.2.3')
-        self.assertEqual(manifest['requires'], '6.5')
-        self.assertEqual(manifest['requires_php'], '8.1')
-        self.assertEqual(manifest['sha256'], hashlib.sha256(archive.read_bytes()).hexdigest())
-        self.assertEqual(manifest['package'], 'https://github.com/adilorenzo10/adminlume/releases/download/v1.2.3/adminlume-1.2.3.zip')
-        self.assertEqual(manifest['url'], 'https://github.com/adilorenzo10/adminlume/releases/tag/v1.2.3')
-        self.assertEqual(manifest['changelog'], '* Test release.')
+    def test_directory_build_does_not_publish_a_github_update_manifest(self):
+        build_release(self.root, '1.2.3', self.output)
+        self.assertFalse((self.output / 'adminlume-update.json').exists())
+
+    def test_external_update_uri_is_rejected(self):
+        header = (self.root / 'adminlume.php').read_text().replace(' * Version:', ' * Update URI: https://github.com/example/plugin\n * Version:')
+        (self.root / 'adminlume.php').write_text(header)
+        with self.assertRaisesRegex(ValueError, 'external GitHub updater'):
+            build_release(self.root, '1.2.3', self.output)
+
+    def test_legacy_updater_file_is_rejected(self):
+        (self.root / 'src/Updater.php').write_text('<?php // Must not ship.\n')
+        with self.assertRaisesRegex(ValueError, 'external GitHub updater'):
+            build_release(self.root, '1.2.3', self.output)
 
     def test_invalid_requirements_are_rejected(self):
         header = (self.root / 'adminlume.php').read_text().replace('Requires PHP: 8.1', 'Requires PHP: invalid')

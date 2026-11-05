@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset name="Adminlume">
+  <description>WordPress Coding Standards for plugin runtime PHP.</description>
+  <file>adminlume.php</file>
+  <file>src</file>
+  <arg name="extensions" value="php"/>
+  <arg value="sp"/>
+  <config name="minimum_supported_wp_version" value="6.5"/>
+  <rule ref="WordPress"/>
+</ruleset>

@@ -1,8 +1,10 @@
 === Adminlume ===
+Contributors: dilorsoft
 Tags: admin, dashboard, toolbar, customization
 Requires at least: 6.5
+Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.3.10
+Stable tag: 0.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -22,12 +24,12 @@ Features include:
 * Conditional styles for media dialogs and relevant WooCommerce screens.
 * A translucent charcoal front-end dock with separate native site and account actions.
 * Native actions preserved in responsive menus, with keyboard-accessible hide and reopen controls.
-* Native WordPress update notices and optional automatic updates from stable GitHub releases.
+* WordPress.org-native updates once the plugin has been approved and published in the directory.
 * No runtime build step, remote fonts, or tracking.
 
 Preferences are stored in user metadata. Dock visibility uses browser local storage when available. Existing WordPress and third-party toolbar links and resources remain subject to their own behavior and privacy policies.
 
-Update checks contact the official public GitHub repository and its download CDN over HTTPS. Requests are cached and do not include account details, the site URL, or installed-version parameters. GitHub receives normal connection information such as the server IP address. Package downloads use WordPress's HTTP API, whose default user agent may include WordPress and site information. See https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement for GitHub's privacy policy.
+Adminlume does not contact GitHub or another external update service. This directory edition relies on WordPress's own update system and does not override automatic-update preferences. Core WordPress and existing third-party features retain their normal network and privacy behavior.
 
 The interface uses English source strings and includes an Italian (it_IT) translation. The admin area follows the user's WordPress language preference; the public site uses the active front-end locale. Missing translations fall back to English.
 
@@ -47,9 +49,9 @@ WordPress 6.5 or later and PHP 8.1 or later are required. Test on a local or sta
 
 = How do updates work? =
 
-After installing an updater-enabled version, keep Adminlume active. Stable releases with an update manifest appear through WordPress's normal plugin update checks. Use Dashboard > Updates > Check again to request a check; GitHub metadata is cached for up to six hours. Enable automatic updates on the Plugins screen if desired. Adminlume does not force that setting or bypass site policies and compatibility checks.
+This edition uses the standard WordPress.org update channel, not a bundled external updater. Updates become available after approval, publication under the approved directory slug, and a newer release in that directory. Until then, install reviewed ZIPs manually on staging; GitHub tags do not create WordPress.org updates. Automatic updates remain under the site's control.
 
-Version 0.2.0 does not contain the updater. Upload and replace it once with the first updater-enabled release, then later releases can be detected normally. No WordPress.org listing or GitHub token is required for the public release feed.
+Users of the older GitHub-updater edition must manually replace it once with the approved directory edition, using the same plugin folder and retaining their preferences. Directory approval and slug availability are not guaranteed. Do not uninstall the plugin first.
 
 = Does activation change the interface for everyone? =
 
@@ -81,11 +83,18 @@ Copyright (c) 2026 Dilorsoft.
 
 Adminlume is free and open-source software licensed under the GNU General Public License, version 2 or (at your option) any later version. You may use, modify, fork, redistribute, and sell it under those terms. Preserve required notices and comply with the applicable source-code and derivative-work requirements.
 
-The software is distributed without warranty. See LICENSE for the complete license and COPYRIGHT.md for attribution guidance.
+The software is distributed without warranty. See LICENSE for the complete license and COPYRIGHT.txt in the release package for attribution guidance.
 
-The software license grants no separate trademark license. Independent forks must not be misleadingly presented as official Dilorsoft releases. See TRADEMARKS.md; that policy does not add restrictions to GPL rights or assert trademark registration.
+The software license grants no separate trademark license. Independent forks must not be misleadingly presented as official Dilorsoft releases. See TRADEMARKS.txt in the release package; that policy does not add restrictions to GPL rights or assert trademark registration.
 
 == Changelog ==
+
+= 0.4.0 =
+
+* Prepare a WordPress.org directory edition without an external Update URI or GitHub updater.
+* Keep GitHub as a development/source archive only; future directory updates are handled by WordPress.
+* Validate POST-only settings saves and align runtime PHP with WordPress Coding Standards.
+* Keep existing appearance preferences, translations, and front-end toolbar behavior.
 
 = 0.3.10 =
 
@@ -122,6 +131,10 @@ The software license grants no separate trademark license. Independent forks mus
 * Compatibility fallback for existing Rounded Admin preferences.
 
 == Upgrade Notice ==
+
+= 0.4.0 =
+
+Changes the update source to WordPress.org. Install the approved directory edition manually over an older GitHub build once. Until approval and publication, no automatic directory update is promised. Personal preferences are retained.
 
 = 0.3.3 =
 

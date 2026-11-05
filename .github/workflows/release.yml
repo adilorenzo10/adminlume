@@ -56,6 +56,11 @@ jobs:
       - name: Test packaging and translation catalogs
         run: python3 -m unittest discover -s tests -p 'test_*.py' -v
 
+      - name: Check WordPress Coding Standards
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          composer lint
+
       - name: Build installable ZIP and checksum
         run: python3 scripts/build_release.py --version "$RELEASE_VERSION"
 
@@ -65,9 +70,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           gh release create "$RELEASE_TAG" \
-            "dist/adminlume-$RELEASE_VERSION.zip" \
-            "dist/adminlume-$RELEASE_VERSION.zip.sha256" \
-            "dist/adminlume-update.json" \
+            "dist/wordpress-org/adminlume-$RELEASE_VERSION.zip" \
+            "dist/wordpress-org/adminlume-$RELEASE_VERSION.zip.sha256" \
             --verify-tag \
             --title "Adminlume $RELEASE_VERSION" \
             --generate-notes

@@ -2,12 +2,11 @@
 /**
  * Plugin Name: Adminlume
  * Description: A lightweight WordPress admin interface and frontend dock with personal preferences.
- * Version: 0.3.10
+ * Version: 0.4.0
  * Requires at least: 6.5
  * Requires PHP: 8.1
  * Author: Dilorsoft
  * Plugin URI: https://github.com/adilorenzo10/adminlume
- * Update URI: https://github.com/adilorenzo10/adminlume
  * Text Domain: adminlume
  * Domain Path: /languages
  * License: GPL-2.0-or-later
@@ -34,22 +33,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once __DIR__ . '/src/Settings.php';
-require_once __DIR__ . '/src/Assets.php';
-require_once __DIR__ . '/src/Chrome.php';
-require_once __DIR__ . '/src/FrontendToolbar.php';
-require_once __DIR__ . '/src/Updater.php';
+require_once __DIR__ . '/src/class-settings.php';
+require_once __DIR__ . '/src/class-assets.php';
+require_once __DIR__ . '/src/class-chrome.php';
+require_once __DIR__ . '/src/class-frontendtoolbar.php';
 
-// Register independently of personal appearance preferences, including cron.
-( new Updater( __FILE__ ) )->register();
+add_action(
+	'init',
+	static function (): void {
+		// Register the bundled fallback without eagerly loading a catalog. This
+		// also supports WordPress 6.5, before automatic plugin-path registration.
+		$GLOBALS['wp_textdomain_registry']->set_custom_path( 'adminlume', __DIR__ . '/languages' );
+	}
+);
 
-add_action( 'init', static function (): void {
-	load_plugin_textdomain( 'adminlume', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-} );
-
-add_action( 'plugins_loaded', static function (): void {
-	( new Settings() )->register();
-	( new Assets( __FILE__ ) )->register();
-	( new Chrome() )->register();
-	( new FrontendToolbar( __FILE__ ) )->register();
-} );
+add_action(
+	'plugins_loaded',
+	static function (): void {
+		( new Settings() )->register();
+		( new Assets( __FILE__ ) )->register();
+		( new Chrome() )->register();
+		( new FrontendToolbar( __FILE__ ) )->register();
+	}
+);

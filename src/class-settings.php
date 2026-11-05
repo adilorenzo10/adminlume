@@ -1,41 +1,64 @@
 <?php
+/**
+ * Personal appearance settings and authenticated persistence.
+ *
+ * @package Adminlume
+ */
 
 declare(strict_types=1);
 
 namespace Adminlume;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/** Owns per-user preferences without changing site-wide options. */
 final class Settings {
 
-	public const META_KEY = 'adminlume_preferences';
+	public const META_KEY        = 'adminlume_preferences';
 	public const LEGACY_META_KEY = 'rounded_admin_preferences';
-	public const PAGE = 'adminlume';
+	public const PAGE            = 'adminlume';
 
+	/** Register settings UI and the authenticated save action. */
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'menu' ) );
 		add_action( 'admin_post_adminlume_save', array( $this, 'save' ) );
 		add_filter( 'plugin_action_links_adminlume/adminlume.php', array( $this, 'links' ) );
 	}
 
+	/**
+	 * Read current preferences, falling back to legacy metadata when absent.
+	 *
+	 * @return array Validated preferences.
+	 */
 	public function preferences(): array {
-		$id = get_current_user_id();
+		$id  = get_current_user_id();
 		$key = metadata_exists( 'user', $id, self::META_KEY ) ? self::META_KEY : self::LEGACY_META_KEY;
 		return $this->sanitize( get_user_meta( $id, $key, true ) );
 	}
 
+	/**
+	 * Validate every supported field and discard unknown input keys.
+	 *
+	 * @param mixed $input Untrusted preference data.
+	 * @return array Boolean opt-in, validated colors, and an allowed radius.
+	 */
 	public function sanitize( mixed $input ): array {
-		$input = is_array( $input ) ? $input : array();
-		$accent = is_string( $input['accent'] ?? null ) ? sanitize_hex_color( $input['accent'] ) : null;
+		$input      = is_array( $input ) ? $input : array();
+		$accent     = is_string( $input['accent'] ?? null ) ? sanitize_hex_color( $input['accent'] ) : null;
 		$background = is_string( $input['chrome_background'] ?? null ) ? sanitize_hex_color( $input['chrome_background'] ) : null;
-		$radius = is_scalar( $input['radius'] ?? null ) ? (int) $input['radius'] : 16;
+		$radius     = is_scalar( $input['radius'] ?? null ) ? (int) $input['radius'] : 16;
 
 		return array(
-			'enabled' => ! empty( $input['enabled'] ),
-			'accent'  => $accent ?: '#303030',
-			'chrome_background' => $background ?: '#000000',
-			'radius'  => in_array( $radius, array( 8, 12, 16 ), true ) ? $radius : 16,
+			'enabled'           => ! empty( $input['enabled'] ),
+			'accent'            => $accent ? $accent : '#303030',
+			'chrome_background' => $background ? $background : '#000000',
+			'radius'            => in_array( $radius, array( 8, 12, 16 ), true ) ? $radius : 16,
 		);
 	}
 
+	/** Add a personal settings page under Users or Profile as permitted. */
 	public function menu(): void {
 		add_submenu_page(
 			current_user_can( 'list_users' ) ? 'users.php' : 'profile.php',
@@ -47,27 +70,44 @@ final class Settings {
 		);
 	}
 
+	/**
+	 * Add a personal-preferences link to the plugin row.
+	 *
+	 * @param string[] $links Existing action links.
+	 * @return string[] Updated action links.
+	 */
 	public function links( array $links ): array {
 		array_unshift( $links, '<a href="' . esc_url( $this->url() ) . '">' . esc_html__( 'Personal preferences', 'adminlume' ) . '</a>' );
 		return $links;
 	}
 
+	/**
+	 * Resolve the current user's settings URL.
+	 *
+	 * @return string Settings URL.
+	 */
 	private function url(): string {
 		return admin_url( ( current_user_can( 'list_users' ) ? 'users.php' : 'profile.php' ) . '?page=' . self::PAGE );
 	}
 
+	/** Persist only the authenticated account's validated preferences via POST. */
 	public function save(): void {
 		if ( ! current_user_can( 'read' ) ) {
 			wp_die( esc_html__( 'Access denied.', 'adminlume' ), '', array( 'response' => 403 ) );
 		}
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) {
+			wp_die( esc_html__( 'Only POST requests are allowed.', 'adminlume' ), '', array( 'response' => 405 ) );
+		}
 
 		check_admin_referer( 'adminlume_save_' . get_current_user_id() );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitize() validates each field against strict color, boolean, and radius rules.
 		$preferences = $this->sanitize( wp_unslash( $_POST['preferences'] ?? array() ) );
 		update_user_meta( get_current_user_id(), self::META_KEY, $preferences );
 		wp_safe_redirect( add_query_arg( 'saved', '1', $this->url() ) );
 		exit;
 	}
 
+	/** Render escaped personal settings without accepting a client-selected user. */
 	public function render(): void {
 		if ( ! current_user_can( 'read' ) ) {
 			return;
@@ -78,6 +118,7 @@ final class Settings {
 		<div class="wrap ra-preferences">
 			<h1><?php esc_html_e( 'Adminlume', 'adminlume' ); ?></h1>
 			<p><?php esc_html_e( 'A softer interface without changing how you work. These preferences apply only to your account.', 'adminlume' ); ?></p>
+			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Cosmetic flag displays a static message and never changes preferences. ?>
 			<?php if ( isset( $_GET['saved'] ) ) : ?>
 				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Preferences saved.', 'adminlume' ); ?></p></div>
 			<?php endif; ?>
@@ -99,7 +140,14 @@ final class Settings {
 					</td></tr>
 					<tr><th scope="row"><label for="ra-radius"><?php esc_html_e( 'Panel corner radius', 'adminlume' ); ?></label></th><td>
 						<select id="ra-radius" name="preferences[radius]">
-							<?php foreach ( array( 8 => _x( 'Subtle', 'panel corner radius', 'adminlume' ), 12 => _x( 'Medium', 'panel corner radius', 'adminlume' ), 16 => _x( 'Soft', 'panel corner radius', 'adminlume' ) ) as $value => $label ) : ?>
+							<?php
+							$radii = array(
+								8  => _x( 'Subtle', 'panel corner radius', 'adminlume' ),
+								12 => _x( 'Medium', 'panel corner radius', 'adminlume' ),
+								16 => _x( 'Soft', 'panel corner radius', 'adminlume' ),
+							);
+							foreach ( $radii as $value => $label ) :
+								?>
 								<option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $preferences['radius'], $value ); ?>><?php echo esc_html( $label ); ?></option>
 							<?php endforeach; ?>
 						</select>

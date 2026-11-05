@@ -10,6 +10,7 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI || 'local' !== wp_get_environment_type() 
 }
 
 require_once ABSPATH . 'wp-admin/includes/screen.php';
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
 require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
 
 $previous_user = get_current_user_id();
@@ -19,6 +20,11 @@ $front_bar_filter = null;
 $previous_query = $GLOBALS['wp_query'] ?? null;
 $previous_post = $GLOBALS['post'] ?? null;
 $front_page_option = static fn() => 'posts';
+$previous_method = $_SERVER['REQUEST_METHOD'] ?? null;
+$previous_request = $_REQUEST;
+$die_handler = static fn() => static function ( $message, $title, $args ): void {
+	throw new RuntimeException( 'Expected blocked settings request.', (int) ( $args['response'] ?? 0 ) );
+};
 $user_id = wp_insert_user( array( 'user_login' => 'rounded-test-' . wp_generate_uuid4(), 'user_pass' => wp_generate_password( 40 ), 'role' => 'subscriber' ) );
 if ( is_wp_error( $user_id ) ) {
 	throw new RuntimeException( 'Cannot create isolated test user.' );
@@ -35,6 +41,38 @@ $check = static function ( bool $condition, string $message ) use ( &$checks ): 
 try {
 	wp_set_current_user( $user_id );
 	$settings = new Settings();
+	$headers = get_plugin_data( WP_PLUGIN_DIR . '/adminlume/adminlume.php', false, false );
+	$check( '' === $headers['UpdateURI'] && ! class_exists( 'Adminlume\\Updater' ), 'directory edition has no external updater or Update URI' );
+	foreach ( array( 'update_plugins_github.com', 'plugins_api', 'upgrader_pre_download' ) as $hook ) {
+		$own_callback = false;
+		foreach ( $GLOBALS['wp_filter'][ $hook ]->callbacks ?? array() as $callbacks ) {
+			foreach ( $callbacks as $entry ) {
+				$callback = $entry['function'];
+				if ( is_array( $callback ) && is_object( $callback[0] ) && str_starts_with( get_class( $callback[0] ), 'Adminlume\\' ) ) $own_callback = true;
+			}
+		}
+		$check( ! $own_callback, 'directory edition does not override ' . $hook );
+	}
+	add_filter( 'wp_die_handler', $die_handler, PHP_INT_MAX );
+	$_SERVER['REQUEST_METHOD'] = 'GET';
+	$blocked = false;
+	try {
+		$settings->save();
+	} catch ( RuntimeException $error ) {
+		$blocked = 405 === $error->getCode();
+	}
+	$check( $blocked, 'state-changing settings requests require POST' );
+	$_SERVER['REQUEST_METHOD'] = 'POST';
+	$_REQUEST['_wpnonce'] = 'invalid-test-nonce';
+	$blocked = false;
+	try {
+		$settings->save();
+	} catch ( RuntimeException $error ) {
+		$blocked = 403 === $error->getCode();
+	}
+	$check( $blocked && ! metadata_exists( 'user', $user_id, Settings::META_KEY ), 'invalid nonce cannot save preferences' );
+	remove_filter( 'wp_die_handler', $die_handler, PHP_INT_MAX );
+	$_REQUEST = $previous_request;
 	$assets = new Assets( WP_PLUGIN_DIR . '/adminlume/adminlume.php' );
 	set_current_screen( 'dashboard' );
 	$check( ! $settings->preferences()['enabled'], 'new users default to native appearance' );
@@ -175,6 +213,10 @@ try {
 	$check( ! wp_style_is( 'rounded-admin-frontend-toolbar', 'enqueued' ) && array() === $frontend->body_class( array() ), 'guests receive no frontend toolbar assets or class' );
 	WP_CLI::success( $checks . ' Adminlume integration checks passed.' );
 } finally {
+	remove_filter( 'wp_die_handler', $die_handler, PHP_INT_MAX );
+	$_REQUEST = $previous_request;
+	if ( null === $previous_method ) unset( $_SERVER['REQUEST_METHOD'] );
+	else $_SERVER['REQUEST_METHOD'] = $previous_method;
 	require_once ABSPATH . 'wp-admin/includes/user.php';
 	wp_set_current_user( $previous_user );
 	wp_delete_user( $user_id );
