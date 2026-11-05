@@ -5,7 +5,7 @@
 - **Source language:** English. An English PO/MO catalog is unnecessary: untranslated gettext strings are already the English fallback.
 - **Text domain:** the literal `adminlume`, matching the plugin slug. The plugin header declares `Domain Path: /languages`.
 - **Files:** `languages/adminlume.pot` is the template; `adminlume-it_IT.po` is the editable Italian catalog; `adminlume-it_IT.mo` is its compiled runtime form. They are included in the release ZIP.
-- **Loading:** `load_plugin_textdomain()` registers the bundled path on `init`, not during early file inclusion. WordPress owns locale selection, language-pack precedence, and locale switching; no custom language option is added.
+- **Loading:** the native `WP_Textdomain_Registry` registers the bundled fallback path on `init`, including compatibility with WordPress 6.5. Catalog loading remains just-in-time; no eager `load_plugin_textdomain()` call is required. WordPress owns locale selection, language-pack precedence, and locale switching; no custom language option is added.
 
 The admin area follows the user's language preference in **Users → Profile → Language**, with the site language as its default. The public site follows WordPress's active front-end locale (including any locale switching performed by WordPress or a multilingual plugin). Do not force the entire site to the logged-in user's language from this plugin. Unsupported locales fall back to English.
 

@@ -38,11 +38,11 @@ The front-end dock retains its own dark presentation. Disabling the personal pre
 
 ## Plugin updates
 
-Starting with **0.3.0**, stable GitHub releases integrate with WordPress's native update screen. Keep Adminlume active; appearance opt-in is not required for update detection. Enable **automatic updates** for Adminlume on the Plugins screen if desired. The plugin does not force automatic installation or bypass site policies, filesystem permissions, or WordPress/PHP requirements.
+The **0.4.0 directory edition** removes the GitHub updater and external `Update URI`. It relies on WordPress.org's native update channel once the plugin is approved, published under its approved slug, and a newer directory release exists. This repository and ZIP preparation do not imply directory approval. Until publication, install reviewed ZIPs manually on staging.
 
-**One-time migration:** version `0.2.0` has no updater. Upload and replace it manually with the first updater-enabled ZIP once; subsequent newer releases can then be detected normally. There is no need to uninstall the plugin or delete personal preferences.
+**One-time migration:** users of the older GitHub edition must manually replace it with the approved directory edition once. Keep the same `adminlume/` folder and do not uninstall first; personal preferences are retained. Removing the external updater does not automatically migrate existing installations or publish anything to WordPress.org.
 
-Checks use a cached manifest from the public GitHub release feed, not a WordPress.org listing. GitHub metadata is cached for six hours (15 minutes on errors), and WordPress has its own check schedule, so notifications are not instantaneous. Release ZIPs are verified against the manifest's SHA-256 before installation. See [updates and troubleshooting](docs/updates.md).
+Automatic installation remains controlled by WordPress and site policies. GitHub remains the development repository and source/archive host only, not an updater inside the installed plugin. See [updates and migration](docs/updates.md).
 
 ## Features
 
@@ -90,7 +90,7 @@ Adminlume does not attempt to restyle arbitrary React application internals or c
 - Saving uses the authenticated WordPress POST handler, the `read` capability, and a nonce tied to the current user. No client-supplied user ID is accepted.
 - Colors are validated as hexadecimal values, panel radii use an allowlist, and rendered settings values are escaped.
 - The plugin adds no tracking, remote fonts, custom scheduled tasks, or custom database tables. Preferences should not contain secrets.
-- Native update checks fetch a small HTTPS manifest from GitHub and its download CDN, with no site URL, account details, installed-version query, or locale parameters. GitHub receives standard connection information, including the server IP. Package downloads use WordPress's HTTP API, whose default user agent may include WordPress and site information. See [GitHub's privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).
+- Adminlume makes no plugin-initiated external update requests. WordPress's own directory update services retain their normal behavior; no custom GitHub update/download hooks are registered.
 - Existing WordPress or third-party toolbar features may retain their own external links or resources; Adminlume does not replace their privacy policies.
 
 ## Developer documentation

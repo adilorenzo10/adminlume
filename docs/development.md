@@ -5,11 +5,10 @@
 | File | Responsibility |
 | --- | --- |
 | `adminlume.php` | Plugin metadata, text domain loading, and hook registration. |
-| `src/Settings.php` | Personal preferences, sanitization, settings page, and authenticated save handler. |
-| `src/Assets.php` | Conditional admin assets, appearance variables, and luminance-based foreground selection. |
-| `src/Chrome.php` | Admin toolbar adjustments and the sidebar site link for opted-in users. |
-| `src/FrontendToolbar.php` | Native toolbar integration on authenticated public-site requests. |
-| `src/Updater.php` | Native update metadata, plugin details, and verified downloads from stable GitHub releases. |
+| `src/class-settings.php` | Personal preferences, sanitization, settings page, and authenticated POST-only save handler. |
+| `src/class-assets.php` | Conditional admin assets, appearance variables, and luminance-based foreground selection. |
+| `src/class-chrome.php` | Admin toolbar adjustments and the sidebar site link for opted-in users. |
+| `src/class-frontendtoolbar.php` | Native toolbar integration on authenticated public-site requests. |
 | `assets/css/admin.css` | Scoped admin layout and native controls. |
 | `assets/css/toolbar.css` | Backend toolbar only. |
 | `assets/css/media.css` | Native media surfaces, loaded when WordPress enqueues media. |
@@ -29,7 +28,7 @@ Keep public-site assets isolated: do not enqueue the admin layout or sidebar scr
 - `adminlume_preferences`: current user metadata containing `enabled`, `accent`, `chrome_background`, and `radius`.
 - `rounded_admin_preferences`: legacy fallback, read only if the current key is absent. Saving writes the current key without deleting legacy data.
 - Browser local storage: dock visibility state when storage is available; controls must still work if storage is blocked.
-- `adminlume_release_manifest_v1`: network-scoped transient for validated update metadata (six hours), or a failure marker (15 minutes). No custom cron job is added.
+- No custom update cache is read by the directory edition. An old `adminlume_release_manifest_v1` transient can expire naturally. No custom cron job is added.
 
 Internal `rounded-admin`, `ra-*`, and `nzm-*` identifiers and asset handles are compatibility details. Do not rename them as part of cosmetic or documentation work. Neither deactivation nor an uninstall routine currently deletes metadata; there is no uninstall cleanup implementation.
 
@@ -55,13 +54,7 @@ docker compose run --rm wpcli wp eval-file /var/www/html/wp-content/plugins/admi
 
 Coverage includes opt-in defaults, sanitization, contrast selection, metadata isolation, legacy fallback, authenticated form markup, conditional admin/front-end asset loading, and preservation of native action labels, destinations, and metadata. Edit-action checks reuse existing page, post, and product fixtures when available; missing fixtures are skipped. These checks are not a complete security audit or a substitute for request-level authorization testing.
 
-The updater has a separate local integration suite:
-
-```bash
-docker compose run --rm wpcli wp eval-file /var/www/html/wp-content/plugins/adminlume/tests/updater-integration.php
-```
-
-It mocks outbound HTTP, exercises `wp_update_plugins()` and the native plugin-details API, checks no-update/downgrade behavior, caches, compatibility requirements, checksum verification, malformed responses, failures, and isolation from unrelated plugins. It does not install an update, change automatic-update preferences, or contact GitHub. Download fixtures are temporary and update transients are restored during cleanup. Run only on the isolated local environment described above; an interrupted process may require clearing its test update transients.
+The main integration suite also verifies that no external update URI, updater class, or Adminlume hooks override WordPress's update/details/download APIs. It checks that GET cannot save settings and an invalid POST nonce cannot write preferences. The retired GitHub updater integration suite has been removed.
 
 For English/Italian runtime checks, run `tests/i18n-integration.php` through the same local WP-CLI setup. It requires the Italian core language pack and creates/deletes a temporary user. See [translations.md](translations.md) for catalog generation, locale behavior, and the standalone translation tests included in release CI.
 
@@ -79,6 +72,7 @@ From the root of this repository, point `ADMINLUME_WP_ROOT` at the local directo
 ```bash
 ADMINLUME_WP_ROOT=/path/to/local-site node tests/topbar-browser.cjs
 ADMINLUME_WP_ROOT=/path/to/local-site node tests/frontend-toolbar-browser.cjs
+ADMINLUME_WP_ROOT=/path/to/local-site node tests/settings-browser.cjs
 ```
 
 Optional environment variables:
@@ -90,8 +84,12 @@ Optional environment variables:
 | `ROUNDED_ADMIN_SCREENSHOT` | Screenshot output file for the top-bar test. |
 | `TOOLBAR_SCREENSHOT_DIR` | Existing screenshot output directory for the front-end test. |
 | `ADMINLUME_ASSET_OVERRIDE` | Set to `1` to serve this checkout's front-end CSS/JS through Playwright routes without modifying the local site's installed plugin. This does not replace or test the installed PHP implementation. |
+| `AXE_MODULE` | Optional module name/path for development-only `axe-core`; scans the settings panel for WCAG A/AA findings. |
+| `ADMINLUME_SETTINGS_SCREENSHOT` | Optional screenshot output path for the settings test. |
 
 Set `ADMINLUME_WP_ROOT` explicitly for a standalone checkout; the scripts' default path assumes a nested WordPress layout. Node.js and Playwright are development tools only and are not plugin runtime dependencies.
+
+The settings test requires the explicit Compose root and a local environment. It creates a temporary administrator, verifies opt-in, labels, keyboard save, preference persistence, focus styling, mobile layout, and opt-out, then removes that test account in cleanup. It does not modify existing users. Optional axe coverage is limited to `.ra-preferences`, not a complete accessibility audit. Set `COMPOSE_PROJECT_NAME` if the fixture uses a named Compose project.
 
 For PHP checks without replacing the local site's installed plugin files, use a read-only mount for the one-off CLI container (replace the host path):
 
@@ -115,6 +113,21 @@ git diff --check
 ```
 
 Syntax checks do not execute WordPress or establish WordPress Coding Standards compliance. See [CONTRIBUTING.md](../CONTRIBUTING.md) for standards and review expectations.
+
+Run the full runtime PHP standard with:
+
+```bash
+composer install
+composer lint
+```
+
+Composer tools are development-only and are never packaged. Run official Plugin Check against the **installed ZIP**, not the repository (which includes tests and development files). Include runtime checks with its bootstrap:
+
+```bash
+wp plugin check adminlume --require=./wp-content/plugins/plugin-check/cli.php --format=json
+```
+
+The Plugin Check plugin must be installed in that isolated test site. Record the tool and WordPress/PHP versions, results, and any remaining findings. See the [directory submission guide](wordpress-org.md).
 
 ## Manual regression checklist
 

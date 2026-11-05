@@ -23,7 +23,7 @@ Do not include credentials, authentication cookies, session tokens, customer dat
 - Preserve legacy metadata fallbacks, selectors, handles, and storage keys unless an explicit migration is documented and tested.
 - Do not introduce mandatory theme dependencies, remote assets, tracking, custom tables, or build requirements without prior discussion.
 
-These are contribution requirements, not a claim that the entire existing codebase has passed an automated standards or security audit. PHP_CodeSniffer with WordPress Coding Standards is recommended for PHP review; no PHPCS configuration or dependency is currently bundled.
+Run `composer install` and `composer lint` for the runtime PHP review. `phpcs.xml.dist` uses the full WordPress Coding Standards ruleset; the lockfile pins the development tools. Dependencies and configuration are excluded from the plugin ZIP. Passing these checks is not a security audit or a guarantee of directory approval.
 
 ## Commit messages
 
@@ -64,7 +64,7 @@ See [the release guide](docs/releases.md) for version tags, automated GitHub Rel
 
 - Keep the plugin header version and the `readme.txt` stable tag aligned with the intended release.
 - Record user-facing changes and any upgrade steps in the WordPress readme changelog.
-- Set `Tested up to` only after verifying the actual WordPress release. It is intentionally omitted until that verification is available.
+- Set `Tested up to` only after verifying the actual WordPress release; use the major/minor format required by the directory (for example `7.1`). Record the exact tested patch version in the review report.
 - Use a verified WordPress.org username for `Contributors` if publishing to the directory; do not infer it from the author name. The field is currently omitted because no account has been verified.
 - Validate `readme.txt` with the [WordPress.org readme validator](https://wordpress.org/plugins/developers/readme-validator/) before submission. Readme formatting alone does not establish directory approval or full guideline compliance.
 - Review the [Plugin Directory Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/), licensing of bundled assets, and release contents before distribution. Include the applicable license text in the release package.

@@ -22,7 +22,7 @@ A floating overlay can cover site elements. Use Hide when needed and test sticky
 
 ## Scope and validation
 
-This restoration is limited to the front-end toolbar implementation. The backend skin, native updater, GitHub release automation, metadata compatibility, and personal preferences are unaffected. Existing tags and release assets are not rewritten.
+The restored front-end toolbar remains in the directory edition. The update-source migration is separate from its appearance: WordPress.org owns future updates and the external GitHub updater has been removed. Personal preferences and compatibility keys remain unchanged. Existing tags and release assets are not rewritten.
 
 See [development.md](development.md) for test setup. Browser checks cover the restored appearance, separate desktop actions, native menu navigation, late plugin nodes and handlers, saved visibility, responsive grouping, native URLs, reduced motion, touch hide/reopen controls, blocked storage, no-JavaScript fallback, guests, and backend isolation. PHP checks verify that native action labels, destinations, and metadata remain unchanged.
 

@@ -1,12 +1,12 @@
 # WordPress.org submission and plugin branding
 
-## Current status: GitHub distribution
+## Current status: directory edition prepared locally
 
-Adminlume currently ships with a GitHub updater and an external `Update URI`. The existing GitHub ZIP is **not ready for submission unchanged** to the WordPress.org Plugin Directory.
+Adminlume 0.4.0 has been prepared without the GitHub updater or external `Update URI`. GitHub remains the development/source archive; the installed plugin uses WordPress's directory update system. The local package is not an approved or published WordPress.org listing. See the [0.4.0 review report](review-0.4.0.md) for executed checks and limitations.
 
 [Directory guideline 8](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/#8-plugins-may-not-send-executable-code-via-third-party-systems) prohibits delivering plugin updates from third-party servers in directory-hosted plugins. The directory build must use WordPress.org's own update channel. Merely adding an icon or changing the readme does not resolve this requirement.
 
-This guide documents the remaining work; it does not disable the existing updater, submit a plugin, reserve a slug, or publish to SVN.
+The source migration and isolated checks are complete locally. This guide does not submit a plugin, reserve a slug, create a release/tag, or publish to SVN.
 
 ## Icon files
 
@@ -16,7 +16,7 @@ Original Adminlume artwork is included under the project's `GPL-2.0-or-later` li
 - `assets/images/icon-128x128.png`: standard raster fallback.
 - `assets/images/icon-256x256.png`: high-DPI raster fallback.
 
-The current GitHub updater supplies these local assets through WordPress's `icons` metadata (`svg`, `1x`, and `2x`). They are included in the installable plugin ZIP and do not require a remote icon service. Core's installed Plugins table does not have a general custom-icon header; icons are shown on the update/discovery surfaces that support them. No unsupported `Icon URI` header is added, and the public toolbar's native WordPress logo is not replaced.
+These assets remain bundled, but no custom updater supplies icon metadata. Directory listing artwork comes from SVN `/assets/` after approval. Core's installed Plugins table does not have a general custom-icon header. No unsupported `Icon URI` header is added, and the public toolbar's native WordPress logo is not replaced.
 
 After editing the SVG, regenerate both PNG files with the same development-only Playwright setup used for browser tests:
 
@@ -37,11 +37,11 @@ SVG icons need a PNG fallback. File dimensions must match their names. See the o
 
 ## Prepare the directory edition
 
-1. Decide to use WordPress.org as the update source for the directory edition. Keep GitHub for development and source availability, not as an alternative updater inside that edition.
-2. Remove the external `Update URI`, GitHub updater bootstrap, updater hooks, and related external update/download code from the directory package. Update the readme and privacy descriptions to match. This requires an explicit distribution change and testing; it has not been applied to the current GitHub edition.
+1. Keep WordPress.org as the sole installed update source. GitHub is retained for development and source availability, not as an alternative updater inside this edition.
+2. Preserve the completed removal of the external `Update URI`, updater class/bootstrap, hooks, external update/download code, and generated manifest. Readme/privacy descriptions and packaging guards now match this behavior.
 3. Plan migration of existing GitHub installations to the directory edition once the approved slug exists. Test the one-time replacement on staging, then confirm subsequent updates come from WordPress.org. Do not assume directory publication automatically changes existing clients' update source.
 4. Keep the `adminlume` slug/text domain consistent with the approved directory slug. Availability is determined by the Plugins Team; the name is not reserved by this repository.
-5. Add the verified WordPress.org account username to `Contributors` in `readme.txt`. Do not infer the account name from GitHub or the Dilorsoft brand.
+5. `Contributors` in `readme.txt` contains `dilorsoft`, the WordPress.org username supplied by the maintainer. Confirm account access before submission; it was not inferred from GitHub or branding.
 6. Retain GPL-compatible licensing and all required notices. Audit all bundled code and artwork for provenance. The original icon source and PNGs are covered by the existing project license.
 7. Review security, output escaping, capability/nonce checks, accessibility, per-user opt-in, WooCommerce compatibility, and internationalization. English source strings, an Italian PO/MO catalog, and a POT template are provided; keep the `adminlume` text domain, regenerate catalogs for changed strings, and verify user-locale behavior. Do not claim untested compatibility.
 8. Set matching plugin `Version`, readme `Stable tag`, and changelog. Set `Tested up to` only after actually testing that WordPress version. Use the release-preparation workflow before tagging; do not reuse an existing public tag.
@@ -51,12 +51,12 @@ SVG icons need a PNG fallback. File dimensions must match their names. See the o
 Use an isolated local/staging WordPress site, not production. Run the official [Plugin Check](https://wordpress.org/plugins/plugin-check/) against the directory edition and address errors. Its WordPress CLI command is:
 
 ```bash
-wp plugin check adminlume
+wp plugin check adminlume --require=./wp-content/plugins/plugin-check/cli.php --format=json
 ```
 
 The Plugin Check tool must first be installed in that test environment. Also run the project's tests and review new PHP with WordPress Coding Standards. Validate `readme.txt` with the [readme validator](https://wordpress.org/plugins/developers/readme-validator/). Automated checks help but do not guarantee approval.
 
-Build a clean installable ZIP of the **directory edition** rooted at `adminlume/`, including only runtime files, translations, readme, and license notices. Do not upload the current GitHub-updater package unchanged. Verify clean installation, activation, deactivation, preference retention, and update behavior on supported PHP/WordPress versions.
+Build with `python3 scripts/build_release.py --version 0.4.0`. The clean ZIP is `dist/wordpress-org/adminlume-0.4.0.zip`, rooted at `adminlume/`, including runtime files, translations, readme, and license notices only. Historical GitHub-updater packages are unsuitable for submission. Verify installation, activation, deactivation, preference retention, and supported PHP/WordPress combinations. Actual directory update delivery can only be confirmed after publication.
 
 ## Submit and publish
 
@@ -67,4 +67,4 @@ Build a clean installable ZIP of the **directory edition** rooted at `adminlume/
 5. After approval and SVN access, publish runtime files in `/trunk`, create the matching immutable release under `/tags/X.Y.Z`, and place listing icons/banners/screenshots in top-level `/assets`. Follow the official [SVN guide](https://developer.wordpress.org/plugins/wordpress-org/how-to-use-subversion/).
 6. Verify the public plugin listing, artwork, version, download ZIP, and native WordPress update delivery. Maintain SVN as a release repository rather than mirroring every development commit. SVN credentials and any future deployment automation must be configured separately and never committed.
 
-Until the directory edition is prepared and approved, users can still install the existing GitHub ZIP through **Plugins → Add New Plugin → Upload Plugin**, then replace the current version when prompted. This is installation on an individual site, not publication on WordPress.org.
+Until approval and publication, reviewed ZIPs can be installed manually on staging through **Plugins → Add New Plugin → Upload Plugin**. Existing GitHub installations need a one-time manual replacement with the approved directory edition; do not uninstall first. This is installation on an individual site, not publication on WordPress.org.
