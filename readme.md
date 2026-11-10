@@ -23,7 +23,7 @@ Download the installable `adminlume-X.Y.Z.zip` asset from [GitHub Releases](http
 
 Adminlume is disabled by default for each user. Each account opts in independently; there is no site-wide appearance setting. Select **Enable Adminlume for me** and **Save preferences** (or their translations in your WordPress language).
 
-The interface uses English source strings and includes an Italian (`it_IT`) translation. WordPress chooses the active locale: the admin area respects the user's language preference, while the public site follows WordPress's front-end locale. Unsupported locales fall back to English. See [translation maintenance](docs/translations.md).
+The interface uses English source strings and supports community translations through translate.wordpress.org. Starting with 0.4.1, development Italian catalogs remain in this repository but are not bundled in the plugin ZIP. WordPress delivers available, approved language packs separately; without one, labels remain in English. The admin area respects the user's language preference, while the public site follows WordPress's front-end locale. See [translation maintenance](docs/translations.md).
 
 ## Personal preferences
 

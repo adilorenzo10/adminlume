@@ -1,5 +1,7 @@
 # Adminlume 0.4.0 directory-edition review
 
+Historical report: these checks preceded the initial Plugins Team review. That review subsequently requested removal of packaged translation catalogs and late escaping of generated CSS. See the [0.4.1 correction report](review-0.4.1.md); the earlier automated passes did not constitute directory approval.
+
 Review date: 2026-11-05. Scope: prepare the WordPress.org edition and execute isolated compatibility/automated review checks. The reviewed changes were subsequently committed at the maintainer's request. No tag, release, push, directory submission, or SVN publication was performed by the agent. The existing customer/local installation was not modified.
 
 ## Distribution changes

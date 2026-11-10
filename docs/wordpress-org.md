@@ -2,11 +2,11 @@
 
 ## Current status: directory edition prepared locally
 
-Adminlume 0.4.0 has been prepared without the GitHub updater or external `Update URI`. GitHub remains the development/source archive; the installed plugin uses WordPress's directory update system. The local package is not an approved or published WordPress.org listing. See the [0.4.0 review report](review-0.4.0.md) for executed checks and limitations.
+Adminlume 0.4.0 was submitted without the GitHub updater or external `Update URI`. The initial Plugins Team review requested removal of bundled translation catalogs and late escaping of generated inline CSS; version 0.4.1 addresses these requests. GitHub remains the development/source archive; the installed plugin uses WordPress's directory update system. The submission is pending, not approved or published. See the historical [0.4.0 review report](review-0.4.0.md) and the [0.4.1 correction report](review-0.4.1.md).
 
 [Directory guideline 8](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/#8-plugins-may-not-send-executable-code-via-third-party-systems) prohibits delivering plugin updates from third-party servers in directory-hosted plugins. The directory build must use WordPress.org's own update channel. Merely adding an icon or changing the readme does not resolve this requirement.
 
-The source migration and isolated checks are complete locally. This guide does not submit a plugin, reserve a slug, create a release/tag, or publish to SVN.
+This guide does not submit or update a submission, create a release/tag, or publish to SVN. After uploading a corrected ZIP through Add Your Plugin, reply concisely in the existing review email thread to rejoin the review queue.
 
 ## Icon files
 
@@ -56,7 +56,7 @@ wp plugin check adminlume --require=./wp-content/plugins/plugin-check/cli.php --
 
 The Plugin Check tool must first be installed in that test environment. Also run the project's tests and review new PHP with WordPress Coding Standards. Validate `readme.txt` with the [readme validator](https://wordpress.org/plugins/developers/readme-validator/). Automated checks help but do not guarantee approval.
 
-Build with `python3 scripts/build_release.py --version 0.4.0`. The clean ZIP is `dist/wordpress-org/adminlume-0.4.0.zip`, rooted at `adminlume/`, including runtime files, translations, readme, and license notices only. Historical GitHub-updater packages are unsuitable for submission. Verify installation, activation, deactivation, preference retention, and supported PHP/WordPress combinations. Actual directory update delivery can only be confirmed after publication.
+Build with `python3 scripts/build_release.py --version 0.4.1`. The clean ZIP is `dist/wordpress-org/adminlume-0.4.1.zip`, rooted at `adminlume/`, including runtime files, local assets, readme, and license notices only. Development translation catalogs are excluded; WordPress.org supplies approved language packs separately. Historical packages are not the corrected submission. Verify installation, activation, deactivation, preference retention, and supported PHP/WordPress combinations. Actual directory update delivery can only be confirmed after publication.
 
 ## Submit and publish
 

@@ -3,13 +3,13 @@
 ## WordPress conventions
 
 - **Source language:** English. An English PO/MO catalog is unnecessary: untranslated gettext strings are already the English fallback.
-- **Text domain:** the literal `adminlume`, matching the plugin slug. The plugin header declares `Domain Path: /languages`.
-- **Files:** `languages/adminlume.pot` is the template; `adminlume-it_IT.po` is the editable Italian catalog; `adminlume-it_IT.mo` is its compiled runtime form. They are included in the release ZIP.
-- **Loading:** the native `WP_Textdomain_Registry` registers the bundled fallback path on `init`, including compatibility with WordPress 6.5. Catalog loading remains just-in-time; no eager `load_plugin_textdomain()` call is required. WordPress owns locale selection, language-pack precedence, and locale switching; no custom language option is added.
+- **Text domain:** the literal `adminlume`, matching the plugin slug. There is no bundled language directory or `Domain Path` header in the submitted package.
+- **Development files:** `languages/adminlume.pot` is the template; `adminlume-it_IT.po` is the editable Italian catalog; `adminlume-it_IT.mo` is compiled for development checks only. Starting with 0.4.1, the builder excludes the entire `languages/` directory, including POT, PO, MO, PHP, and JSON files.
+- **Runtime loading:** WordPress loads separately installed language packs from `WP_LANG_DIR/plugins` just in time. Adminlume no longer registers a bundled path or calls `load_plugin_textdomain()`. WordPress owns locale selection, language-pack updates, and locale switching; no custom language option is added.
 
 The admin area follows the user's language preference in **Users → Profile → Language**, with the site language as its default. The public site follows WordPress's active front-end locale (including any locale switching performed by WordPress or a multilingual plugin). Do not force the entire site to the logged-in user's language from this plugin. Unsupported locales fall back to English.
 
-Italian remains available through the bundled catalog rather than Italian source strings. This migration changes gettext message IDs; any third-party translation catalogs built against the old Italian IDs must be regenerated against the new POT.
+Italian translations must be contributed and approved at [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/) after the plugin project becomes available. The repository PO can be used as a starting point; its presence does not imply that WordPress.org has approved or published a language pack. Until a pack is available, Italian users receive English plugin labels. Do not replace English source strings with Italian or add a custom translation download service.
 
 ## PHP and JavaScript strings
 
@@ -44,7 +44,7 @@ Commit the POT, PO, and regenerated MO together with source changes. Never edit 
 python3 -m unittest discover -s tests -p 'test_*.py' -v
 ```
 
-CI checks PHP message-domain/template coverage, source/template/Italian catalog consistency, placeholders, compiled MO lookups, and inclusion of the translation files in the ZIP. The lightweight catalog reader covers the singular entries currently used; extend its tests appropriately when introducing plural catalogs. These checks do not replace a full WordPress Coding Standards/i18n audit.
+CI checks PHP message-domain/template coverage, source/template/Italian development catalog consistency, placeholders, compiled MO lookups, and exclusion of translation files from the ZIP. The lightweight catalog reader covers the singular entries currently used; extend its tests appropriately when introducing plural catalogs. These checks do not replace a full WordPress Coding Standards/i18n audit.
 
 On an isolated local Docker WordPress installation with the Italian core language pack installed and this plugin revision active:
 
@@ -52,4 +52,6 @@ On an isolated local Docker WordPress installation with the Italian core languag
 docker compose run --rm wpcli wp eval-file /var/www/html/wp-content/plugins/adminlume/tests/i18n-integration.php
 ```
 
-As with the other integration tests, a read-only mount can select the checkout without replacing the installed plugin files. The suite creates a temporary subscriber, switches between English and Italian, verifies the settings, context-sensitive labels, site tooltip, localized script data, Dashboard label, and return to English, then restores locale/user state and deletes its test user. No HTTP requests or content changes are required by the suite. Do not run it in production.
+Test the installed ZIP, not the source checkout. With no Adminlume language pack installed, the suite verifies English fallback under both English and Italian core locales. To test separate language-pack loading before directory publication, copy the development MO into `WP_LANG_DIR/plugins/adminlume-it_IT.mo` in the isolated fixture only, then rerun the suite in a new WP-CLI process. This is a test fixture, not a claim that a WordPress.org pack exists. Preserve any pre-existing file and remove only the fixture afterward.
+
+The suite creates a temporary subscriber, switches between English and Italian, verifies the settings, context-sensitive labels, site tooltip, localized script data, Dashboard label, absence of bundled catalogs, and return to English, then restores locale/user state and deletes its test user. No HTTP requests or content changes are required by the suite. Do not run it in production.

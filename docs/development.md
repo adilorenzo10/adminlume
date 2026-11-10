@@ -15,7 +15,7 @@
 | `assets/css/woocommerce.css` | Relevant classic WooCommerce surfaces. |
 | `assets/js/sidebar.js` | Independent sidebar scrolling, flyout positioning, and menu-label filtering. |
 | `assets/css/frontend-toolbar.css`, `assets/js/frontend-toolbar.js` | Standalone public-site dock; no theme build dependency. |
-| `languages/` | Gettext POT template and bundled Italian PO/MO catalogs; English source fallback. |
+| `languages/` | Development-only gettext POT and Italian PO/MO catalogs, excluded from release ZIPs; WordPress.org distributes runtime language packs. |
 
 The plugin has no compilation step. PHP uses WordPress hooks and user metadata; JavaScript uses browser APIs without a framework. Network admin and user admin are excluded from the admin skin.
 

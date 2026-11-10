@@ -11,10 +11,10 @@ No personal token is needed for GitHub Releases: the job uses GitHub's built-in 
 ## Prepare a release
 
 1. Complete local WordPress/browser checks and the directory review. Record versions and findings; release CI does not run a full WordPress database/browser environment.
-2. Before creating the tag, choose the next unused version and prepare its metadata and real changelog notes. For example, after 0.4.0:
+2. Before creating the tag, choose the next unused version and prepare its metadata and real changelog notes. For example, after 0.4.1:
 
    ```bash
-   NEXT_VERSION=0.4.1
+   NEXT_VERSION=0.4.2
    python3 scripts/prepare_release.py --version "$NEXT_VERSION" --note "Describe the actual changes."
    ```
 
@@ -40,14 +40,14 @@ No personal token is needed for GitHub Releases: the job uses GitHub's built-in 
    git push origin "v$NEXT_VERSION"
    ```
 
-   Include any other reviewed source/catalog changes in the commit as appropriate. The current 0.4.0 directory edition is already prepared locally; do not rerun the helper for an equal version. No tag or publication is implied by that preparation.
+   Include any other reviewed source/catalog changes in the commit as appropriate. The current 0.4.1 review correction is prepared locally; do not rerun the helper for an equal version. No tag or publication is implied by that preparation.
 
 ## Release assets
 
 - `dist/wordpress-org/adminlume-X.Y.Z.zip`: installable package rooted at `adminlume/adminlume.php`.
 - `dist/wordpress-org/adminlume-X.Y.Z.zip.sha256`: checksum sidecar for manual integrity verification, not an independent publisher signature.
 
-The ZIP contains runtime PHP, local assets, translations, `readme.txt`, GPL license text, and copyright/branding notices. Source `COPYRIGHT.md` and `TRADEMARKS.md` are packaged as `.txt` with adjusted internal references, preserving their notices without unexpected root Markdown files. Git metadata, tests, scripts, Composer dependencies, workflows, and developer documentation are excluded.
+The ZIP contains runtime PHP, local assets, `readme.txt`, GPL license text, and copyright/branding notices. Starting with 0.4.1, the entire development `languages/` directory is excluded: WordPress.org supplies approved runtime language packs separately. Source `COPYRIGHT.md` and `TRADEMARKS.md` are packaged as `.txt` with adjusted internal references, preserving their notices without unexpected root Markdown files. Git metadata, tests, scripts, Composer dependencies, workflows, and developer documentation are excluded.
 
 The builder no longer emits `adminlume-update.json`; the workflow does not upload one. Old files in a developer's ignored `dist/` directory do not belong to the new directory package. Never attach a stale manifest to a directory release or overwrite old published assets.
 
