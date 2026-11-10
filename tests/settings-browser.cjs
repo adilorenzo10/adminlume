@@ -45,6 +45,10 @@ const check = (condition, message) => {
     check(await page.locator('body.rounded-admin').count() === 1, 'Valid POST enables personal skin');
     check(await page.getByText('Preferences saved.', { exact: true }).isVisible(), 'Successful save feedback visible');
     check(await page.getByLabel('Panel corner radius', { exact: true }).inputValue() === '12', 'Radius survives reload');
+    check(await page.locator('body').evaluate(el => {
+      const css = getComputedStyle(el);
+      return css.getPropertyValue('--ra-radius').trim() === '12px' && css.getPropertyValue('--ra-chrome-bg').trim() === '#000000' && css.getPropertyValue('--ra-chrome-text').trim() === '#dedede';
+    }), 'Escaped inline CSS applies the selected radius and dark palette');
     await enabled.focus();
     check(await enabled.evaluate(el => document.activeElement === el && (getComputedStyle(el).boxShadow !== 'none' || getComputedStyle(el).outlineStyle !== 'none')), 'Focused checkbox has visible focus styling');
     if (process.env.ADMINLUME_SETTINGS_SCREENSHOT) await page.screenshot({ path: process.env.ADMINLUME_SETTINGS_SCREENSHOT, fullPage: true });
@@ -64,6 +68,14 @@ const check = (condition, message) => {
     check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Settings have no mobile horizontal overflow');
     check(await page.getByRole('button', { name: 'Save preferences' }).isVisible(), 'Mobile save remains available');
     await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(auth.url + '/wp-admin/users.php?page=adminlume', { waitUntil: 'domcontentloaded' });
+    await page.getByLabel('Sidebar and top bar background', { exact: true }).fill('#ffffff');
+    await page.getByLabel('Accent color', { exact: true }).fill('#123456');
+    await Promise.all([page.waitForURL('**/*saved=1'), page.getByRole('button', { name: 'Save preferences' }).click()]);
+    check(await page.locator('body').evaluate(el => {
+      const css = getComputedStyle(el);
+      return css.getPropertyValue('--ra-chrome-bg').trim() === '#ffffff' && css.getPropertyValue('--ra-chrome-text').trim() === '#303030' && css.getPropertyValue('--ra-accent').trim() === '#123456';
+    }), 'Escaped inline CSS retains custom colors and switches to the light palette');
     await page.goto(auth.url + '/wp-admin/users.php?page=adminlume', { waitUntil: 'domcontentloaded' });
     await enabled.uncheck();
     await Promise.all([page.waitForURL('**/*saved=1'), page.getByRole('button', { name: 'Save preferences' }).click()]);

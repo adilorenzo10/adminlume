@@ -2,13 +2,12 @@
 /**
  * Plugin Name: Adminlume
  * Description: A lightweight WordPress admin interface and frontend dock with personal preferences.
- * Version: 0.4.0
+ * Version: 0.4.1
  * Requires at least: 6.5
  * Requires PHP: 8.1
  * Author: Dilorsoft
  * Plugin URI: https://github.com/adilorenzo10/adminlume
  * Text Domain: adminlume
- * Domain Path: /languages
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
@@ -37,15 +36,6 @@ require_once __DIR__ . '/src/class-settings.php';
 require_once __DIR__ . '/src/class-assets.php';
 require_once __DIR__ . '/src/class-chrome.php';
 require_once __DIR__ . '/src/class-frontendtoolbar.php';
-
-add_action(
-	'init',
-	static function (): void {
-		// Register the bundled fallback without eagerly loading a catalog. This
-		// also supports WordPress 6.5, before automatic plugin-path registration.
-		$GLOBALS['wp_textdomain_registry']->set_custom_path( 'adminlume', __DIR__ . '/languages' );
-	}
-);
 
 add_action(
 	'plugins_loaded',

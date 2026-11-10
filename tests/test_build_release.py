@@ -31,6 +31,8 @@ class ReleaseBuildTests(unittest.TestCase):
         (self.root / 'assets/toolbar.css').write_text('/* Runtime fixture. */\n')
         for name in ('adminlume.pot', 'adminlume-it_IT.po', 'adminlume-it_IT.mo'):
             shutil.copyfile(ROOT / 'languages' / name, self.root / 'languages' / name)
+        (self.root / 'languages/adminlume-it_IT.l10n.php').write_text('<?php return array();\n')
+        (self.root / 'languages/adminlume-it_IT-test.json').write_text('{}\n')
         (self.root / 'tests/private.php').write_text('<?php // Excluded.\n')
         (self.root / 'assets/.env').write_text('PRIVATE=excluded\n')
         (self.root / 'assets/debug.log').write_text('Excluded.\n')
@@ -50,15 +52,18 @@ class ReleaseBuildTests(unittest.TestCase):
             self.assertEqual(set(bundle.namelist()), {
                 *('adminlume/' + name.replace('.md', '.txt') for name in REQUIRED_FILES),
                 'adminlume/src/Runtime.php', 'adminlume/assets/toolbar.css',
-                'adminlume/languages/adminlume.pot',
-                'adminlume/languages/adminlume-it_IT.po',
-                'adminlume/languages/adminlume-it_IT.mo',
                 'adminlume/assets/images/icon.svg',
                 'adminlume/assets/images/icon-128x128.png',
                 'adminlume/assets/images/icon-256x256.png',
             })
             self.assertIn(b'TRADEMARKS.txt', bundle.read('adminlume/COPYRIGHT.txt'))
             self.assertNotIn('adminlume/TRADEMARKS.md', bundle.namelist())
+
+    def test_directory_package_excludes_all_development_translation_files(self):
+        archive = build_release(self.root, '1.2.3', self.output)
+        with zipfile.ZipFile(archive) as bundle:
+            self.assertFalse(any(name.startswith('adminlume/languages/') for name in bundle.namelist()))
+        self.assertTrue((self.root / 'languages/adminlume-it_IT.po').is_file())
 
     def test_icon_fallbacks_have_the_documented_dimensions(self):
         for size in (128, 256):

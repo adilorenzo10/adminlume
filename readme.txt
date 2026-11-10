@@ -4,7 +4,7 @@ Tags: admin, dashboard, toolbar, customization
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.4.0
+Stable tag: 0.4.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -31,7 +31,7 @@ Preferences are stored in user metadata. Dock visibility uses browser local stor
 
 Adminlume does not contact GitHub or another external update service. This directory edition relies on WordPress's own update system and does not override automatic-update preferences. Core WordPress and existing third-party features retain their normal network and privacy behavior.
 
-The interface uses English source strings and includes an Italian (it_IT) translation. The admin area follows the user's WordPress language preference; the public site uses the active front-end locale. Missing translations fall back to English.
+The interface uses English source strings and supports community translations through translate.wordpress.org. WordPress distributes available, approved language packs separately from the plugin. The admin area follows the user's WordPress language preference; the public site uses the active front-end locale. Missing translations fall back to English.
 
 Adminlume was previously known as Rounded Admin. Legacy preferences are read as a fallback; saving new preferences does not delete the old metadata.
 
@@ -89,6 +89,12 @@ The software license grants no separate trademark license. Independent forks mus
 
 == Changelog ==
 
+= 0.4.1 =
+
+* Escape dynamically generated inline CSS at output and keep its selector literal.
+* Exclude development translation catalogs from the plugin ZIP and rely on WordPress.org language packs.
+* Verify CSS injection defenses and localization with and without an external language pack.
+
 = 0.4.0 =
 
 * Prepare a WordPress.org directory edition without an external Update URI or GitHub updater.
@@ -131,6 +137,10 @@ The software license grants no separate trademark license. Independent forks mus
 * Compatibility fallback for existing Rounded Admin preferences.
 
 == Upgrade Notice ==
+
+= 0.4.1 =
+
+Addresses the initial directory review. Translation catalogs are now delivered separately through WordPress.org when available; English remains the fallback. Personal appearance preferences are retained.
 
 = 0.4.0 =
 

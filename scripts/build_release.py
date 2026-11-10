@@ -17,7 +17,6 @@ DIRECTORIES = {
     'src': {'.php'},
     'assets': {'.css', '.js', '.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp',
                '.avif', '.woff', '.woff2', '.ttf', '.otf', '.json'},
-    'languages': {'.mo', '.po', '.pot', '.php', '.json'},
 }
 
 
@@ -57,7 +56,7 @@ def release_files(root: Path) -> list[Path]:
         files.append(file)
     for directory, extensions in DIRECTORIES.items():
         base = root / directory
-        if directory != 'languages' and not base.is_dir():
+        if not base.is_dir():
             raise ValueError(f'Missing runtime directory: {directory}')
         if base.is_symlink():
             raise ValueError(f'Symlinks are not allowed in release paths: {directory}')

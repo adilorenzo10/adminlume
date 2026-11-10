@@ -1,4 +1,4 @@
-"""Validate gettext source keys and bundled catalogs without WordPress or HTTP."""
+"""Validate gettext source keys and development catalogs without WordPress or HTTP."""
 
 import gettext
 import json

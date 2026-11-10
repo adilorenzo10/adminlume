@@ -76,7 +76,7 @@ final class Assets {
 		}
 		$this->style( 'rounded-admin-toolbar', 'toolbar.css', array( 'admin-bar' ) );
 		$this->style( 'rounded-admin', 'admin.css', array( 'rounded-admin-toolbar' ) );
-		$this->add_preferences_styles( 'rounded-admin', 'body.rounded-admin' );
+		$this->add_preferences_styles( 'rounded-admin' );
 		if ( wp_style_is( 'media-views', 'enqueued' ) ) {
 			$this->enqueue_media();
 		}
@@ -93,27 +93,22 @@ final class Assets {
 	/**
 	 * Build CSS variables exclusively from validated personal preferences.
 	 *
-	 * @param string $handle   Registered stylesheet handle.
-	 * @param string $selector Internal, fixed CSS scope.
+	 * @param string $handle Registered stylesheet handle.
 	 */
-	private function add_preferences_styles( string $handle, string $selector ): void {
+	private function add_preferences_styles( string $handle ): void {
 		$preferences = ( new Settings() )->preferences();
 		$accent      = $preferences['accent'];
 		$foreground  = self::foreground( $accent );
 		$background  = $preferences['chrome_background'];
 		$light       = '#000000' === self::foreground( $background );
-		wp_add_inline_style(
-			$handle,
-			sprintf(
-				'%s{--ra-accent:%s;--ra-accent-text:%s;--ra-radius:%dpx;--ra-chrome-bg:%s;}',
-				$selector,
-				$accent,
-				$foreground,
-				$preferences['radius'],
-				$background
-			)
+		$variables   = sprintf(
+			'--ra-accent:%s;--ra-accent-text:%s;--ra-radius:%dpx;--ra-chrome-bg:%s;',
+			$accent,
+			$foreground,
+			$preferences['radius'],
+			$background
 		);
-		$palette   = $light ? array(
+		$palette     = $light ? array(
 			'text'            => '#303030',
 			'strong'          => '#000000',
 			'muted'           => '#616161',
@@ -138,11 +133,12 @@ final class Assets {
 			'search-bottom'   => '#333333',
 			'focus'           => '#aaaaaa',
 		);
-		$variables = '';
 		foreach ( $palette as $key => $value ) {
 			$variables .= '--ra-chrome-' . $key . ':' . $value . ';';
 		}
-		wp_add_inline_style( $handle, $selector . '{' . $variables . '}' );
+		// Keep the selector literal, filter CSS declarations, and escape at the
+		// output boundary so generated text cannot close the HTML style element.
+		wp_add_inline_style( $handle, 'body.rounded-admin{' . esc_html( safecss_filter_attr( $variables ) ) . '}' );
 	}
 
 	/** Restyle media surfaces only after WordPress loads its native media UI. */

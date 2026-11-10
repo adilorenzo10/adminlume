@@ -2,7 +2,8 @@
 /**
  * Local WP-CLI localization checks using real WordPress locale switching.
  *
- * Requires the Italian core language pack in the isolated test installation.
+ * Requires the Italian core pack. Tests English fallback without an Adminlume
+ * language pack, or Italian when an external language-pack fixture is installed.
  *
  * @package Adminlume
  */
@@ -28,6 +29,7 @@ $previous_screen = $GLOBALS['current_screen'] ?? null;
 $previous_bar = $GLOBALS['show_admin_bar'] ?? null;
 $switches = 0;
 $checks = 0;
+$has_language_pack = is_file( WP_LANG_DIR . '/plugins/adminlume-it_IT.mo' );
 $user_id = wp_insert_user( array( 'user_login' => 'adminlume-i18n-' . wp_generate_uuid4(), 'user_pass' => wp_generate_password( 40 ), 'role' => 'subscriber', 'locale' => 'en_US' ) );
 if ( is_wp_error( $user_id ) ) {
 	throw new RuntimeException( 'Cannot create isolated test user.' );
@@ -53,9 +55,11 @@ try {
 	add_filter( 'show_admin_bar', $show_bar, PHP_INT_MAX );
 	$GLOBALS['show_admin_bar'] = true;
 	$plugin_file = WP_PLUGIN_DIR . '/adminlume/adminlume.php';
+	$check( ! is_dir( dirname( $plugin_file ) . '/languages' ), 'installed directory edition bundles no translation catalogs' );
+	$english = array( 'Enable Adminlume for me', 'Search menu', 'Hide admin toolbar', 'Hide', 'Dashboard', 'Visit site: ', 'Medium' );
 	foreach ( array(
-		'en_US' => array( 'Enable Adminlume for me', 'Search menu', 'Hide admin toolbar', 'Hide', 'Dashboard', 'Visit site: ', 'Medium' ),
-		'it_IT' => array( 'Abilita Adminlume per me', 'Cerca nel menu', 'Nascondi barra amministrativa', 'Nascondi', 'Bacheca', 'Visita il sito: ', 'Medio' ),
+		'en_US' => $english,
+		'it_IT' => $has_language_pack ? array( 'Abilita Adminlume per me', 'Cerca nel menu', 'Nascondi barra amministrativa', 'Nascondi', 'Bacheca', 'Visita il sito: ', 'Medio' ) : $english,
 	) as $locale => $expected ) {
 		$switched = switch_to_locale( $locale );
 		if ( $switched ) ++$switches;
@@ -89,7 +93,7 @@ try {
 		}
 	}
 	$check( 'en_US' === determine_locale() && 'Hide' === __( 'Hide', 'adminlume' ), 'returning from Italian restores English without leaking translations' );
-	WP_CLI::success( $checks . ' Adminlume localization integration checks passed.' );
+	WP_CLI::success( $checks . ' Adminlume localization integration checks passed (' . ( $has_language_pack ? 'external language-pack fixture' : 'English fallback without plugin language pack' ) . ').' );
 } finally {
 	while ( $switches > 0 ) {
 		restore_previous_locale();

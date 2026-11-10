@@ -109,15 +109,38 @@ try {
 	$check( str_contains( $site_html, 'id="ra-site-link"' ) && str_contains( $site_html, esc_url( home_url( '/' ) ) ), 'sidebar contains escaped clickable site name' );
 	$assets->enqueue();
 	$check( wp_style_is( 'rounded-admin', 'enqueued' ), 'opt-in enqueues base stylesheet' );
+	$css_preferences = get_user_meta( $user_id, Settings::META_KEY, true );
+	$css_after = wp_styles()->get_data( 'rounded-admin', 'after' );
+	foreach ( array(
+		array( 'accent' => '#123456', 'chrome_background' => '#000000', 'radius' => 8, 'expected_accent' => '#123456', 'expected_background' => '#000000', 'expected_radius' => 8, 'expected_text' => '#dedede' ),
+		array( 'accent' => '#abc', 'chrome_background' => '#fff', 'radius' => 12, 'expected_accent' => '#abc', 'expected_background' => '#fff', 'expected_radius' => 12, 'expected_text' => '#303030' ),
+		array( 'accent' => '</style><script>alert(1)</script>', 'chrome_background' => '#000;}body{display:none}', 'radius' => '16;}</style>', 'expected_accent' => '#303030', 'expected_background' => '#000000', 'expected_radius' => 16, 'expected_text' => '#dedede' ),
+		array( 'accent' => array( 'invalid' ), 'chrome_background' => array( 'invalid' ), 'radius' => array( 8 ), 'expected_accent' => '#303030', 'expected_background' => '#000000', 'expected_radius' => 16, 'expected_text' => '#dedede' ),
+	) as $fixture ) {
+		update_user_meta( $user_id, Settings::META_KEY, array( 'enabled' => true, 'accent' => $fixture['accent'], 'chrome_background' => $fixture['chrome_background'], 'radius' => $fixture['radius'] ) );
+		wp_styles()->add_data( 'rounded-admin', 'after', array() );
+		$assets->enqueue();
+		$inline = implode( '', wp_styles()->get_data( 'rounded-admin', 'after' ) );
+		$check( str_starts_with( $inline, 'body.rounded-admin{' ) && 1 === substr_count( $inline, '{' ) && 1 === substr_count( $inline, '}' ), 'dynamic CSS has a literal selector and one declaration block' );
+		$check( str_contains( $inline, '--ra-accent:' . $fixture['expected_accent'] . ';' ) && str_contains( $inline, '--ra-chrome-bg:' . $fixture['expected_background'] . ';' ) && str_contains( $inline, '--ra-radius:' . $fixture['expected_radius'] . 'px;' ), 'late CSS filtering preserves valid preferences and defaults invalid data' );
+		$check( str_contains( $inline, '--ra-chrome-text:' . $fixture['expected_text'] . ';' ) && str_contains( $inline, '--ra-chrome-focus:' ), 'late CSS filtering retains the full light or dark custom-property palette' );
+		$check( ! preg_match( '/[<>]|display|alert/i', $inline ), 'stored malformed values cannot inject CSS rules or HTML into inline styles' );
+	}
+	update_user_meta( $user_id, Settings::META_KEY, $css_preferences );
+	wp_styles()->add_data( 'rounded-admin', 'after', $css_after );
 	$check( ! wp_style_is( 'rounded-admin-woocommerce', 'enqueued' ), 'dashboard does not load WooCommerce stylesheet' );
 	$check( wp_script_is( 'rounded-admin-sidebar', 'enqueued' ) && array() === wp_scripts()->registered['rounded-admin-sidebar']->deps, 'sidebar script has no library dependencies' );
 	$check( ! wp_style_is( 'rounded-admin-media', 'enqueued' ), 'dashboard without media has no media skin' );
 	$assets->enqueue_media();
 	$check( wp_style_is( 'rounded-admin-media', 'enqueued' ), 'native media activation loads media skin' );
 	wp_dequeue_style( 'rounded-admin-media' );
-	set_current_screen( 'edit-product' );
-	$assets->enqueue();
-	$check( wp_style_is( 'rounded-admin-woocommerce', 'enqueued' ), 'product screen loads WooCommerce integration' );
+	if ( post_type_exists( 'product' ) ) {
+		set_current_screen( 'edit-product' );
+		$assets->enqueue();
+		$check( wp_style_is( 'rounded-admin-woocommerce', 'enqueued' ), 'product screen loads WooCommerce integration' );
+	} else {
+		$check( ! wp_style_is( 'rounded-admin-woocommerce', 'enqueued' ), 'clean WordPress without WooCommerce does not load commerce assets' );
+	}
 	wp_dequeue_style( 'rounded-admin-woocommerce' );
 	set_current_screen( 'post' );
 	get_current_screen()->is_block_editor( true );
