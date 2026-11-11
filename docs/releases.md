@@ -11,10 +11,10 @@ No personal token is needed for GitHub Releases: the job uses GitHub's built-in 
 ## Prepare a release
 
 1. Complete local WordPress/browser checks and the directory review. Record versions and findings; release CI does not run a full WordPress database/browser environment.
-2. Before creating the tag, choose the next unused version and prepare its metadata and real changelog notes. For example, after 0.4.1:
+2. Before creating the tag, choose the next unused version and prepare its metadata and real changelog notes. For example, after 0.4.2:
 
    ```bash
-   NEXT_VERSION=0.4.2
+   NEXT_VERSION=0.4.3
    python3 scripts/prepare_release.py --version "$NEXT_VERSION" --note "Describe the actual changes."
    ```
 
@@ -40,7 +40,7 @@ No personal token is needed for GitHub Releases: the job uses GitHub's built-in 
    git push origin "v$NEXT_VERSION"
    ```
 
-   Include any other reviewed source/catalog changes in the commit as appropriate. The current 0.4.1 review correction is prepared locally; do not rerun the helper for an equal version. No tag or publication is implied by that preparation.
+   Include any other reviewed source/catalog changes in the commit as appropriate. Version 0.4.2 includes the front-end favicon layout fix; see its [verification report](review-0.4.2.md). Do not rerun the helper for an equal version. No tag or publication is implied by local preparation.
 
 ## Release assets
 
@@ -55,8 +55,8 @@ Archive entries use stable ordering, timestamps, and permissions for reproducibi
 
 ```bash
 # Run from the directory containing the downloaded ZIP and sidecar.
-sha256sum -c adminlume-0.4.0.zip.sha256    # Linux
-shasum -a 256 -c adminlume-0.4.0.zip.sha256 # macOS
+sha256sum -c adminlume-0.4.2.zip.sha256    # Linux
+shasum -a 256 -c adminlume-0.4.2.zip.sha256 # macOS
 ```
 
 ## Directory publication

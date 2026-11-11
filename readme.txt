@@ -4,7 +4,7 @@ Tags: admin, dashboard, toolbar, customization
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.4.1
+Stable tag: 0.4.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -89,6 +89,12 @@ The software license grants no separate trademark license. Independent forks mus
 
 == Changelog ==
 
+= 0.4.2 =
+
+* Keep the native WordPress favicon beside the front-end toolbar site title instead of pushing the title below the visible control.
+* Preserve single-line title truncation on desktop and mobile, including RTL layouts and themes with block-image styles.
+* Add responsive browser regression checks for site titles with and without a favicon.
+
 = 0.4.1 =
 
 * Escape dynamically generated inline CSS at output and keep its selector literal.
@@ -137,6 +143,10 @@ The software license grants no separate trademark license. Independent forks mus
 * Compatibility fallback for existing Rounded Admin preferences.
 
 == Upgrade Notice ==
+
+= 0.4.2 =
+
+Fixes the front-end toolbar site title when a WordPress favicon is configured. Existing appearance preferences and update-channel behavior are unchanged.
 
 = 0.4.1 =
 
