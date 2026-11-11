@@ -83,6 +83,60 @@ const waitAnimation = page => page.waitForFunction(() => !document.querySelector
     await page.keyboard.press('Escape');
     await screenshot(page, 'dock-desktop');
 
+    // Generate WordPress's real site-icon title without saving site options.
+    const siteIconTitle = wp(`
+      require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
+      wp_set_current_user(${auth.id});
+      add_filter('pre_option_site_icon', static fn() => 123456789);
+      add_filter('get_site_icon_url', static fn() => plugins_url('assets/images/icon-128x128.png', WP_PLUGIN_DIR . '/adminlume/adminlume.php'));
+      $bar = new WP_Admin_Bar();
+      wp_admin_bar_site_menu($bar);
+      echo $bar->get_node('site-name')->title;
+    `);
+    if (siteIconTitle.includes('class="site-icon"')) {
+      const themeImageStyle = await page.addStyleTag({ content: 'img.site-icon { display: block; }' });
+      const originalSiteMenu = await page.locator('#wp-admin-bar-site-name').evaluate(element => ({
+        classes: element.className, title: element.querySelector(':scope > .ab-item').innerHTML,
+      }));
+      for (const withIcon of [false, true]) {
+        for (const longTitle of [false, true]) {
+          await page.locator('#wp-admin-bar-site-name').evaluate((element, fixture) => {
+            element.classList.toggle('has-site-icon', fixture.withIcon);
+            const link = element.querySelector(':scope > .ab-item');
+            link.innerHTML = fixture.withIcon ? fixture.title : '';
+            [...link.childNodes].filter(node => node.nodeType === Node.TEXT_NODE).forEach(node => node.remove());
+            link.append(document.createTextNode(fixture.longTitle ? 'A long WordPress site title for the dock' : 'My site'));
+          }, { withIcon, longTitle, title: siteIconTitle });
+          for (const direction of ['ltr', 'rtl']) {
+            await page.evaluate(direction => { document.documentElement.dir = direction; }, direction);
+            for (const width of [1440, 1024, 600, 390, 320]) {
+              await page.setViewportSize({ width, height: 844 });
+              check(await page.locator('#wp-admin-bar-site-name > .ab-item').evaluate((link, withIcon) => {
+                const box = link.getBoundingClientRect();
+                const text = [...link.childNodes].find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+                const range = document.createRange();
+                range.selectNodeContents(text);
+                const label = range.getBoundingClientRect();
+                if (label.top < box.top || label.bottom > box.bottom || [...range.getClientRects()].some(rect => Math.abs(rect.top - label.top) > 1)) return false;
+                if (!withIcon) return true;
+                const icon = link.querySelector('img.site-icon').getBoundingClientRect();
+                const sameLine = Math.abs((icon.top + icon.bottom - label.top - label.bottom) / 2) < 8;
+                const beside = getComputedStyle(link).direction === 'rtl' ? label.right <= icon.left : label.left >= icon.right;
+                return icon.width === 20 && icon.height === 20 && icon.top >= box.top && icon.bottom <= box.bottom && sameLine && beside;
+              }, withIcon), `Site title remains on one visible line (${withIcon ? 'favicon' : 'no favicon'}, ${longTitle ? 'long' : 'short'}, ${direction}, ${width}px)`);
+            }
+          }
+        }
+      }
+      await page.locator('#wp-admin-bar-site-name').evaluate((element, original) => {
+        element.className = original.classes;
+        element.querySelector(':scope > .ab-item').innerHTML = original.title;
+      }, originalSiteMenu);
+      await themeImageStyle.evaluate(element => element.remove());
+      await page.evaluate(() => { document.documentElement.dir = 'ltr'; });
+      await page.setViewportSize({ width: 1440, height: 960 });
+    }
+
     // Exercise a late third-party action, its nested submenu, and its original handler.
     await page.evaluate(() => {
       const item = document.createElement('li');

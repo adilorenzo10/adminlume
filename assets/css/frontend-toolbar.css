@@ -185,6 +185,23 @@ body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-site-name > .ab-
   font-size: 13px;
   font-weight: 600;
 }
+/* Keep the native favicon inline, including with theme block-image rules and
+   WordPress's mobile toolbar positioning. Preserve the title's ellipsis. */
+body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-site-name > .ab-item > img.site-icon {
+  position: static;
+  display: inline-block;
+  float: none;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 20px;
+  max-height: 20px;
+  margin: 0;
+  margin-inline-end: 6px;
+  vertical-align: middle;
+  border-radius: 2px;
+}
 body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-woocommerce-site-visibility-badge { padding: 0; }
 body.nzm-frontend-toolbar #wpadminbar #wp-toolbar #wp-admin-bar-woocommerce-site-visibility-badge > .ab-item {
   height: 24px;

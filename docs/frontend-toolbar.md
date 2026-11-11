@@ -10,6 +10,8 @@ WordPress, site name, WooCommerce Live/status when available, Dashboard, customi
 
 The compact layout activates at 1100px or when desktop content would overflow. It retains WordPress, site name, edit, and account directly in the dock and groups other actions in More. Original nodes are moved, not cloned, and return to their native groups when switching back to desktop. On small phones the edit label is visually reduced to an icon while retaining its native text for accessibility.
 
+When WordPress supplies a site icon, it stays inline beside the site title at 20px. The dock overrides native mobile absolute positioning and theme block-image rules only for that icon; long titles retain a single-line ellipsis. Logical spacing supports both LTR and RTL layouts.
+
 ## Menus and visibility
 
 Menus open upward and are positioned inside the viewport with scrollable contents. Native menu hover/focus behavior, Arrow keys, Home/End, and Escape support remain available. More toggles on click or tap, and clicking outside closes open menus. A CSS fallback retains native links and menus when JavaScript is unavailable.
@@ -25,5 +27,7 @@ A floating overlay can cover site elements. Use Hide when needed and test sticky
 The restored front-end toolbar remains in the directory edition. The update-source migration is separate from its appearance: WordPress.org owns future updates and the external GitHub updater has been removed. Personal preferences and compatibility keys remain unchanged. Existing tags and release assets are not rewritten.
 
 See [development.md](development.md) for test setup. Browser checks cover the restored appearance, separate desktop actions, native menu navigation, late plugin nodes and handlers, saved visibility, responsive grouping, native URLs, reduced motion, touch hide/reopen controls, blocked storage, no-JavaScript fallback, guests, and backend isolation. PHP checks verify that native action labels, destinations, and metadata remain unchanged.
+
+On core versions that supply a native site-icon menu title, the browser suite generates that markup using request-local filters, then tests it in the browser without saving site options. Cases include short/long titles with and without icons, theme block-image CSS, five viewport widths, and LTR/RTL directions.
 
 Third-party code that assumes a fixed top-level DOM parent may require adaptation. These checks do not establish compatibility with every theme, plugin, browser, or assistive technology. Verify the exact deployment combination before release.
