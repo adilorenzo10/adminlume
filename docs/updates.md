@@ -4,27 +4,27 @@
 
 This edition contains no external `Update URI`, GitHub updater, `plugins_api` override, custom update cache, or package download hook. The installed plugin does not request a GitHub manifest or install updates from a third-party server. WordPress owns update detection, downloads, compatibility checks, permissions, cron, and optional automatic installation.
 
-**Approval is still required.** Native updates are only available after the Plugins Team approves the plugin, its approved slug is published in the directory, and a newer version is released there. A GitHub tag or release does not publish to WordPress.org. Do not tell users to expect directory updates before those conditions are met.
+**The plugin is published.** Version 0.4.2 is available at `https://wordpress.org/plugins/adminlume/` under the `adminlume` slug. Directory installations are offered a native update whenever a newer version is published to SVN with a matching stable tag. A GitHub tag or release alone does not publish to WordPress.org.
 
-After approval, use the normal Plugins screen (Network Admin on multisite) to enable automatic updates if desired. Adminlume does not change `auto_update_plugins`, force auto-update filters, or bypass filesystem/site policies.
+Use the normal Plugins screen (Network Admin on multisite) to enable automatic updates if desired. Adminlume does not change `auto_update_plugins`, force auto-update filters, or bypass filesystem/site policies.
 
 ## Existing GitHub installations
 
 Versions 0.3.x had an external GitHub updater; version 0.2.0 had none. Existing copies of those versions do not learn a new update source simply because this repository changes.
 
 1. Back up and test on staging.
-2. Wait for approval and publication under the confirmed directory slug.
-3. Upload the approved directory ZIP and choose to replace the existing `adminlume/` plugin, or use the directory installation flow as appropriate for the confirmed slug.
+2. Download the current ZIP from the [directory listing](https://wordpress.org/plugins/adminlume/).
+3. Upload it through **Plugins → Add New Plugin → Upload Plugin** and choose to replace the existing `adminlume/` plugin.
 4. Do not uninstall first. Current and legacy user metadata, per-user opt-in, and browser visibility keys remain compatible.
 5. Verify that the installed plugin has no external `Update URI`, then check **Dashboard → Updates**. Subsequent updates use WordPress.org.
 
-If the approved slug differs, plan and test the folder, text-domain, action-link, and metadata compatibility migration before instructing existing users to switch. Do not reserve or assume an unapproved slug.
+The directory slug is `adminlume`, matching the existing plugin folder and text domain, so no folder or metadata migration is required.
 
 Old release tags/assets are unchanged. The new release builder does not generate `adminlume-update.json`, and the workflow does not attach it to new releases. Old clients cannot automatically discover this migration from that retired feed; migration is deliberately manual. No updater code is conditionally hidden in the directory ZIP.
 
 ## Update checks
 
-After directory publication, use **Dashboard → Updates → Check again**. In a local/staging Docker environment, native update metadata can be refreshed from the Compose directory:
+Use **Dashboard → Updates → Check again**. In a local/staging Docker environment, native update metadata can be refreshed from the Compose directory:
 
 ```bash
 docker compose run --rm wpcli wp transient delete update_plugins --network

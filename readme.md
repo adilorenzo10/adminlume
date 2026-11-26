@@ -14,7 +14,9 @@ Minimum requirements are not a claim of testing against every later release. Val
 
 ## Installation
 
-Download the installable `adminlume-X.Y.Z.zip` asset from [GitHub Releases](https://github.com/adilorenzo10/adminlume/releases) and upload it through **Plugins → Add New Plugin → Upload Plugin**, or install manually:
+Adminlume is published in the [WordPress.org Plugin Directory](https://wordpress.org/plugins/adminlume/). The recommended installation path is **Plugins → Add New Plugin**, searching for "Adminlume", or downloading the ZIP from the directory listing.
+
+Alternatively, upload an installable `adminlume-X.Y.Z.zip` asset from [GitHub Releases](https://github.com/adilorenzo10/adminlume/releases) through **Plugins → Add New Plugin → Upload Plugin**, or install manually. Either way, later updates come from WordPress.org:
 
 1. Copy the `adminlume` directory to `wp-content/plugins/`.
 2. Activate **Adminlume** on the **Plugins** screen.
@@ -38,9 +40,9 @@ The front-end dock retains its own dark presentation. Disabling the personal pre
 
 ## Plugin updates
 
-The **0.4.0 directory edition** removes the GitHub updater and external `Update URI`. It relies on WordPress.org's native update channel once the plugin is approved, published under its approved slug, and a newer directory release exists. This repository and ZIP preparation do not imply directory approval. Until publication, install reviewed ZIPs manually on staging.
+Since the **0.4.0 directory edition**, the plugin contains no GitHub updater or external `Update URI`. Version 0.4.2 is published on WordPress.org under the `adminlume` slug, and installations receive later releases through WordPress's native update channel when a newer version is published in the directory.
 
-**One-time migration:** users of the older GitHub edition must manually replace it with the approved directory edition once. Keep the same `adminlume/` folder and do not uninstall first; personal preferences are retained. Removing the external updater does not automatically migrate existing installations or publish anything to WordPress.org.
+**One-time migration:** users of the older GitHub edition (0.3.x) must manually replace it with the directory edition once. Keep the same `adminlume/` folder and do not uninstall first; personal preferences are retained. Old GitHub-edition installations are not migrated automatically, and GitHub tags or releases do not publish anything to WordPress.org.
 
 Automatic installation remains controlled by WordPress and site policies. GitHub remains the development repository and source/archive host only, not an updater inside the installed plugin. See [updates and migration](docs/updates.md).
 
@@ -100,7 +102,7 @@ Adminlume does not attempt to restyle arbitrary React application internals or c
 - [Automated releases and installable ZIPs](docs/releases.md)
 - [Native WordPress updates](docs/updates.md)
 - [Translations and WordPress internationalization](docs/translations.md)
-- [Plugin icon and WordPress.org submission checklist](docs/wordpress-org.md)
+- [WordPress.org publication, SVN, and plugin icon](docs/wordpress-org.md)
 - [Contributing and commit conventions](CONTRIBUTING.md)
 - [WordPress plugin readme](readme.txt)
 

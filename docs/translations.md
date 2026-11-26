@@ -9,7 +9,7 @@
 
 The admin area follows the user's language preference in **Users → Profile → Language**, with the site language as its default. The public site follows WordPress's active front-end locale (including any locale switching performed by WordPress or a multilingual plugin). Do not force the entire site to the logged-in user's language from this plugin. Unsupported locales fall back to English.
 
-Italian translations must be contributed and approved at [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/) after the plugin project becomes available. The repository PO can be used as a starting point; its presence does not imply that WordPress.org has approved or published a language pack. Until a pack is available, Italian users receive English plugin labels. Do not replace English source strings with Italian or add a custom translation download service.
+Italian translations must be contributed and approved at [translate.wordpress.org](https://translate.wordpress.org/projects/wp-plugins/) in the Adminlume plugin project. The repository PO can be used as a starting point; its presence does not imply that WordPress.org has approved or published a language pack. Until a pack is available, Italian users receive English plugin labels. Do not replace English source strings with Italian or add a custom translation download service.
 
 ## PHP and JavaScript strings
 

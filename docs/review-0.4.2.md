@@ -1,6 +1,6 @@
 # Adminlume 0.4.2 release verification
 
-Date: 2026-11-11. Version 0.4.2 includes the committed frontend favicon layout fix. Plugin version, readme stable tag, changelog, and upgrade notice agree. Preparation does not create a commit, tag, GitHub release, or WordPress.org publication.
+Date: 2026-11-11. Version 0.4.2 includes the committed frontend favicon layout fix. Plugin version, readme stable tag, changelog, and upgrade notice agree. Preparation itself did not create a commit, tag, GitHub release, or WordPress.org publication.
 
 ## Artifact
 
@@ -8,7 +8,7 @@ Date: 2026-11-11. Version 0.4.2 includes the committed frontend favicon layout f
 - `dist/wordpress-org/adminlume-0.4.2.zip.sha256`
 - SHA-256: `bd42a307aa9c7a3636bae686a1fcf9f7cf000d28164246e9d52f68219321908b`
 
-The ZIP was installed over 0.4.1 in the isolated review WordPress site. The browser suite tested its installed CSS without asset overrides. The artifact contains the favicon fix and excludes development translation catalogs. The existing submitted 0.4.1 artifact and tags were not rewritten.
+The ZIP was installed over 0.4.1 in the isolated review WordPress site. The browser suite tested its installed CSS without asset overrides. The artifact contains the favicon fix and excludes development translation catalogs. The previously submitted 0.4.1 artifact and tags were not rewritten.
 
 ## Results
 
@@ -22,4 +22,8 @@ The ZIP was installed over 0.4.1 in the isolated review WordPress site. The brow
 
 The native icon fixture is generated with request-local WordPress filters and tested in the browser without saving site-icon options. No customer installation was modified. The complete prior PHP/WordPress, commerce, theme, accessibility, and browser matrix was not repeated for this CSS release; the earlier [0.4.1 report](review-0.4.1.md) remains historical context, not a claim of directory approval.
 
-Commit the prepared metadata before creating `v0.4.2`. GitHub tags do not deliver WordPress.org updates; until directory approval/publication, install the reviewed ZIP manually or update the existing pending submission.
+## Publication
+
+The prepared metadata was committed as `ee59549`. After directory approval, the `dilorsoft` account published this release to WordPress.org in SVN revision 3809784 on 2026-11-18: `/trunk` contains the 0.4.2 runtime files, `/tags/0.4.2` was created from it, and the three listing icons were added to top-level `/assets`. 0.4.2 is the first public directory release and the current stable tag.
+
+GitHub tags do not deliver WordPress.org updates. No `v0.4.2` Git tag or GitHub Release had been created when this report was updated.

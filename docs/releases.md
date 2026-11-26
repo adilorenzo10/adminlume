@@ -2,9 +2,9 @@
 
 ## WordPress.org directory edition
 
-Starting with 0.4.0, the installed plugin uses WordPress.org's update channel. The external GitHub updater, its `Update URI`, download filters, cache, and release manifest have been removed. See [updates and migration](updates.md).
+Starting with 0.4.0, the installed plugin uses WordPress.org's update channel. Version 0.4.2 is published in the directory under the `adminlume` slug (SVN r3809784). The external GitHub updater, its `Update URI`, download filters, cache, and release manifest have been removed. See [updates and migration](updates.md).
 
-GitHub remains the source/development archive. Pushing a stable `vX.Y.Z` tag runs `.github/workflows/release.yml`, validates the tagged metadata, checks PHP/JavaScript syntax, catalogs, packaging, and WordPress Coding Standards, then attaches the installable ZIP and SHA-256 sidecar to a GitHub Release. **It does not publish to WordPress.org or deliver updates to directory installations.**
+GitHub remains the source/development archive. Pushing a stable `vX.Y.Z` tag runs `.github/workflows/release.yml`, validates the tagged metadata, checks PHP/JavaScript syntax, catalogs, packaging, and WordPress Coding Standards, then attaches the installable ZIP and SHA-256 sidecar to a GitHub Release. **It does not publish to WordPress.org or deliver updates to directory installations.** Directory publication is a separate SVN step; see [Directory publication](#directory-publication).
 
 No personal token is needed for GitHub Releases: the job uses GitHub's built-in token with contents write permission. Directory/SVN deployment and credentials are separate, and are not configured by this workflow.
 
@@ -61,7 +61,9 @@ shasum -a 256 -c adminlume-0.4.2.zip.sha256 # macOS
 
 ## Directory publication
 
-The release is not a directory update until the plugin has been reviewed, approved, and published to the confirmed WordPress.org slug. Upload runtime files to SVN `/trunk`, create `/tags/X.Y.Z`, and place listing assets in top-level `/assets`. Follow [the submission guide](wordpress-org.md). Do not assume a slug is available or infer the contributor's WordPress.org username from GitHub.
+A GitHub tag or Release is not a directory update. Installations receive a new version only after its runtime files are committed to SVN `/trunk` and the matching `/tags/X.Y.Z` exists with `Stable tag: X.Y.Z` in `trunk/readme.txt`. Listing assets stay in top-level `/assets`.
+
+After the Git tag and GitHub Release succeed, update `dist/wordpress-org/svn/`, populate `trunk/` from the same verified ZIP, create `tags/X.Y.Z`, review the scheduled changes, and commit to SVN as the `dilorsoft` account in a separate, explicitly authorized step. Follow [the SVN procedure](wordpress-org.md#publish-a-new-version-to-svn). Never modify a published SVN tag.
 
 ## Failure recovery
 
