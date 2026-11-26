@@ -24,7 +24,7 @@ Features include:
 * Conditional styles for media dialogs and relevant WooCommerce screens.
 * A translucent charcoal front-end dock with separate native site and account actions.
 * Native actions preserved in responsive menus, with keyboard-accessible hide and reopen controls.
-* WordPress.org-native updates once the plugin has been approved and published in the directory.
+* Updates delivered through the standard WordPress.org plugin directory.
 * No runtime build step, remote fonts, or tracking.
 
 Preferences are stored in user metadata. Dock visibility uses browser local storage when available. Existing WordPress and third-party toolbar links and resources remain subject to their own behavior and privacy policies.
@@ -37,7 +37,7 @@ Adminlume was previously known as Rounded Admin. Legacy preferences are read as 
 
 == Installation ==
 
-1. Upload the adminlume folder to /wp-content/plugins/.
+1. In the WordPress admin, go to Plugins > Add New Plugin and search for "Adminlume", or upload the adminlume folder to /wp-content/plugins/.
 2. Activate Adminlume from the Plugins screen.
 3. Open Users > Adminlume, or Profile > Adminlume if your account cannot list users.
 4. Select "Enable Adminlume for me" (or the translated label).
@@ -49,9 +49,9 @@ WordPress 6.5 or later and PHP 8.1 or later are required. Test on a local or sta
 
 = How do updates work? =
 
-This edition uses the standard WordPress.org update channel, not a bundled external updater. Updates become available after approval, publication under the approved directory slug, and a newer release in that directory. Until then, install reviewed ZIPs manually on staging; GitHub tags do not create WordPress.org updates. Automatic updates remain under the site's control.
+Adminlume uses the standard WordPress.org update channel, not a bundled external updater. New versions appear in Dashboard > Updates and on the Plugins screen when they are published in the directory. GitHub tags do not create WordPress.org updates. Automatic updates remain under the site's control.
 
-Users of the older GitHub-updater edition must manually replace it once with the approved directory edition, using the same plugin folder and retaining their preferences. Directory approval and slug availability are not guaranteed. Do not uninstall the plugin first.
+Users of the older GitHub-updater edition (0.3.x) must manually replace it once with the directory edition, using the same plugin folder and retaining their preferences. Do not uninstall the plugin first.
 
 = Does activation change the interface for everyone? =
 
@@ -154,7 +154,7 @@ Addresses the initial directory review. Translation catalogs are now delivered s
 
 = 0.4.0 =
 
-Changes the update source to WordPress.org. Install the approved directory edition manually over an older GitHub build once. Until approval and publication, no automatic directory update is promised. Personal preferences are retained.
+Changes the update source to WordPress.org. Install the directory edition manually over an older GitHub build once; later updates come from WordPress.org. Personal preferences are retained.
 
 = 0.3.3 =
 
