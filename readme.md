@@ -40,7 +40,7 @@ The front-end dock retains its own dark presentation. Disabling the personal pre
 
 ## Plugin updates
 
-Since the **0.4.0 directory edition**, the plugin contains no GitHub updater or external `Update URI`. Version 0.4.2 is published on WordPress.org under the `adminlume` slug, and installations receive later releases through WordPress's native update channel when a newer version is published in the directory.
+Since the **0.4.0 directory edition**, the plugin contains no GitHub updater or external `Update URI`. Version 0.5.0 is published on WordPress.org under the `adminlume` slug, and installations receive later releases through WordPress's native update channel when a newer version is published in the directory.
 
 **One-time migration:** users of the older GitHub edition (0.3.x) must manually replace it with the directory edition once. Keep the same `adminlume/` folder and do not uninstall first; personal preferences are retained. Old GitHub-edition installations are not migrated automatically, and GitHub tags or releases do not publish anything to WordPress.org.
 

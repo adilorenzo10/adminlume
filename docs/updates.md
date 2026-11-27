@@ -4,7 +4,7 @@
 
 This edition contains no external `Update URI`, GitHub updater, `plugins_api` override, custom update cache, or package download hook. The installed plugin does not request a GitHub manifest or install updates from a third-party server. WordPress owns update detection, downloads, compatibility checks, permissions, cron, and optional automatic installation.
 
-**The plugin is published.** Version 0.4.2 is available at `https://wordpress.org/plugins/adminlume/` under the `adminlume` slug. Directory installations are offered a native update whenever a newer version is published to SVN with a matching stable tag. A GitHub tag or release alone does not publish to WordPress.org.
+**The plugin is published.** Version 0.5.0 is available at `https://wordpress.org/plugins/adminlume/` under the `adminlume` slug. Directory installations are offered a native update whenever a newer version is published to SVN with a matching stable tag. A GitHub tag or release alone does not publish to WordPress.org.
 
 Use the normal Plugins screen (Network Admin on multisite) to enable automatic updates if desired. Adminlume does not change `auto_update_plugins`, force auto-update filters, or bypass filesystem/site policies.
 

@@ -2,7 +2,7 @@
 
 ## Current status: published on WordPress.org
 
-Adminlume 0.4.2 is published in the WordPress.org Plugin Directory under the `adminlume` slug. The `dilorsoft` account committed SVN revision 3809784 on 2026-11-18, which created `/tags/0.4.2` from `/trunk` and added the listing icons to top-level `/assets`.
+Adminlume is published in the WordPress.org Plugin Directory under the `adminlume` slug. The `dilorsoft` account committed SVN revision 3809784 on 2026-11-18, which created `/tags/0.4.2` from `/trunk` and added the listing icons to top-level `/assets`. Version 0.5.0 followed in SVN revision 3829337 on 2026-11-27 (`/tags/0.5.0`, Git tag `v0.5.0` on `6784854`); its runtime files match the GitHub Release ZIP, SHA-256 `b34d755fde04722c15d245326dced086389f70b3fce0493206ebf70962cd946e`. 0.5.0 is the current stable tag.
 
 - Public listing: `https://wordpress.org/plugins/adminlume/`
 - SVN repository: `https://plugins.svn.wordpress.org/adminlume`
@@ -26,6 +26,7 @@ dist/wordpress-org/svn/
   trunk/readme.txt          # Stable tag: latest published version
   trunk/...                 # All other packaged runtime files and notices
   tags/0.4.2/...            # Immutable runtime snapshot of 0.4.2
+  tags/0.5.0/...            # Immutable runtime snapshot of 0.5.0
   assets/icon.svg
   assets/icon-128x128.png
   assets/icon-256x256.png

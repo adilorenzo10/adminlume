@@ -2,7 +2,7 @@
 
 ## WordPress.org directory edition
 
-Starting with 0.4.0, the installed plugin uses WordPress.org's update channel. Version 0.4.2 is published in the directory under the `adminlume` slug (SVN r3809784). The external GitHub updater, its `Update URI`, download filters, cache, and release manifest have been removed. See [updates and migration](updates.md).
+Starting with 0.4.0, the installed plugin uses WordPress.org's update channel. Version 0.5.0 is the current directory release under the `adminlume` slug (SVN r3829337; 0.4.2 was first published in r3809784). The external GitHub updater, its `Update URI`, download filters, cache, and release manifest have been removed. See [updates and migration](updates.md).
 
 GitHub remains the source/development archive. Pushing a stable `vX.Y.Z` tag runs `.github/workflows/release.yml`, validates the tagged metadata, checks PHP/JavaScript syntax, catalogs, packaging, and WordPress Coding Standards, then attaches the installable ZIP and SHA-256 sidecar to a GitHub Release. **It does not publish to WordPress.org or deliver updates to directory installations.** Directory publication is a separate SVN step; see [Directory publication](#directory-publication).
 
