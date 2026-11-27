@@ -51,20 +51,20 @@ Automatic installation remains controlled by WordPress and site policies. GitHub
 ### Admin navigation
 
 - Fixed desktop/tablet sidebar with independent scrolling and a thin native scrollbar. Persistent scrollbar visibility also depends on operating-system preferences.
-- A separate, non-scrolling desktop header with a clickable site name and the native collapse control. Original WordPress nodes are moved, not cloned, and restored for the native mobile layout.
 - Compact 32px desktop menu rows, system typography, local outline SVG icons for standard menu items, and unchanged icons for unknown plugins.
 - A 52px collapsed desktop sidebar, with 180ms layout transitions disabled when reduced motion is requested.
 - Individually rounded submenu rows with a 1px gap. A selected submenu item receives the highlight; its parent remains a neutral heading. The collapsed section icon remains highlighted for orientation.
-- Menu search filters existing menu and submenu labels only. It does not query posts, products, orders, or the database. `Cmd+K` / `Ctrl+K` focuses search; Escape clears the filter. A keyboard-accessible clear button keeps focus in the field.
-- Search is available in the desktop layout, not the native tablet auto-fold or mobile menu. Native menu order, capabilities, collapse state, and responsive controls remain WordPress-owned.
+- Native menu order, capabilities, collapse state, and responsive controls remain WordPress-owned. The native collapse control moves to the workspace header on desktop and returns to the menu in the mobile layout.
 
 ### Admin surfaces and toolbar
 
 - Rounded native panels, Help and Screen Options panels, tabs, pagination, and media dialogs. Mobile full-screen media dialogs remain edge-to-edge.
 - Separate WooCommerce styles loaded only on relevant screens, without making WooCommerce a required dependency.
-- A full-width desktop toolbar with square outer edges, 10px horizontal padding, 26px controls centered inside the native 32px bar, and dropdowns anchored below it.
-- Native mobile toolbar dimensions and primary touch targets of at least 44px are preserved where styled.
-- The site name moves to the admin sidebar header; the WordPress logo and site-name nodes are removed from the admin toolbar only for opted-in users. Both remain available in the front-end dock.
+- A 48px desktop workspace header on classic admin screens: site name aligned with the sidebar, a breadcrumb for the current screen, a non-production environment badge (`local`, `development`, `staging`), a centered command field, a primary New button, a notifications menu, and the account avatar.
+- Native update and comment counts are grouped under one notifications bell. Root-level toolbar nodes added by other plugins move into a "From other plugins" overflow menu. Original nodes are moved, never cloned, and return to the native toolbar on mobile.
+- The command palette (`Cmd+K` / `Ctrl+K`, or a click on the command field) searches admin screens, submenu items, New actions, notification and plugin tools, site links, and account links that are already in the page. It does not query posts, products, orders, or the database. It follows the ARIA combobox pattern, traps focus, restores focus on close, and can hand off to the WordPress command palette when one is available.
+- The block editor and the native mobile toolbar keep WordPress's own geometry and command palette. Native mobile toolbar dimensions and primary touch targets of at least 44px are preserved where styled.
+- The WordPress logo and site-name nodes are removed from the admin toolbar only for opted-in users. Both remain available in the front-end dock. The account menu adds a link to personal Adminlume preferences before Log Out.
 - Native menu separators are visually hidden without changing item order or permissions.
 
 ### Front-end dock

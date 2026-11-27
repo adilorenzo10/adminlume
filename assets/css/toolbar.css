@@ -122,3 +122,651 @@ body:is(.rounded-admin, .rounded-admin-toolbar) #wpadminbar .ab-top-menu>li:hove
         top: 3px;
     }
 }
+
+/*
+ * Workspace header (desktop, classic admin screens only).
+ * The block editor and the native mobile toolbar keep WordPress's geometry.
+ * WordPress positions the document with --wp-admin--admin-bar--height, so the
+ * taller bar is declared on the root element and core offsets follow it.
+ */
+@media (min-width: 783px) {
+  html.wp-toolbar:has(> body.rounded-admin:not(.block-editor-page)) {
+    --wp-admin--admin-bar--height: 48px;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar {
+    height: 48px;
+    padding-inline: 12px;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 48px;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-root-default {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+    float: none;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-top-secondary {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    float: none;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-toolbar .ab-top-menu > li {
+    float: none;
+    margin: 0;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-toolbar .ab-top-menu > li > .ab-item {
+    height: 36px;
+    padding-inline: 10px;
+    line-height: 36px;
+    border-radius: 10px;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar .ab-top-menu > li.menupop > .ab-sub-wrapper {
+    top: 42px;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-toolbar .ab-top-menu > li > .ab-item:focus-visible,
+  body.rounded-admin:not(.block-editor-page) #wpadminbar .ra-search-trigger:focus-visible,
+  body.rounded-admin:not(.block-editor-page) #wpadminbar .ra-crumb:focus-visible {
+    outline: 2px solid var(--ra-chrome-strong);
+    outline-offset: 2px;
+  }
+
+  /* Nodes that depend on the enhancement script stay hidden without it. */
+  body.rounded-admin:not(.ra-topbar-ready) #wpadminbar .ra-js-only,
+  body.rounded-admin #wpadminbar #wp-admin-bar-adminlume-more:not(.ra-has-items) {
+    display: none !important;
+  }
+
+  /* Static nodes have no hover surface. */
+  body.rounded-admin:not(.block-editor-page) #wpadminbar :is(#wp-admin-bar-adminlume-breadcrumb, #wp-admin-bar-adminlume-environment, #wp-admin-bar-adminlume-search):hover > .ab-item {
+    background: transparent;
+  }
+
+  /* Site: aligned with the sidebar so both form one continuous frame. */
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-adminlume-site {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+    width: max(36px, calc(var(--ra-menu-width, 160px) - 16px));
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-adminlume-site > .ab-item {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--ra-chrome-strong);
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar .ra-site-name {
+    display: block;
+    overflow: hidden;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 36px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar .ra-collapse-host {
+    display: flex;
+    flex: 0 0 36px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar .ra-collapse-host #collapse-menu {
+    position: static;
+    display: block;
+    width: 36px;
+    height: 36px;
+    margin: 0;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar .ra-collapse-host #collapse-button {
+    width: 36px;
+    height: 36px;
+    box-sizing: border-box;
+    border-radius: 10px;
+  }
+
+  body.rounded-admin.folded:not(.block-editor-page) #wpadminbar #wp-admin-bar-adminlume-site > .ab-item {
+    display: none;
+  }
+
+  /* Breadcrumb, environment and contextual actions. */
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-adminlume-breadcrumb {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-adminlume-breadcrumb > .ab-item {
+    display: flex;
+    min-width: 0;
+    padding-inline: 4px;
+  }
+
+  body.rounded-admin #wpadminbar .ra-crumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  body.rounded-admin #wpadminbar .ra-crumb {
+    color: var(--ra-chrome-muted);
+    font-size: 13px;
+    line-height: 36px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  body.rounded-admin #wpadminbar a.ra-crumb:hover {
+    color: var(--ra-chrome-strong);
+    text-decoration: underline;
+  }
+
+  body.rounded-admin #wpadminbar .ra-crumb-current {
+    overflow: hidden;
+    color: var(--ra-chrome-strong);
+    font-weight: 600;
+    text-overflow: ellipsis;
+  }
+
+  body.rounded-admin #wpadminbar .ra-crumb-sep {
+    flex: 0 0 14px;
+    width: 14px;
+    height: 14px;
+    background: var(--ra-chrome-muted);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-adminlume-environment > .ab-item {
+    display: flex;
+    align-items: center;
+    padding-inline: 2px;
+  }
+
+  body.rounded-admin #wpadminbar .ra-env {
+    padding: 0 7px;
+    border-radius: 999px;
+    background: #f2a33a;
+    color: #1a1a1a;
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 20px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  body.rounded-admin #wpadminbar .ra-env-development { background: #c4b5fd; }
+  body.rounded-admin #wpadminbar .ra-env-local { background: #86efac; color: #0b2b14; }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar :is(#wp-admin-bar-view, #wp-admin-bar-preview, #wp-admin-bar-archive, #wp-admin-bar-edit) > .ab-item {
+    color: var(--ra-chrome-muted);
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-toolbar .ab-top-menu > li:is(#wp-admin-bar-view, #wp-admin-bar-preview, #wp-admin-bar-archive, #wp-admin-bar-edit) {
+    flex: 0 0 auto;
+  }
+
+  /* Centered command field. */
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-toolbar .ab-top-menu > li#wp-admin-bar-adminlume-search {
+    flex: 0 1 440px;
+    min-width: 200px;
+    margin-inline: auto;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-adminlume-search > .ab-item {
+    width: 100%;
+    padding: 0;
+  }
+
+  body.rounded-admin #wpadminbar .ra-search-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 36px;
+    box-sizing: border-box;
+    padding: 0 8px 0 12px;
+    border: 1px solid color-mix(in srgb, var(--ra-chrome-strong) 14%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--ra-chrome-strong) 6%, transparent);
+    color: var(--ra-chrome-muted);
+    cursor: text;
+    font-size: 13px;
+    line-height: 34px;
+  }
+
+  body.rounded-admin #wpadminbar .ra-search-trigger:hover {
+    border-color: color-mix(in srgb, var(--ra-chrome-strong) 24%, transparent);
+    background: color-mix(in srgb, var(--ra-chrome-strong) 10%, transparent);
+  }
+
+  body.rounded-admin #wpadminbar .ra-search-icon {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+
+  body.rounded-admin #wpadminbar .ra-search-label {
+    flex: 1 1 auto;
+    overflow: hidden;
+    color: inherit;
+    font-size: 13px;
+    line-height: 34px;
+    text-align: start;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  body.rounded-admin #wpadminbar .ra-search-kbd {
+    padding: 0 6px;
+    border: 1px solid color-mix(in srgb, var(--ra-chrome-strong) 14%, transparent);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ra-chrome-muted);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+  }
+
+  /* Primary action. */
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-new-content > .ab-item,
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-new-content:hover > .ab-item,
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-new-content.hover > .ab-item {
+    margin-inline-end: 6px;
+    padding-inline: 10px 12px;
+    background: var(--ra-chrome-strong);
+    color: var(--ra-chrome-bg);
+    font-weight: 600;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-new-content:hover > .ab-item {
+    opacity: .9;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-new-content > .ab-item .ab-label,
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-new-content > .ab-item .ab-icon::before {
+    color: var(--ra-chrome-bg);
+  }
+
+  /* Icon buttons: notifications and overflow. */
+  body.rounded-admin:not(.block-editor-page) #wpadminbar :is(#wp-admin-bar-adminlume-notifications, #wp-admin-bar-adminlume-more) {
+    position: relative;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar :is(#wp-admin-bar-adminlume-notifications, #wp-admin-bar-adminlume-more) > .ab-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  body.rounded-admin #wpadminbar :is(.ra-bell-icon, .ra-more-icon) {
+    width: 18px;
+    height: 18px;
+    background: var(--ra-chrome-strong);
+  }
+
+  body.rounded-admin #wpadminbar .ra-bell-icon {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+
+  body.rounded-admin #wpadminbar .ra-more-icon {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Ccircle cx='5' cy='12' r='1.8'/%3E%3Ccircle cx='12' cy='12' r='1.8'/%3E%3Ccircle cx='19' cy='12' r='1.8'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+
+  body.rounded-admin #wpadminbar .ra-count {
+    position: absolute;
+    top: 3px;
+    inset-inline-end: 1px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: #d63638;
+    box-shadow: 0 0 0 2px var(--ra-chrome-bg);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  body.rounded-admin #wpadminbar #wp-admin-bar-adminlume-notifications .ab-sub-wrapper,
+  body.rounded-admin #wpadminbar #wp-admin-bar-adminlume-more .ab-sub-wrapper {
+    min-width: 260px;
+  }
+
+  /* Trailing menus open toward the content so they never cross the viewport edge. */
+  body.rounded-admin:not(.block-editor-page) #wpadminbar :is(#wp-admin-bar-adminlume-notifications, #wp-admin-bar-adminlume-more) > .ab-sub-wrapper {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+  }
+
+  /* Native update/comment nodes regrouped by the script: show their text labels. */
+  body.rounded-admin #wpadminbar #wp-admin-bar-adminlume-notifications .ab-submenu .screen-reader-text {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    clip-path: none;
+    color: inherit;
+    white-space: nowrap;
+  }
+
+  body.rounded-admin #wpadminbar #wp-admin-bar-adminlume-notifications .ab-submenu .ab-label {
+    display: none;
+  }
+
+  body.rounded-admin #wpadminbar #wp-admin-bar-adminlume-notifications .ab-submenu > li > .ab-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  body.rounded-admin #wpadminbar #wp-admin-bar-adminlume-notifications .ab-submenu .ab-icon {
+    float: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  body.rounded-admin #wpadminbar #wp-admin-bar-adminlume-notifications .ab-submenu .ab-icon::before {
+    color: var(--ra-chrome-muted);
+  }
+
+  body.rounded-admin #wpadminbar .ra-menu-heading > .ab-item {
+    color: var(--ra-chrome-muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  body.rounded-admin #wpadminbar .ra-menu-heading:hover > .ab-item {
+    background: transparent;
+    color: var(--ra-chrome-muted);
+  }
+
+  body.rounded-admin #wpadminbar .ra-menu-footer {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid color-mix(in srgb, var(--ra-chrome-strong) 12%, transparent);
+  }
+
+  /* Account: avatar only; the greeting remains available to assistive technology. */
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-my-account > .ab-item {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding-inline: 4px;
+    font-size: 0;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-my-account > .ab-item .display-name {
+    font-size: 0;
+  }
+
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-admin-bar-my-account.with-avatar > .ab-item > img.avatar {
+    width: 28px;
+    height: 28px;
+    margin: 0;
+    border: 0;
+    border-radius: 999px;
+  }
+}
+
+@media (min-width: 783px) and (max-width: 960px) {
+  /* Native auto-fold has no manual collapse control and only an icon rail. */
+  body.rounded-admin.auto-fold:not(.block-editor-page) #wpadminbar #wp-admin-bar-adminlume-site {
+    display: none;
+  }
+}
+
+@media (min-width: 783px) and (max-width: 1180px) {
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-toolbar .ab-top-menu > li#wp-admin-bar-adminlume-search { flex-basis: 260px; }
+  body.rounded-admin:not(.block-editor-page) #wpadminbar .ra-search-label { font-size: 0; }
+  body.rounded-admin:not(.block-editor-page) #wpadminbar #wp-toolbar .ab-top-menu > li#wp-admin-bar-adminlume-search { min-width: 120px; }
+
+  /* Context links stay reachable from the palette's Site group. */
+  body.rounded-admin.ra-topbar-ready:not(.block-editor-page) #wpadminbar #wp-toolbar .ab-top-menu > li:is(#wp-admin-bar-view, #wp-admin-bar-preview, #wp-admin-bar-archive, #wp-admin-bar-edit) {
+    display: none;
+  }
+}
+
+/* Command palette: appended to <body>, outside the toolbar's style reset. */
+.ra-palette[hidden] { display: none; }
+
+.ra-palette {
+  position: fixed;
+  inset: 0;
+  z-index: 100100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 16px 16px;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.ra-palette-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 10 12 / 45%);
+}
+
+.ra-palette-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 640px;
+  max-width: 100%;
+  max-height: min(560px, 76vh);
+  overflow: hidden;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 64px rgb(0 0 0 / 35%), 0 0 0 1px rgb(0 0 0 / 8%);
+  color: #1d2327;
+}
+
+.ra-palette-field {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-bottom: 1px solid #f0f0f1;
+}
+
+.ra-palette-field::before {
+  content: "";
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  background: #646970;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.ra-palette-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 54px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #1d2327;
+  font: inherit;
+  font-size: 15px;
+}
+
+.ra-palette-input:focus { outline: none; box-shadow: none; }
+.ra-palette-input::placeholder { color: #646970; opacity: 1; }
+.ra-palette-input::-webkit-search-cancel-button { display: none; appearance: none; }
+
+.ra-palette kbd {
+  padding: 1px 6px;
+  border: 1px solid #dcdcde;
+  border-radius: 6px;
+  background: #fff;
+  color: #50575e;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.ra-palette-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.ra-palette-group { margin: 0; padding: 0; list-style: none; }
+
+.ra-palette-heading {
+  margin: 0;
+  padding: 10px 10px 4px;
+  color: #646970;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.ra-palette-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: #1d2327;
+  cursor: pointer;
+  font-size: 13.5px;
+  line-height: 20px;
+}
+
+.ra-palette-option[aria-selected="true"] { background: #f0f0f1; }
+.ra-palette-option[aria-selected="true"] .ra-palette-glyph { background: #1d2327; color: #fff; }
+
+.ra-palette-glyph {
+  display: grid;
+  flex: 0 0 28px;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: #f0f0f1;
+  color: #50575e;
+}
+
+.ra-palette-glyph::before {
+  content: "";
+  width: 15px;
+  height: 15px;
+  background: currentColor;
+  mask: var(--ra-glyph) center / contain no-repeat;
+}
+
+.ra-glyph-action { --ra-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E"); }
+.ra-glyph-navigate { --ra-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E"); }
+.ra-glyph-tool { --ra-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M13 3 5 13h6l-1 8 8-10h-6z'/%3E%3C/svg%3E"); }
+.ra-glyph-site { --ra-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4h6v6M20 4l-9 9M18 14v6H4V6h6'/%3E%3C/svg%3E"); }
+.ra-glyph-command { --ra-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z'/%3E%3C/svg%3E"); }
+
+.ra-palette-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ra-palette-context {
+  flex: 0 1 auto;
+  max-width: 40%;
+  overflow: hidden;
+  color: #646970;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ra-palette-empty {
+  margin: 0;
+  padding: 28px 12px;
+  color: #50575e;
+  font-size: 13px;
+  text-align: center;
+}
+
+.ra-palette-footer {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 10px 16px;
+  border-top: 1px solid #f0f0f1;
+  background: #f6f7f7;
+  color: #50575e;
+  font-size: 11.5px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ra-palette:not([hidden]) .ra-palette-dialog { animation: ra-palette-in 140ms ease-out; }
+  .ra-palette:not([hidden]) .ra-palette-backdrop { animation: ra-palette-fade 140ms ease-out; }
+}
+
+@keyframes ra-palette-in {
+  from { opacity: 0; transform: translateY(-6px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes ra-palette-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (forced-colors: active) {
+  .ra-palette-option[aria-selected="true"] { outline: 2px solid Highlight; }
+}
+
+@media (max-width: 782px) {
+  .ra-palette { padding-top: 56px; }
+  .ra-palette-option { min-height: 44px; box-sizing: border-box; }
+}

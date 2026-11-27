@@ -86,7 +86,7 @@ final class Settings {
 	 *
 	 * @return string Settings URL.
 	 */
-	private function url(): string {
+	public function url(): string {
 		return admin_url( ( current_user_can( 'list_users' ) ? 'users.php' : 'profile.php' ) . '?page=' . self::PAGE );
 	}
 

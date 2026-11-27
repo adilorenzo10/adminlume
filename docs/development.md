@@ -7,13 +7,14 @@
 | `adminlume.php` | Plugin metadata, text domain loading, and hook registration. |
 | `src/class-settings.php` | Personal preferences, sanitization, settings page, and authenticated POST-only save handler. |
 | `src/class-assets.php` | Conditional admin assets, appearance variables, and luminance-based foreground selection. |
-| `src/class-chrome.php` | Admin toolbar adjustments and the sidebar site link for opted-in users. |
+| `src/class-chrome.php` | Workspace header nodes (site, breadcrumb, environment, command field, notifications, overflow, preferences link) and the sidebar site link used on mobile. |
 | `src/class-frontendtoolbar.php` | Native toolbar integration on authenticated public-site requests. |
 | `assets/css/admin.css` | Scoped admin layout and native controls. |
-| `assets/css/toolbar.css` | Backend toolbar only. |
+| `assets/css/toolbar.css` | Backend toolbar, 48px workspace header, and command palette styles. |
 | `assets/css/media.css` | Native media surfaces, loaded when WordPress enqueues media. |
 | `assets/css/woocommerce.css` | Relevant classic WooCommerce surfaces. |
-| `assets/js/sidebar.js` | Independent sidebar scrolling, flyout positioning, and menu-label filtering. |
+| `assets/js/sidebar.js` | Independent sidebar scrolling, flyout positioning, and moving the collapse control into the workspace header. |
+| `assets/js/topbar.js` | Desktop node regrouping (restored on mobile) and the accessible command palette, built with DOM APIs only. |
 | `assets/css/frontend-toolbar.css`, `assets/js/frontend-toolbar.js` | Standalone public-site dock; no theme build dependency. |
 | `languages/` | Development-only gettext POT and Italian PO/MO catalogs, excluded from release ZIPs; WordPress.org distributes runtime language packs. |
 
@@ -62,7 +63,7 @@ For English/Italian runtime checks, run `tests/i18n-integration.php` through the
 
 Before running, enable Adminlume for the first administrator returned by WordPress. The tests expect specific fixtures beyond the plugin's minimum runtime requirements:
 
-- `tests/topbar-browser.cjs` expects the WooCommerce site-visibility badge and a command-palette toolbar node.
+- `tests/topbar-browser.cjs` expects the WooCommerce site-visibility badge, at least one product menu entry for palette search, and the native comments node. It checks the 48px workspace header, regrouping, palette keyboard behavior, the untouched block editor, and the native mobile toolbar.
 - `tests/frontend-toolbar-browser.cjs` expects the native site, account, logout, and New actions. It optionally checks an existing published product. It does not require a theme-specific header selector or a fixed accent color. It also injects a temporary in-browser plugin menu to verify preservation of nested actions and event handlers; no site content is saved.
 
 These are fixture-dependent regression tests, not a general-purpose compatibility suite for arbitrary WordPress installations. Match the fixtures or adjust tests deliberately when testing other themes or configurations; do not change plugin behavior merely to satisfy site-specific assumptions.
@@ -81,6 +82,7 @@ Optional environment variables:
 | --- | --- |
 | `PLAYWRIGHT_MODULE` | Module name or absolute path used to load an external Playwright installation. |
 | `PLAYWRIGHT_BROWSERS_PATH` | Browser installation location recognized by Playwright. |
+| `PLAYWRIGHT_CHANNEL` | Optional installed browser channel for the top-bar test, such as `chrome`, instead of a downloaded Playwright browser. |
 | `ROUNDED_ADMIN_SCREENSHOT` | Screenshot output file for the top-bar test. |
 | `TOOLBAR_SCREENSHOT_DIR` | Existing screenshot output directory for the front-end test. |
 | `ADMINLUME_ASSET_OVERRIDE` | Set to `1` to serve this checkout's front-end CSS/JS through Playwright routes without modifying the local site's installed plugin. This does not replace or test the installed PHP implementation. |
@@ -106,6 +108,7 @@ With PHP and Node.js installed, run from the repository root:
 ```bash
 find . -path './.git' -prune -o -name '*.php' -exec php -l {} \;
 node --check assets/js/sidebar.js
+node --check assets/js/topbar.js
 node --check assets/js/frontend-toolbar.js
 node --check tests/topbar-browser.cjs
 node --check tests/frontend-toolbar-browser.cjs
@@ -135,7 +138,8 @@ The Plugin Check plugin must be installed in that isolated test site. Record the
 - Verify preference isolation between accounts, invalid input handling, and legacy preference fallback.
 - Test the dashboard, classic editor, block editor, media library and dialogs, and any supported custom plugin screens.
 - With WooCommerce installed, test products, categories, orders including HPOS, and other relevant WooCommerce screens.
-- Check expanded/collapsed navigation, sidebar scrolling, flyouts near viewport edges, menu search, and clearing with keyboard input.
+- Check expanded/collapsed navigation, sidebar scrolling, flyouts near viewport edges, and the collapse control in the workspace header.
+- Check the workspace header at 1440px, 1180px and 900px, the breadcrumb, environment badge, notifications and overflow menus, and the command palette (results, arrow keys, Enter, Escape, empty state).
 - Check keyboard focus, `Cmd+K` / `Ctrl+K`, Escape, toolbar menus, hide/reopen focus restoration, touch input, and reduced motion.
 - Check desktop, tablet, narrow mobile, RTL, light/dark personal backgrounds, and blocked JavaScript or browser storage.
 - Verify front-end dock placement, guest pages, a hidden native toolbar, theme switching, and absence of admin assets on public pages.

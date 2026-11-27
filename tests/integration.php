@@ -107,7 +107,36 @@ try {
 	$check( ! $bar->get_node( 'wp-logo' ) && ! $bar->get_node( 'site-name' ) && (bool) $bar->get_node( 'comments' ), 'personal toolbar removes only requested nodes' );
 	ob_start(); $chrome->site_link(); $site_html = ob_get_clean();
 	$check( str_contains( $site_html, 'id="ra-site-link"' ) && str_contains( $site_html, esc_url( home_url( '/' ) ) ), 'sidebar contains escaped clickable site name' );
+	$workspace_bar = new WP_Admin_Bar();
+	$workspace_bar->add_node( array( 'id' => 'command-palette', 'title' => 'Commands' ) );
+	$workspace_bar->add_node( array( 'id' => 'updates', 'title' => 'Updates', 'href' => '/native-updates' ) );
+	$workspace_bar->add_node( array( 'id' => 'third-party', 'title' => 'Tool', 'href' => '/tool', 'meta' => array( 'class' => 'plugin-node' ) ) );
+	$workspace_bar->add_node( array( 'parent' => 'top-secondary', 'id' => 'my-account', 'title' => 'Account' ) );
+	$workspace_bar->add_group( array( 'parent' => 'my-account', 'id' => 'user-actions' ) );
+	$workspace_bar->add_node( array( 'parent' => 'user-actions', 'id' => 'logout', 'title' => 'Log Out', 'href' => '/native-logout' ) );
+	$chrome->leading_nodes( $workspace_bar );
+	$chrome->toolbar( $workspace_bar );
+	$check( home_url( '/' ) === $workspace_bar->get_node( 'adminlume-site' )->href, 'workspace toolbar links the site name to the public site' );
+	$check( str_contains( $workspace_bar->get_node( 'adminlume-search' )->title, '<button type="button" class="ra-search-trigger"' ) && ! $workspace_bar->get_node( 'command-palette' ), 'workspace toolbar replaces the core palette node with the Adminlume command field' );
+	$check( (bool) $workspace_bar->get_node( 'adminlume-notifications' ) && 'adminlume-notifications' === $workspace_bar->get_node( 'adminlume-notifications-footer' )->parent, 'notification menu exists with a native destination' );
+	$check( 'adminlume-more' === $workspace_bar->get_node( 'adminlume-more-heading' )->parent, 'overflow menu exists for third-party nodes' );
+	$check( '/native-updates' === $workspace_bar->get_node( 'updates' )->href && 'plugin-node' === $workspace_bar->get_node( 'third-party' )->meta['class'], 'native and third-party nodes keep their markup for client-side regrouping' );
+	$check( 'user-actions' === $workspace_bar->get_node( 'adminlume-preferences' )->parent && $settings->url() === $workspace_bar->get_node( 'adminlume-preferences' )->href, 'account menu links to personal Adminlume preferences' );
+	$account_ids = array_keys( array_filter( $workspace_bar->get_nodes(), static fn( $node ) => 'user-actions' === $node->parent ) );
+	$check( array( 'adminlume-preferences', 'logout' ) === array_values( $account_ids ) && '/native-logout' === $workspace_bar->get_node( 'logout' )->href, 'native logout stays last and unchanged in the account menu' );
+	$check( (bool) $workspace_bar->get_node( 'adminlume-environment' ) && '' === \Adminlume\Chrome::environment_label( 'production' ) && '' !== \Adminlume\Chrome::environment_label( 'staging' ), 'environment badge appears outside production only' );
+	$crumbs = \Adminlume\Chrome::breadcrumb_markup(
+		array(
+			array( 'label' => '<script>alert(1)</script>', 'url' => 'javascript:alert(1)' ),
+			array( 'label' => 'Edit "A" & B', 'url' => '' ),
+		)
+	);
+	$check( ! str_contains( $crumbs, '<script' ) && ! str_contains( $crumbs, 'javascript:' ) && str_contains( $crumbs, '&amp;' ) && str_contains( $crumbs, 'aria-current="page"' ), 'breadcrumb labels and URLs are escaped' );
+	$check( '' === \Adminlume\Chrome::breadcrumb_markup( array() ), 'empty breadcrumb renders nothing' );
+	$check( 'Comments' === \Adminlume\Chrome::menu_label( 'Comments <span class="awaiting-mod count-2"><span class="pending-count">2</span></span>' ), 'menu labels drop native count badges' );
+	$check( str_ends_with( \Adminlume\Chrome::menu_url( 'woocommerce' ), 'admin.php?page=woocommerce' ) && str_ends_with( \Adminlume\Chrome::menu_url( 'edit.php?post_type=product' ), 'edit.php?post_type=product' ), 'menu slugs resolve to admin URLs' );
 	$assets->enqueue();
+	$check( wp_script_is( 'rounded-admin-topbar', 'enqueued' ) && array() === wp_scripts()->registered['rounded-admin-topbar']->deps, 'workspace toolbar script loads without library dependencies' );
 	$check( wp_style_is( 'rounded-admin', 'enqueued' ), 'opt-in enqueues base stylesheet' );
 	$css_preferences = get_user_meta( $user_id, Settings::META_KEY, true );
 	$css_after = wp_styles()->get_data( 'rounded-admin', 'after' );
@@ -145,8 +174,14 @@ try {
 	set_current_screen( 'post' );
 	get_current_screen()->is_block_editor( true );
 	wp_dequeue_script( 'rounded-admin-sidebar' );
+	wp_dequeue_script( 'rounded-admin-topbar' );
 	$assets->enqueue();
-	$check( ! wp_script_is( 'rounded-admin-sidebar', 'enqueued' ), 'block editor avoids sidebar scroll enhancement' );
+	$check( ! wp_script_is( 'rounded-admin-sidebar', 'enqueued' ) && ! wp_script_is( 'rounded-admin-topbar', 'enqueued' ), 'block editor avoids sidebar and workspace toolbar scripts' );
+	$editor_bar = new WP_Admin_Bar();
+	$editor_bar->add_node( array( 'id' => 'command-palette', 'title' => 'Commands' ) );
+	$chrome->leading_nodes( $editor_bar );
+	$chrome->toolbar( $editor_bar );
+	$check( ! $editor_bar->get_node( 'adminlume-site' ) && ! $editor_bar->get_node( 'adminlume-search' ) && (bool) $editor_bar->get_node( 'command-palette' ), 'block editor keeps the compact native toolbar' );
 	$check( ! wp_style_is( 'rounded-admin-woocommerce', 'enqueued' ), 'block editor avoids classic WooCommerce overrides' );
 	wp_dequeue_style( 'rounded-admin' );
 	wp_set_current_user( 0 );

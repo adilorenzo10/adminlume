@@ -55,3 +55,8 @@ body.rounded-admin .edit-attachment-frame .attachment-media-view { border-end-st
   body.rounded-admin .edit-attachment-frame .attachment-info,
   body.rounded-admin .edit-attachment-frame .attachment-media-view { border-radius: 0; }
 }
+
+/* Keep the fixed media-library toolbar below a taller workspace toolbar. */
+body.rounded-admin .media-frame.mode-select .attachments-browser.fixed .media-toolbar {
+  top: var(--wp-admin--admin-bar--height, 32px);
+}

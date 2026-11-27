@@ -56,10 +56,10 @@ try {
 	$GLOBALS['show_admin_bar'] = true;
 	$plugin_file = WP_PLUGIN_DIR . '/adminlume/adminlume.php';
 	$check( ! is_dir( dirname( $plugin_file ) . '/languages' ), 'installed directory edition bundles no translation catalogs' );
-	$english = array( 'Enable Adminlume for me', 'Search menu', 'Hide admin toolbar', 'Hide', 'Dashboard', 'Visit site: ', 'Medium' );
+	$english = array( 'Enable Adminlume for me', 'Search screens, actions and tools…', 'Hide admin toolbar', 'Hide', 'Dashboard', 'Visit site: ', 'Medium' );
 	foreach ( array(
 		'en_US' => $english,
-		'it_IT' => $has_language_pack ? array( 'Abilita Adminlume per me', 'Cerca nel menu', 'Nascondi barra amministrativa', 'Nascondi', 'Bacheca', 'Visita il sito: ', 'Medio' ) : $english,
+		'it_IT' => $has_language_pack ? array( 'Abilita Adminlume per me', 'Cerca schermate, azioni e strumenti…', 'Nascondi barra amministrativa', 'Nascondi', 'Bacheca', 'Visita il sito: ', 'Medio' ) : $english,
 	) as $locale => $expected ) {
 		$switched = switch_to_locale( $locale );
 		if ( $switched ) ++$switches;
@@ -72,8 +72,8 @@ try {
 		$check( $expected[6] === _x( 'Medium', 'panel corner radius', 'adminlume' ), 'gettext context is preserved in ' . $locale );
 		$check( 'Medium' === __( 'Medium', 'adminlume' ), 'context-specific translation does not affect unrelated strings' );
 		( new Assets( $plugin_file ) )->enqueue();
-		$sidebar = $script_labels( 'rounded-admin-sidebar', 'roundedAdminSidebar' );
-		$check( $expected[1] === $sidebar['search'], 'sidebar JavaScript receives translated PHP strings in ' . $locale );
+		$topbar = $script_labels( 'rounded-admin-topbar', 'roundedAdminTopbar' );
+		$check( $expected[1] === $topbar['placeholder'], 'command palette JavaScript receives translated PHP strings in ' . $locale );
 		ob_start();
 		( new Chrome() )->site_link();
 		$site = ob_get_clean();

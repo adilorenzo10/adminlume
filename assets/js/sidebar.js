@@ -7,109 +7,34 @@
     if (!sidebar || !menu || !body.classList.contains('rounded-admin')) return;
     const desktop = matchMedia('(min-width: 783px)');
     let frame = 0;
-    let header = null;
     let navigation = null;
-    let search = null;
-    let searchInput = null;
-    let searchClear = null;
-    let searchStatus = null;
-    const originalHidden = new Map();
-    const site = document.getElementById('ra-site-link');
+    let collapseHost = null;
     const collapse = document.getElementById('collapse-menu');
+    const siteNode = document.getElementById('wp-admin-bar-adminlume-site');
 
-    const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase().trim();
-    const filterMenu = () => {
-      const query = normalize(searchInput?.value || '');
-      if (searchClear) searchClear.hidden = !searchInput.value;
-      if (search) search.classList.toggle('ra-has-query', Boolean(searchInput?.value));
-      let matches = 0;
-      for (const item of menu.children) {
-        if (!item.matches('li.menu-top, li.wp-menu-separator')) continue;
-        if (!originalHidden.has(item)) originalHidden.set(item, item.hidden);
-        const matched = !query || (!item.classList.contains('wp-menu-separator') && normalize(item.textContent).includes(query));
-        item.hidden = originalHidden.get(item) || !matched;
-        if (!item.hidden && item.classList.contains('menu-top')) matches++;
-      }
-      if (searchStatus) searchStatus.textContent = query && !matches ? search.dataset.empty : '';
-      schedule();
-    };
-    const focusSearch = () => {
-      if (innerWidth < 961 || !searchInput) return;
-      if (body.classList.contains('folded')) document.getElementById('collapse-button')?.click();
-      requestAnimationFrame(() => searchInput?.focus());
-    };
-
-    const prepareHeader = enabled => {
-      if (enabled && !header) {
-        header = document.createElement('ul');
-        header.id = 'ra-sidebar-header';
-        if (site) header.append(site);
-        if (collapse) header.append(collapse);
-        sidebar.prepend(header);
+    // Desktop: the collapse control moves into the workspace toolbar beside the
+    // site name; the menu itself moves into an independent scroll container.
+    // Both are moved, never cloned, and restored for the native mobile layout.
+    const prepare = enabled => {
+      if (enabled && !navigation) {
+        if (collapse && siteNode) {
+          collapseHost = document.createElement('ul');
+          collapseHost.className = 'ra-collapse-host';
+          collapseHost.append(collapse);
+          siteNode.append(collapseHost);
+        }
         navigation = document.createElement('div');
         navigation.id = 'ra-sidebar-navigation';
         navigation.append(menu);
         navigation.addEventListener('scroll', schedule, { passive: true });
         sidebar.append(navigation);
-        search = document.createElement('div');
-        search.id = 'ra-sidebar-search';
-        search.dataset.empty = window.roundedAdminSidebar?.empty || 'No menu items found.';
-        const label = document.createElement('label');
-        label.className = 'screen-reader-text';
-        label.htmlFor = 'ra-menu-search';
-        label.textContent = window.roundedAdminSidebar?.search || 'Search menu';
-        searchInput = document.createElement('input');
-        searchInput.type = 'search';
-        searchInput.id = 'ra-menu-search';
-        searchInput.placeholder = label.textContent;
-        searchInput.autocomplete = 'off';
-        searchInput.setAttribute('aria-controls', 'adminmenu');
-        searchInput.addEventListener('input', filterMenu);
-        searchInput.addEventListener('keydown', event => {
-          if (event.key === 'Escape') {
-            event.stopPropagation();
-            searchInput.value = '';
-            filterMenu();
-          }
-        });
-        const icon = document.createElement('button');
-        icon.type = 'button';
-        icon.className = 'ra-search-toggle';
-        icon.setAttribute('aria-label', label.textContent);
-        icon.addEventListener('click', focusSearch);
-        const shortcut = document.createElement('kbd');
-        shortcut.textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘K' : 'Ctrl K';
-        shortcut.setAttribute('aria-hidden', 'true');
-        searchClear = document.createElement('button');
-        searchClear.type = 'button';
-        searchClear.className = 'ra-search-clear';
-        searchClear.hidden = true;
-        const clearLabel = window.roundedAdminSidebar?.clear || 'Clear search';
-        searchClear.setAttribute('aria-label', clearLabel);
-        searchClear.title = clearLabel;
-        searchClear.addEventListener('click', () => {
-          searchInput.value = '';
-          filterMenu();
-          searchInput.focus();
-        });
-        search.append(label, icon, searchInput, shortcut, searchClear);
-        header.after(search);
-        searchStatus = document.createElement('p');
-        searchStatus.className = 'ra-menu-search-status';
-        searchStatus.setAttribute('role', 'status');
-        navigation.append(searchStatus);
-      } else if (!enabled && header) {
-        searchInput.value = '';
-        filterMenu();
+      } else if (!enabled && navigation) {
         if (collapse) menu.append(collapse);
-        if (site) menu.append(site);
+        collapseHost?.remove();
+        collapseHost = null;
         sidebar.append(menu);
         navigation.remove();
         navigation = null;
-        header.remove();
-        header = null;
-        search.remove();
-        search = searchInput = searchStatus = searchClear = null;
       }
     };
 
@@ -117,15 +42,11 @@
       frame = 0;
       const enabled = desktop.matches && !body.classList.contains('block-editor-page');
       body.classList.toggle('ra-sidebar-scroll', enabled);
-      prepareHeader(enabled);
+      prepare(enabled);
       const folded = body.classList.contains('folded') ||
         (body.classList.contains('auto-fold') && innerWidth <= 960);
-      if (search) search.querySelector('.ra-search-toggle').tabIndex = folded ? 0 : -1;
-      if (folded && searchInput?.value) {
-        searchInput.value = '';
-        filterMenu();
-      }
       const rtl = getComputedStyle(body).direction === 'rtl';
+      const barHeight = document.getElementById('wpadminbar')?.getBoundingClientRect().height || 32;
 
       for (const item of menu.children) {
         const submenu = item.querySelector(':scope > .wp-submenu');
@@ -149,7 +70,7 @@
         const height = submenu.getBoundingClientRect().height;
         const scrollBoundary = navigation.getBoundingClientRect();
         const top = rect.bottom < scrollBoundary.top || rect.top > scrollBoundary.bottom ? -10000 :
-          Math.max(36, Math.min(rect.top - 1, innerHeight - height - 8));
+          Math.max(barHeight + 4, Math.min(rect.top - 1, innerHeight - height - 8));
         const left = rtl ? boundary.left - submenu.offsetWidth : boundary.right;
         submenu.style.setProperty('--ra-flyout-top', `${top}px`);
         submenu.style.setProperty('--ra-flyout-left', `${Math.max(0, left)}px`);
@@ -171,14 +92,6 @@
     sidebar.addEventListener('transitionend', schedule);
     window.addEventListener('resize', schedule, { passive: true });
     desktop.addEventListener('change', schedule);
-    window.addEventListener('keydown', event => {
-      if ((event.metaKey || event.ctrlKey) && !event.altKey && event.key.toLowerCase() === 'k' && desktop.matches && innerWidth >= 961) {
-        if (document.activeElement?.closest('[role="dialog"], .media-modal')) return;
-        event.preventDefault();
-        event.stopPropagation();
-        focusSearch();
-      }
-    }, { capture: true });
     update();
 
     // Reveal the active section inside the sidebar, without scrolling the document.

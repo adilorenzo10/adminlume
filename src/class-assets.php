@@ -64,13 +64,34 @@ final class Assets {
 				(string) filemtime( dirname( $this->plugin_file ) . '/assets/js/sidebar.js' ),
 				true
 			);
+			wp_enqueue_script(
+				'rounded-admin-topbar',
+				plugins_url( 'assets/js/topbar.js', $this->plugin_file ),
+				array(),
+				(string) filemtime( dirname( $this->plugin_file ) . '/assets/js/topbar.js' ),
+				true
+			);
 			wp_localize_script(
-				'rounded-admin-sidebar',
-				'roundedAdminSidebar',
+				'rounded-admin-topbar',
+				'roundedAdminTopbar',
 				array(
-					'search' => __( 'Search menu', 'adminlume' ),
-					'empty'  => __( 'No menu items found.', 'adminlume' ),
-					'clear'  => __( 'Clear search', 'adminlume' ),
+					'title'        => __( 'Command palette', 'adminlume' ),
+					'placeholder'  => __( 'Search screens, actions and tools…', 'adminlume' ),
+					'results'      => __( 'Results', 'adminlume' ),
+					/* translators: %s: Text typed into the command palette. */
+					'empty'        => __( 'No results for “%s”', 'adminlume' ),
+					/* translators: %d: Number of command palette results. */
+					'count'        => __( '%d results', 'adminlume' ),
+					'create'       => __( 'Create', 'adminlume' ),
+					'navigate'     => __( 'Go to', 'adminlume' ),
+					'tools'        => __( 'Notifications and tools', 'adminlume' ),
+					'site'         => __( 'Site', 'adminlume' ),
+					'account'      => __( 'Account', 'adminlume' ),
+					'commands'     => __( 'WordPress', 'adminlume' ),
+					'openCommands' => __( 'Open WordPress commands', 'adminlume' ),
+					'move'         => __( 'to navigate', 'adminlume' ),
+					'open'         => __( 'to open', 'adminlume' ),
+					'close'        => __( 'to close', 'adminlume' ),
 				)
 			);
 		}

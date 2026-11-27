@@ -4,7 +4,7 @@ Tags: admin, dashboard, toolbar, customization
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.4.2
+Stable tag: 0.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -19,7 +19,8 @@ The plugin is disabled by default for each user. It does not change roles, capab
 Features include:
 
 * Personal accent color, sidebar background, and panel corner radius.
-* Independently scrolling desktop navigation and menu-only search.
+* Independently scrolling desktop navigation.
+* A 48px workspace header with breadcrumb, environment badge, grouped notifications, and a keyboard command palette.
 * Native WordPress navigation, permissions, and responsive controls.
 * Conditional styles for media dialogs and relevant WooCommerce screens.
 * A translucent charcoal front-end dock with separate native site and account actions.
@@ -61,9 +62,9 @@ No. Each user must opt in independently. There is no site-wide appearance settin
 
 No. WooCommerce styles load only on relevant screens. The front-end dock belongs to the plugin and does not require theme support or a theme build step.
 
-= Does menu search find posts, products, or orders? =
+= Does the command palette find posts, products, or orders? =
 
-No. It filters existing menu and submenu labels in the desktop layout. Cmd+K or Ctrl+K focuses the search field; Escape clears the filter.
+No. It searches admin screens, New actions, and toolbar links already present on the page. Cmd+K or Ctrl+K opens it on classic admin screens; Escape closes it. The block editor keeps the WordPress command palette.
 
 = Does the dock appear for visitors or when my toolbar is disabled? =
 
@@ -88,6 +89,15 @@ The software is distributed without warranty. See LICENSE for the complete licen
 The software license grants no separate trademark license. Independent forks must not be misleadingly presented as official Dilorsoft releases. See TRADEMARKS.txt in the release package; that policy does not add restrictions to GPL rights or assert trademark registration.
 
 == Changelog ==
+
+= 0.5.0 =
+
+* Replace the admin toolbar with a 48px workspace header on classic admin screens: site name, breadcrumb, non-production environment badge, centered command field, primary New button, notifications menu, and account avatar.
+* Add an accessible Adminlume command palette (Cmd+K / Ctrl+K) that searches admin screens, New actions, toolbar tools, site and account links already on the page.
+* Group native update and comment counts under one notifications menu and move third-party toolbar nodes into a "From other plugins" overflow menu on desktop; original nodes are restored on mobile.
+* Move the native sidebar collapse control into the header and replace the sidebar menu search with the command palette.
+* Add an Adminlume preferences link to the account menu, before Log Out.
+* Keep the block editor and the native mobile toolbar on WordPress's own geometry and command palette.
 
 = 0.4.2 =
 
@@ -143,6 +153,10 @@ The software license grants no separate trademark license. Independent forks mus
 * Compatibility fallback for existing Rounded Admin preferences.
 
 == Upgrade Notice ==
+
+= 0.5.0 =
+
+Introduces a taller 48px workspace header and an Adminlume command palette on classic admin screens. The sidebar menu search is replaced by the palette (Cmd+K / Ctrl+K). The block editor and mobile toolbar are unchanged. Personal preferences are retained.
 
 = 0.4.2 =
 

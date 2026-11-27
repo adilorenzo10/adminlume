@@ -26,4 +26,4 @@ The native icon fixture is generated with request-local WordPress filters and te
 
 The prepared metadata was committed as `ee59549`. After directory approval, the `dilorsoft` account published this release to WordPress.org in SVN revision 3809784 on 2026-11-18: `/trunk` contains the 0.4.2 runtime files, `/tags/0.4.2` was created from it, and the three listing icons were added to top-level `/assets`. 0.4.2 is the first public directory release and the current stable tag.
 
-GitHub tags do not deliver WordPress.org updates. No `v0.4.2` Git tag or GitHub Release had been created when this report was updated.
+GitHub tags do not deliver WordPress.org updates. The `v0.4.2` Git tag was later created on `ee59549`; its GitHub Release ZIP matches the verified artifact checksum.
