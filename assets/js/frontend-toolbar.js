@@ -115,7 +115,7 @@ const init = () => {
   };
   const observer = new MutationObserver(() => { structureDirty = true; schedule(); });
   const observe = () => groups.forEach(group => observer.observe(group, { childList: true }));
-  const keep = new Set(['wp-admin-bar-wp-logo', 'wp-admin-bar-site-name', 'wp-admin-bar-edit', 'wp-admin-bar-my-account']);
+  const keep = new Set(['wp-admin-bar-wp-logo', 'wp-admin-bar-site-name', 'wp-admin-bar-adminlume-dock-search', 'wp-admin-bar-edit', 'wp-admin-bar-my-account']);
   const desktopKeep = new Set([...keep, 'wp-admin-bar-woocommerce-site-visibility-badge', 'wp-admin-bar-nzm-toolbar-dashboard', 'wp-admin-bar-customize', 'wp-admin-bar-comments', 'wp-admin-bar-new-content']);
   const layout = () => {
     frame = 0;
@@ -144,6 +144,22 @@ const init = () => {
       bar.classList.add('nzm-dock-compact');
     }
     records.forEach((group, node) => { if (!(compact ? keep : desktopKeep).has(node.id)) overflow.append(node); });
+    // Very narrow screens: demote low-priority kept nodes until the dock fits.
+    // The palette button, edit action, account and visibility control stay.
+    if (compact) {
+      // Flex groups shrink and let their items overflow into each other, so
+      // compare each group's content width with its box.
+      const fits = () => groups.every(group => group.scrollWidth <= group.clientWidth + 1) && bar.scrollWidth <= bar.clientWidth + 1;
+      bar.classList.toggle('nzm-has-overflow', overflow.children.length > 0);
+      for (const id of ['wp-admin-bar-wp-logo', 'wp-admin-bar-site-name']) {
+        if (fits()) break;
+        const node = bar.querySelector(`#${id}`);
+        if (node && records.has(node)) {
+          overflow.prepend(node);
+          bar.classList.add('nzm-has-overflow');
+        }
+      }
+    }
     bar.classList.toggle('nzm-has-overflow', overflow.children.length > 0);
     bar.querySelectorAll('.menupop').forEach(item => {
       if (panel(item)) {
@@ -242,6 +258,101 @@ const init = () => {
   window.addEventListener('resize', schedule, { passive: true });
   window.visualViewport?.addEventListener('resize', schedule, { passive: true });
   document.fonts?.ready.then(schedule);
+  /* Command palette: dock links, the cached admin menu, and site search. */
+  const shared = window.adminlumePalette;
+  const dock = window.roundedAdminDock || {};
+  const searchNode = bar.querySelector('#wp-admin-bar-adminlume-dock-search');
+  const searchButton = searchNode?.querySelector('.ra-dock-search');
+  // The node holds a real button; its wrapper is not a menu item.
+  searchNode?.querySelector(':scope > .ab-item')?.removeAttribute('role');
+  if (shared?.isMac) {
+    const kbd = searchNode?.querySelector('.ra-dock-search-kbd');
+    if (kbd) kbd.textContent = '⌘K';
+  }
+  if (shared && searchButton) {
+    const { cleanText, usable } = shared;
+    const strings = Object.assign({
+      title: 'Command palette',
+      placeholder: 'Search screens, actions and tools…',
+      results: 'Results',
+      empty: 'No results for “%s”',
+      count: '%d results',
+      countOne: '1 result',
+      create: 'Create',
+      navigate: 'Go to',
+      tools: 'Tools',
+      site: 'Site',
+      account: 'Account',
+      move: 'to navigate',
+      open: 'to open',
+      close: 'to close',
+      searchSite: 'Search the site for “%s”'
+    }, dock.palette || {});
+    const menu = Array.isArray(dock.menu) ? dock.menu : [];
+    const native = new Set(['wp-admin-bar-site-name', 'wp-admin-bar-edit', 'wp-admin-bar-customize', 'wp-admin-bar-comments', 'wp-admin-bar-nzm-toolbar-dashboard']);
+    const skip = new Set(['wp-admin-bar-wp-logo', 'wp-admin-bar-my-account', 'wp-admin-bar-new-content', 'wp-admin-bar-adminlume-dock-search', 'wp-admin-bar-nzm-toolbar-more']);
+    const go = url => () => window.location.assign(url);
+    shared.create({
+      id: 'ra-dock-palette',
+      strings,
+      order: ['create', 'site', 'navigate', 'tools', 'account'],
+      trigger: searchButton,
+      index: add => {
+        const newContent = bar.querySelector('#wp-admin-bar-new-content');
+        const newLabel = cleanText(newContent?.querySelector(':scope > .ab-item'));
+        newContent?.querySelectorAll('.ab-submenu a.ab-item').forEach(link => {
+          if (usable(link)) add('create', cleanText(link), newLabel, 'action', () => link.click());
+        });
+        records.forEach((group, node) => {
+          if (!node.isConnected || skip.has(node.id)) return;
+          if (menu.length && node.id === 'wp-admin-bar-nzm-toolbar-dashboard') return;
+          const core = native.has(node.id);
+          const top = node.querySelector(':scope > a.ab-item');
+          const topLabel = cleanText(top) || top?.getAttribute('title') || '';
+          if (usable(top)) add(core ? 'site' : 'tools', topLabel, '', node.id === 'wp-admin-bar-edit' ? 'action' : (core ? 'site' : 'tool'), () => top.click());
+          node.querySelectorAll('.ab-submenu a.ab-item').forEach(link => {
+            if (usable(link)) add(core ? 'site' : 'tools', cleanText(link), topLabel, core ? 'site' : 'tool', () => link.click(), !core);
+          });
+        });
+        for (const entry of menu) {
+          if (entry && entry.label && entry.url) add('navigate', entry.label, entry.parent || '', 'navigate', go(entry.url), Boolean(entry.parent));
+        }
+        bar.querySelectorAll('#wp-admin-bar-user-actions a.ab-item').forEach(link => {
+          if (!link.closest('#wp-admin-bar-user-info') && usable(link)) add('account', cleanText(link), '', 'navigate', () => link.click());
+        });
+      },
+      dynamic: raw => {
+        if (!dock.searchUrl) return [];
+        const url = new URL(dock.searchUrl, window.location.href);
+        url.searchParams.set('s', raw);
+        return [{ group: 'site', label: strings.searchSite.replace('%s', raw), context: '', kind: 'site', run: go(url.href), deep: false, haystack: '' }];
+      }
+    });
+  }
+
+  /*
+   * At the very end of the page the floating dock would permanently cover the
+   * last content (often the footer). Slide it away there; scrolling up or
+   * moving keyboard focus into it brings it back.
+   */
+  let away = false;
+  let awayFrame = 0;
+  const setAway = next => {
+    if (next === away) return;
+    away = next;
+    bar.classList.toggle('nzm-dock-away', away);
+  };
+  const updateAway = () => {
+    awayFrame = 0;
+    const doc = document.documentElement;
+    const scrollable = doc.scrollHeight - innerHeight > 120;
+    const atEnd = scrollable && innerHeight + scrollY >= doc.scrollHeight - 4;
+    const engaged = bar.contains(document.activeElement) || Boolean(bar.querySelector('.nzm-open'));
+    setAway(atEnd && !engaged);
+  };
+  window.addEventListener('scroll', () => { if (!awayFrame) awayFrame = requestAnimationFrame(updateAway); }, { passive: true });
+  bar.addEventListener('focusin', () => setAway(false));
+
   bar.classList.add('nzm-dock-ready');
   layout();
   try {

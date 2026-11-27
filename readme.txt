@@ -4,7 +4,7 @@ Tags: admin, dashboard, toolbar, customization
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 8.1
-Stable tag: 0.5.0
+Stable tag: 0.5.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 
@@ -21,6 +21,7 @@ Features include:
 * Personal accent color, sidebar background, and panel corner radius.
 * Independently scrolling desktop navigation.
 * A 48px workspace header with breadcrumb, environment badge, grouped notifications, and a keyboard command palette.
+* The same command palette in the front-end dock, including site search.
 * Native WordPress navigation, permissions, and responsive controls.
 * Conditional styles for media dialogs and relevant WooCommerce screens.
 * A translucent charcoal front-end dock with separate native site and account actions.
@@ -28,7 +29,7 @@ Features include:
 * Updates delivered through the standard WordPress.org plugin directory.
 * No runtime build step, remote fonts, or tracking.
 
-Preferences are stored in user metadata. Dock visibility uses browser local storage when available. Existing WordPress and third-party toolbar links and resources remain subject to their own behavior and privacy policies.
+Preferences are stored in user metadata. Dock visibility uses browser local storage when available. For the front-end command palette, the admin menu labels and URLs shown to a user are cached in a per-user transient for up to a day and deleted on logout. Existing WordPress and third-party toolbar links and resources remain subject to their own behavior and privacy policies.
 
 Adminlume does not contact GitHub or another external update service. This directory edition relies on WordPress's own update system and does not override automatic-update preferences. Core WordPress and existing third-party features retain their normal network and privacy behavior.
 
@@ -89,6 +90,16 @@ The software is distributed without warranty. See LICENSE for the complete licen
 The software license grants no separate trademark license. Independent forks must not be misleadingly presented as official Dilorsoft releases. See TRADEMARKS.txt in the release package; that policy does not add restrictions to GPL rights or assert trademark registration.
 
 == Changelog ==
+
+= 0.5.1 =
+
+* Add the Adminlume command palette to the front-end dock: a Search button and Cmd+K / Ctrl+K open New actions, dock actions, admin screens from the user's last admin visit, plugin tools, account links, and site search.
+* Share one palette module and stylesheet between the admin header and the dock, with a theme-independent baseline for public themes.
+* Fix the account avatar collapsing to a 16px sliver in the mobile dock; touch screens now get 44px dock controls.
+* Slide the dock away at the very end of a page so the footer is no longer covered; it returns when scrolling up or focusing it.
+* Show Comments in the dock only when comments await moderation, replace the single-field More menu with palette site search, and move the WordPress logo and site name into More when a small phone has no room.
+* Add an Adminlume preferences link before Log Out in the dock's account menu.
+* Stop the site name and sidebar collapse button from briefly appearing twice in the admin while a page loads.
 
 = 0.5.0 =
 
@@ -153,6 +164,10 @@ The software license grants no separate trademark license. Independent forks mus
 * Compatibility fallback for existing Rounded Admin preferences.
 
 == Upgrade Notice ==
+
+= 0.5.1 =
+
+Brings the command palette to the front-end dock and fixes the mobile account avatar, the covered footer, and a brief duplicate site name in the admin. Personal preferences are retained.
 
 = 0.5.0 =
 

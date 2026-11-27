@@ -7,14 +7,15 @@
 | `adminlume.php` | Plugin metadata, text domain loading, and hook registration. |
 | `src/class-settings.php` | Personal preferences, sanitization, settings page, and authenticated POST-only save handler. |
 | `src/class-assets.php` | Conditional admin assets, appearance variables, and luminance-based foreground selection. |
-| `src/class-chrome.php` | Workspace header nodes (site, breadcrumb, environment, command field, notifications, overflow, preferences link) and the sidebar site link used on mobile. |
+| `src/class-chrome.php` | Workspace header nodes (site, breadcrumb, environment, command field, notifications, overflow, preferences link), the sidebar site link used on mobile, and the per-user admin menu snapshot for the front-end palette. |
 | `src/class-frontendtoolbar.php` | Native toolbar integration on authenticated public-site requests. |
 | `assets/css/admin.css` | Scoped admin layout and native controls. |
-| `assets/css/toolbar.css` | Backend toolbar, 48px workspace header, and command palette styles. |
+| `assets/css/toolbar.css` | Backend toolbar and 48px workspace header. |
+| `assets/js/palette.js`, `assets/css/palette.css` | Shared accessible command palette used by the admin header and the front-end dock; DOM APIs only, theme-independent styles. |
 | `assets/css/media.css` | Native media surfaces, loaded when WordPress enqueues media. |
 | `assets/css/woocommerce.css` | Relevant classic WooCommerce surfaces. |
 | `assets/js/sidebar.js` | Independent sidebar scrolling, flyout positioning, and moving the collapse control into the workspace header. |
-| `assets/js/topbar.js` | Desktop node regrouping (restored on mobile) and the accessible command palette, built with DOM APIs only. |
+| `assets/js/topbar.js` | Desktop node regrouping (restored on mobile) and the admin palette index. |
 | `assets/css/frontend-toolbar.css`, `assets/js/frontend-toolbar.js` | Standalone public-site dock; no theme build dependency. |
 | `languages/` | Development-only gettext POT and Italian PO/MO catalogs, excluded from release ZIPs; WordPress.org distributes runtime language packs. |
 
@@ -109,6 +110,7 @@ With PHP and Node.js installed, run from the repository root:
 find . -path './.git' -prune -o -name '*.php' -exec php -l {} \;
 node --check assets/js/sidebar.js
 node --check assets/js/topbar.js
+node --check assets/js/palette.js
 node --check assets/js/frontend-toolbar.js
 node --check tests/topbar-browser.cjs
 node --check tests/frontend-toolbar-browser.cjs

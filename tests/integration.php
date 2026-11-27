@@ -136,7 +136,8 @@ try {
 	$check( 'Comments' === \Adminlume\Chrome::menu_label( 'Comments <span class="awaiting-mod count-2"><span class="pending-count">2</span></span>' ), 'menu labels drop native count badges' );
 	$check( str_ends_with( \Adminlume\Chrome::menu_url( 'woocommerce' ), 'admin.php?page=woocommerce' ) && str_ends_with( \Adminlume\Chrome::menu_url( 'edit.php?post_type=product' ), 'edit.php?post_type=product' ), 'menu slugs resolve to admin URLs' );
 	$assets->enqueue();
-	$check( wp_script_is( 'rounded-admin-topbar', 'enqueued' ) && array() === wp_scripts()->registered['rounded-admin-topbar']->deps, 'workspace toolbar script loads without library dependencies' );
+	$check( wp_script_is( 'rounded-admin-topbar', 'enqueued' ) && array( 'adminlume-palette' ) === wp_scripts()->registered['rounded-admin-topbar']->deps && array() === wp_scripts()->registered['adminlume-palette']->deps, 'workspace toolbar depends only on the local palette module' );
+	$check( wp_style_is( 'adminlume-palette', 'enqueued' ), 'admin palette stylesheet is enqueued' );
 	$check( wp_style_is( 'rounded-admin', 'enqueued' ), 'opt-in enqueues base stylesheet' );
 	$css_preferences = get_user_meta( $user_id, Settings::META_KEY, true );
 	$css_after = wp_styles()->get_data( 'rounded-admin', 'after' );
@@ -218,6 +219,45 @@ try {
 	$chrome->toolbar( $front_bar );
 	$frontend->nodes( $front_bar );
 	$check( (bool) $front_bar->get_node( 'wp-logo' ) && (bool) $front_bar->get_node( 'site-name' ) && (bool) $front_bar->get_node( 'nzm-toolbar-dashboard' ), 'frontend preserves native branding and adds permitted Dashboard' );
+	$check( wp_script_is( 'adminlume-palette', 'enqueued' ) && in_array( 'adminlume-palette', wp_scripts()->registered['rounded-admin-frontend-toolbar']->deps, true ) && wp_style_is( 'adminlume-palette', 'enqueued' ), 'frontend dock loads the shared palette' );
+	$check( str_contains( (string) $front_bar->get_node( 'adminlume-dock-search' )->title, '<button type="button" class="ra-dock-search"' ), 'frontend dock exposes a palette button' );
+	$dock_bar = new WP_Admin_Bar();
+	$dock_bar->add_node( array( 'id' => 'search', 'title' => 'Search form' ) );
+	$dock_bar->add_node( array( 'id' => 'comments', 'title' => 'Comments', 'href' => '/native-comments' ) );
+	$dock_bar->add_node( array( 'id' => 'my-account', 'title' => 'Account' ) );
+	$dock_bar->add_group( array( 'parent' => 'my-account', 'id' => 'user-actions' ) );
+	$dock_bar->add_node( array( 'parent' => 'user-actions', 'id' => 'logout', 'title' => 'Log Out', 'href' => '/native-logout' ) );
+	$frontend->nodes( $dock_bar );
+	$check( ! $dock_bar->get_node( 'search' ) && false === has_action( 'admin_bar_menu', 'wp_admin_bar_search_menu' ), 'frontend replaces the native search form with palette site search' );
+	$check( ( 0 === (int) wp_count_comments()->moderated ) === ! $dock_bar->get_node( 'comments' ), 'frontend hides Comments only when nothing awaits moderation' );
+	$dock_account = array_values( array_keys( array_filter( $dock_bar->get_nodes(), static fn( $node ) => 'user-actions' === $node->parent ) ) );
+	$check( array( 'adminlume-preferences', 'logout' ) === $dock_account && '/native-logout' === $dock_bar->get_node( 'logout' )->href, 'frontend account menu adds preferences before an unchanged logout' );
+	add_action( 'admin_bar_menu', 'wp_admin_bar_search_menu', 9999 );
+	$menu_entries = \Adminlume\Chrome::menu_entries(
+		array(
+			array( 'Dashboard', 'read', 'index.php' ),
+			array( '', 'read', 'separator1', '', 'wp-menu-separator' ),
+			array( 'Comments <span class="awaiting-mod">3</span>', 'edit_posts', 'edit-comments.php' ),
+		),
+		array(
+			'index.php' => array( array( 'Home', 'read', 'index.php' ), array( 'Updates', 'update_core', 'update-core.php' ) ),
+		)
+	);
+	$check( array( 'Dashboard', 'Home', 'Updates', 'Comments' ) === array_column( $menu_entries, 'label' ) && 'Dashboard' === $menu_entries[1]['parent'] && admin_url( 'update-core.php' ) === $menu_entries[2]['url'], 'menu snapshot keeps labels, parents and admin URLs without separators or counts' );
+	$check( admin_url( 'admin.php?page=wc-admin&path=/analytics' ) === \Adminlume\Chrome::submenu_url( 'wc-admin&path=/analytics', 'woocommerce' ), 'menu snapshot keeps plugin page query strings unencoded like core' );
+	$script_menu = \Adminlume\FrontendToolbar::menu_for_script(
+		array(
+			array( 'label' => 'Orders <b>x</b>', 'url' => admin_url( 'edit.php?post_type=shop_order' ), 'parent' => 'Shop' ),
+			array( 'label' => 'Evil', 'url' => 'https://example.com/admin', 'parent' => '' ),
+			array( 'label' => 'Script', 'url' => 'javascript:alert(1)', 'parent' => '' ),
+			'invalid',
+		)
+	);
+	$check( 1 === count( $script_menu ) && 'Orders x' === $script_menu[0]['label'], 'front-end palette receives only same-site admin URLs with plain-text labels' );
+	$snapshot_key = \Adminlume\Chrome::menu_cache_key( $user_id );
+	set_transient( $snapshot_key, array( array( 'label' => 'Cached', 'url' => admin_url(), 'parent' => '' ) ), 60 );
+	\Adminlume\Chrome::forget_menu( $user_id );
+	$check( false === get_transient( $snapshot_key ), 'logout removes the cached menu snapshot' );
 	// Reuse existing query fixtures without creating or modifying site content.
 	$query = new WP_Query();
 	$query->is_singular = true;

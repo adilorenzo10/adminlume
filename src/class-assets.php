@@ -64,34 +64,24 @@ final class Assets {
 				(string) filemtime( dirname( $this->plugin_file ) . '/assets/js/sidebar.js' ),
 				true
 			);
+			self::register_palette( $this->plugin_file );
 			wp_enqueue_script(
 				'rounded-admin-topbar',
 				plugins_url( 'assets/js/topbar.js', $this->plugin_file ),
-				array(),
+				array( 'adminlume-palette' ),
 				(string) filemtime( dirname( $this->plugin_file ) . '/assets/js/topbar.js' ),
 				true
 			);
+			wp_enqueue_style( 'adminlume-palette' );
 			wp_localize_script(
 				'rounded-admin-topbar',
 				'roundedAdminTopbar',
-				array(
-					'title'        => __( 'Command palette', 'adminlume' ),
-					'placeholder'  => __( 'Search screens, actions and tools…', 'adminlume' ),
-					'results'      => __( 'Results', 'adminlume' ),
-					/* translators: %s: Text typed into the command palette. */
-					'empty'        => __( 'No results for “%s”', 'adminlume' ),
-					/* translators: %d: Number of command palette results. */
-					'count'        => __( '%d results', 'adminlume' ),
-					'create'       => __( 'Create', 'adminlume' ),
-					'navigate'     => __( 'Go to', 'adminlume' ),
-					'tools'        => __( 'Notifications and tools', 'adminlume' ),
-					'site'         => __( 'Site', 'adminlume' ),
-					'account'      => __( 'Account', 'adminlume' ),
-					'commands'     => __( 'WordPress', 'adminlume' ),
-					'openCommands' => __( 'Open WordPress commands', 'adminlume' ),
-					'move'         => __( 'to navigate', 'adminlume' ),
-					'open'         => __( 'to open', 'adminlume' ),
-					'close'        => __( 'to close', 'adminlume' ),
+				array_merge(
+					self::palette_strings(),
+					array(
+						'commands'     => __( 'WordPress', 'adminlume' ),
+						'openCommands' => __( 'Open WordPress commands', 'adminlume' ),
+					)
 				)
 			);
 		}
@@ -109,6 +99,43 @@ final class Assets {
 		) ) {
 			$this->style( 'rounded-admin-woocommerce', 'woocommerce.css', array( 'rounded-admin' ) );
 		}
+	}
+
+	/**
+	 * Register the shared command palette script and stylesheet.
+	 *
+	 * @param string $plugin_file Absolute path to the main plugin file.
+	 */
+	public static function register_palette( string $plugin_file ): void {
+		$base = dirname( $plugin_file ) . '/assets/';
+		wp_register_script( 'adminlume-palette', plugins_url( 'assets/js/palette.js', $plugin_file ), array(), (string) filemtime( $base . 'js/palette.js' ), true );
+		wp_register_style( 'adminlume-palette', plugins_url( 'assets/css/palette.css', $plugin_file ), array(), (string) filemtime( $base . 'css/palette.css' ) );
+	}
+
+	/**
+	 * Interface labels shared by the admin and front-end command palettes.
+	 *
+	 * @return array<string, string> Localized plain-text labels.
+	 */
+	public static function palette_strings(): array {
+		return array(
+			'title'       => __( 'Command palette', 'adminlume' ),
+			'placeholder' => __( 'Search screens, actions and tools…', 'adminlume' ),
+			'results'     => __( 'Results', 'adminlume' ),
+			/* translators: %s: Text typed into the command palette. */
+			'empty'       => __( 'No results for “%s”', 'adminlume' ),
+			/* translators: %d: Number of command palette results. */
+			'count'       => __( '%d results', 'adminlume' ),
+			'countOne'    => __( '1 result', 'adminlume' ),
+			'create'      => __( 'Create', 'adminlume' ),
+			'navigate'    => __( 'Go to', 'adminlume' ),
+			'tools'       => __( 'Notifications and tools', 'adminlume' ),
+			'site'        => __( 'Site', 'adminlume' ),
+			'account'     => __( 'Account', 'adminlume' ),
+			'move'        => __( 'to navigate', 'adminlume' ),
+			'open'        => __( 'to open', 'adminlume' ),
+			'close'       => __( 'to close', 'adminlume' ),
+		);
 	}
 
 	/**

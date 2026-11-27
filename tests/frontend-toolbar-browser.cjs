@@ -81,6 +81,33 @@ const waitAnimation = page => page.waitForFunction(() => !document.querySelector
     check(await page.locator('#wp-admin-bar-logout > a').isVisible(), 'Native account menu still exposes logout');
     check(await page.locator('#wp-admin-bar-my-account > .ab-item .display-name').isVisible(), 'Desktop account name is visible again');
     await page.keyboard.press('Escape');
+    // Shared command palette: button, shortcut, site search, focus return.
+    check(await page.locator('#wp-admin-bar-search').count() === 0, 'Native search form is replaced by palette site search');
+    const dockSearch = page.locator('.ra-dock-search');
+    check(await dockSearch.isVisible(), 'Dock exposes the command palette button');
+    await dockSearch.click();
+    const dockInput = page.locator('#ra-dock-palette-input');
+    await dockInput.waitFor({ state: 'visible' });
+    check(await dockInput.evaluate(element => element === document.activeElement), 'Dock palette focuses its input');
+    await dockInput.fill('adminlume-unlikely-query');
+    check(await page.locator('.ra-palette-option:visible').count() === 1 && await dockInput.getAttribute('aria-activedescendant') !== null, 'Site search is offered for any query');
+    await page.keyboard.press('Escape');
+    await dockInput.waitFor({ state: 'hidden' });
+    check(await dockSearch.evaluate(element => element === document.activeElement), 'Closing the dock palette restores focus');
+    await page.locator('body').click({ position: { x: 5, y: 200 } });
+    await page.keyboard.press('Control+k');
+    await dockInput.waitFor({ state: 'visible' });
+    check(true, 'Ctrl+K opens the dock palette');
+    await page.keyboard.press('Escape');
+    // At the end of the page the dock slides away so the footer stays visible.
+    await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }));
+    if (await page.evaluate(() => document.documentElement.scrollHeight - innerHeight > 120)) {
+      await page.locator('#wpadminbar.nzm-dock-away').waitFor({ state: 'attached' });
+      await page.evaluate(() => window.scrollBy({ top: -200, behavior: 'instant' }));
+      await page.locator('#wpadminbar:not(.nzm-dock-away)').waitFor({ state: 'attached' });
+      check(true, 'Dock leaves the page end and returns when scrolling up');
+    }
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await screenshot(page, 'dock-desktop');
 
     // Generate WordPress's real site-icon title without saving site options.

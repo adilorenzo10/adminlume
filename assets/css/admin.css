@@ -141,9 +141,17 @@ body.rounded-admin #ra-site-link > a {
 }
 body.rounded-admin #ra-site-link > a:hover { background: var(--ra-chrome-hover); }
 
-/* Desktop: the site link and collapse control live in the workspace toolbar. */
-body.rounded-admin.ra-sidebar-scroll #ra-site-link { display: none; }
-body.rounded-admin.ra-sidebar-scroll #adminmenu { padding-top: 0; margin-top: 8px; }
+/*
+ * Desktop: the site link and collapse control live in the workspace toolbar.
+ * Core sets body.js before first paint, while sidebar.js runs in the footer;
+ * keying on .js hides the sidebar copies immediately, so navigation never
+ * flashes duplicates. Without JavaScript the sidebar keeps both controls.
+ */
+@media (min-width: 783px) {
+  body.rounded-admin.js:not(.block-editor-page) #ra-site-link { display: none; }
+  body.rounded-admin.js:not(.block-editor-page) #adminmenu { padding-top: 0; margin-top: 8px; }
+  body.rounded-admin.js:not(.block-editor-page) #adminmenu #collapse-menu { visibility: hidden; }
+}
 
 /* Restyle the native collapse control; WordPress retains behavior and aria state. */
 @media (min-width: 783px) {
@@ -212,7 +220,7 @@ body.rounded-admin.ra-sidebar-scroll #adminmenu { padding-top: 0; margin-top: 8p
 }
 @media (min-width: 783px) and (max-width: 960px) {
   /* Native auto-fold has no manual collapse button at this breakpoint. */
-  body.rounded-admin.auto-fold #adminmenu { padding-top: 10px; }
+  body.rounded-admin.auto-fold:not(.block-editor-page) #adminmenu { padding-top: 10px; }
   body.rounded-admin.auto-fold #ra-site-link { display: none; }
 }
 @media (max-width: 782px) {

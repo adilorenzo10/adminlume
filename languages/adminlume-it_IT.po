@@ -36,41 +36,41 @@ msgstr "Un'interfaccia amministrativa WordPress leggera e un dock frontend con p
 msgid "Dilorsoft"
 msgstr "Dilorsoft"
 
-#: src/class-chrome.php:68
-#: src/class-chrome.php:347
+#: src/class-chrome.php:176
+#: src/class-chrome.php:463
 msgid "Visit site"
 msgstr "Visita il sito"
 
 #. translators: %s: Site name.
-#: src/class-chrome.php:76
-#: src/class-chrome.php:349
+#: src/class-chrome.php:184
+#: src/class-chrome.php:465
 #, php-format
 msgid "Visit site: %s"
 msgstr "Visita il sito: %s"
 
-#: src/class-frontendtoolbar.php:68
+#: src/class-frontendtoolbar.php:71
 msgid "More actions"
 msgstr "Altre azioni"
 
-#: src/class-chrome.php:208
-#: src/class-frontendtoolbar.php:69
+#: src/class-chrome.php:324
+#: src/class-frontendtoolbar.php:72
 msgid "Comments"
 msgstr "Commenti"
 
-#: src/class-frontendtoolbar.php:70
+#: src/class-frontendtoolbar.php:73
 msgid "Hide admin toolbar"
 msgstr "Nascondi barra amministrativa"
 
-#: src/class-frontendtoolbar.php:71
+#: src/class-frontendtoolbar.php:74
 msgid "Hide"
 msgstr "Nascondi"
 
-#: src/class-frontendtoolbar.php:72
+#: src/class-frontendtoolbar.php:75
 msgid "Show admin toolbar"
 msgstr "Mostra barra amministrativa"
 
-#: src/class-chrome.php:210
-#: src/class-frontendtoolbar.php:91
+#: src/class-chrome.php:326
+#: src/class-frontendtoolbar.php:129
 msgid "Dashboard"
 msgstr "Bacheca"
 
@@ -149,112 +149,127 @@ msgstr "Salva preferenze"
 msgid "On your site, only your admin toolbar is restyled; visitors see no changes. No remote fonts, tracking, or frameworks. The block editor and third-party plugins keep their own controls."
 msgstr "Sul sito, solo la tua barra amministrativa riceve lo stesso stile: nessuna modifica per i visitatori. Nessun font remoto, tracciamento o framework. Editor a blocchi e plugin esterni mantengono i propri controlli."
 
-#: src/class-assets.php:78
+#: src/class-assets.php:122
 msgid "Command palette"
 msgstr "Palette dei comandi"
 
-#: src/class-assets.php:79
+#: src/class-assets.php:123
 msgid "Search screens, actions and tools…"
 msgstr "Cerca schermate, azioni e strumenti…"
 
-#: src/class-assets.php:80
+#: src/class-assets.php:124
 msgid "Results"
 msgstr "Risultati"
 
 #. translators: %s: Text typed into the command palette.
-#: src/class-assets.php:82
+#: src/class-assets.php:126
 #, php-format
 msgid "No results for “%s”"
 msgstr "Nessun risultato per «%s»"
 
 #. translators: %d: Number of command palette results.
-#: src/class-assets.php:84
+#: src/class-assets.php:128
 #, php-format
 msgid "%d results"
 msgstr "%d risultati"
 
-#: src/class-assets.php:85
+#: src/class-assets.php:130
 msgid "Create"
 msgstr "Crea"
 
-#: src/class-assets.php:86
+#: src/class-assets.php:131
 msgid "Go to"
 msgstr "Vai a"
 
-#: src/class-assets.php:87
+#: src/class-assets.php:132
 msgid "Notifications and tools"
 msgstr "Notifiche e strumenti"
 
-#: src/class-assets.php:88
+#: src/class-assets.php:133
 msgid "Site"
 msgstr "Sito"
 
-#: src/class-assets.php:89
+#: src/class-assets.php:134
 msgid "Account"
 msgstr "Account"
 
-#: src/class-assets.php:90
+#: src/class-assets.php:82
 msgid "WordPress"
 msgstr "WordPress"
 
-#: src/class-assets.php:91
+#: src/class-assets.php:83
 msgid "Open WordPress commands"
 msgstr "Apri i comandi di WordPress"
 
-#: src/class-assets.php:92
+#: src/class-assets.php:135
 msgid "to navigate"
 msgstr "per spostarti"
 
-#: src/class-assets.php:93
+#: src/class-assets.php:136
 msgid "to open"
 msgstr "per aprire"
 
-#: src/class-assets.php:94
+#: src/class-assets.php:137
 msgid "to close"
 msgstr "per chiudere"
 
-#: src/class-chrome.php:125
+#: src/class-chrome.php:233
 msgid "Search or run a command…"
 msgstr "Cerca o esegui un comando…"
 
-#: src/class-chrome.php:132
+#: src/class-chrome.php:240
 msgid "Ctrl K"
 msgstr "Ctrl K"
 
-#: src/class-chrome.php:143
+#: src/class-chrome.php:251
 msgid "More tools"
 msgstr "Altri strumenti"
 
-#: src/class-chrome.php:154
+#: src/class-chrome.php:262
 msgid "From other plugins"
 msgstr "Da altri plugin"
 
-#: src/class-chrome.php:164
+#: src/class-chrome.php:277
+#: src/class-frontendtoolbar.php:158
 msgid "Adminlume preferences"
 msgstr "Preferenze Adminlume"
 
-#: src/class-chrome.php:191
+#: src/class-chrome.php:307
 msgid "No notifications"
 msgstr "Nessuna notifica"
 
-#: src/class-chrome.php:206
+#: src/class-chrome.php:322
 msgid "All updates"
 msgstr "Tutti gli aggiornamenti"
 
-#: src/class-chrome.php:333
+#: src/class-chrome.php:449
 msgid "Staging"
 msgstr "Staging"
 
-#: src/class-chrome.php:334
+#: src/class-chrome.php:450
 msgid "Development"
 msgstr "Sviluppo"
 
-#: src/class-chrome.php:335
+#: src/class-chrome.php:451
 msgid "Local"
 msgstr "Locale"
 
 #. translators: %s: Number of pending notifications.
-#: src/class-chrome.php:190
+#: src/class-chrome.php:306
 #, php-format
 msgid "Notifications: %s"
 msgstr "Notifiche: %s"
+
+#. translators: %s: Text typed into the command palette.
+#: src/class-frontendtoolbar.php:81
+#, php-format
+msgid "Search the site for “%s”"
+msgstr "Cerca «%s» nel sito"
+
+#: src/class-frontendtoolbar.php:137
+msgid "Search"
+msgstr "Cerca"
+
+#: src/class-assets.php:129
+msgid "1 result"
+msgstr "1 risultato"

@@ -75,6 +75,8 @@ Automatic installation remains controlled by WordPress and site policies. GitHub
 - Secondary and third-party actions remain available in More. The compact layout also groups customization, comments, New, Dashboard, and status without duplicating their original nodes.
 - The original labeled Hide control and 44px reopen button preserve focus and saved visibility preferences. Animation lasts 180ms and respects reduced motion.
 - Upward-opening menus retain keyboard navigation and viewport positioning. The plugin does not automatically hide the dock when a site control receives focus.
+- A Search button and `Cmd+K` / `Ctrl+K` open the same command palette as the admin: New actions, dock actions, admin screens from the user's last admin visit, plugin tools, account links, and site search.
+- The dock slides away at the very end of a page so the footer stays visible, and returns when scrolling up or focusing it. Comments appear only when something awaits moderation. Touch screens get 44px controls, and the WordPress logo and site name move into More when a small phone has no room.
 - No reserved toolbar space at the top of the page and no intentional changes to the public header or content.
 - No skin assets for anonymous visitors, opted-out users, or users whose native toolbar is hidden.
 
@@ -89,6 +91,7 @@ Adminlume does not attempt to restyle arbitrary React application internals or c
 ## Privacy and security
 
 - Preferences are stored in WordPress user metadata and apply only to the current account.
+- For the front-end palette, the admin menu labels and admin URLs WordPress showed the user are cached in a per-site, per-user transient that expires after a day and is deleted on logout. It is shown only to that same user.
 - Saving uses the authenticated WordPress POST handler, the `read` capability, and a nonce tied to the current user. No client-supplied user ID is accepted.
 - Colors are validated as hexadecimal values, panel radii use an allowlist, and rendered settings values are escaped.
 - The plugin adds no tracking, remote fonts, custom scheduled tasks, or custom database tables. Preferences should not contain secrets.

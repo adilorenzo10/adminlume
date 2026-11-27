@@ -27,6 +27,114 @@ final class Chrome {
 		add_action( 'admin_bar_menu', array( $this, 'leading_nodes' ), 1 );
 		add_action( 'admin_bar_menu', array( $this, 'toolbar' ), 999 );
 		add_action( 'adminmenu', array( $this, 'site_link' ) );
+		add_action( 'adminmenu', array( $this, 'remember_menu' ), 20 );
+		add_action( 'wp_logout', array( self::class, 'forget_menu' ) );
+	}
+
+	/** Transient prefix for the per-user admin menu snapshot used by the front-end palette. */
+	public const MENU_CACHE = 'adminlume_menu_';
+
+	/** Maximum number of cached menu entries. */
+	private const MENU_LIMIT = 400;
+
+	/**
+	 * Build the per-site, per-user menu snapshot key.
+	 *
+	 * @param int $user_id User ID.
+	 * @return string Transient name.
+	 */
+	public static function menu_cache_key( int $user_id ): string {
+		return self::MENU_CACHE . get_current_blog_id() . '_' . $user_id;
+	}
+
+	/**
+	 * Store the admin menu WordPress already filtered for the current user.
+	 *
+	 * Only labels and admin URLs are kept. The snapshot is shown back to the
+	 * same user in the front-end palette and expires after a day.
+	 */
+	public function remember_menu(): void {
+		if ( ! is_admin() || ! $this->enabled() ) {
+			return;
+		}
+		global $menu, $submenu;
+		$entries = self::menu_entries( is_array( $menu ) ? $menu : array(), is_array( $submenu ) ? $submenu : array() );
+		$key     = self::menu_cache_key( get_current_user_id() );
+		if ( get_transient( $key ) !== $entries ) {
+			set_transient( $key, $entries, DAY_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Remove the snapshot when its user logs out.
+	 *
+	 * @param int $user_id User ID passed by wp_logout.
+	 */
+	public static function forget_menu( $user_id = 0 ): void {
+		$user_id = (int) ( $user_id ? $user_id : get_current_user_id() );
+		if ( $user_id ) {
+			delete_transient( self::menu_cache_key( $user_id ) );
+		}
+	}
+
+	/**
+	 * Flatten native menu globals into label/URL entries.
+	 *
+	 * @param array<int, array<int, mixed>>                $menu    Top-level menu items.
+	 * @param array<string, array<int, array<int, mixed>>> $submenu Submenu items keyed by parent slug.
+	 * @return array<int, array{label: string, url: string, parent: string}> Entries.
+	 */
+	public static function menu_entries( array $menu, array $submenu ): array {
+		$entries = array();
+		foreach ( $menu as $item ) {
+			if ( empty( $item[2] ) || str_contains( (string) ( $item[4] ?? '' ), 'wp-menu-separator' ) ) {
+				continue;
+			}
+			$parent = (string) $item[2];
+			$label  = self::menu_label( (string) ( $item[0] ?? '' ) );
+			if ( '' === $label ) {
+				continue;
+			}
+			$children  = isset( $submenu[ $parent ] ) && is_array( $submenu[ $parent ] ) ? $submenu[ $parent ] : array();
+			$first     = $children ? reset( $children ) : null;
+			$entries[] = array(
+				'label'  => $label,
+				'url'    => is_array( $first ) && ! empty( $first[2] ) ? self::submenu_url( (string) $first[2], $parent ) : self::submenu_url( $parent, 'admin.php' ),
+				'parent' => '',
+			);
+			foreach ( $children as $child ) {
+				$child_label = self::menu_label( (string) ( $child[0] ?? '' ) );
+				if ( '' === $child_label || $child_label === $label || empty( $child[2] ) ) {
+					continue;
+				}
+				$entries[] = array(
+					'label'  => $child_label,
+					'url'    => self::submenu_url( (string) $child[2], $parent ),
+					'parent' => $label,
+				);
+			}
+		}
+		return array_slice( $entries, 0, self::MENU_LIMIT );
+	}
+
+	/**
+	 * Resolve a menu slug the way core's menu output does.
+	 *
+	 * Plugin pages registered under a core screen keep that screen as their
+	 * base (edit.php?post_type=product&page=…); other plugin pages use
+	 * admin.php?page=…; file slugs are admin paths.
+	 *
+	 * @param string $slug        Menu or submenu slug.
+	 * @param string $parent_slug Parent slug, or admin.php for top-level items.
+	 * @return string Admin URL.
+	 */
+	public static function submenu_url( string $slug, string $parent_slug ): string {
+		$hook = function_exists( 'get_plugin_page_hook' ) ? get_plugin_page_hook( $slug, $parent_slug ) : null;
+		if ( $hook || ! str_contains( $slug, '.php' ) ) {
+			$base = $hook && str_contains( $parent_slug, '.php' ) && 'admin.php' !== $parent_slug ? $parent_slug : 'admin.php';
+			return admin_url( add_query_arg( array( 'page' => $slug ), $base ) );
+		}
+		return admin_url( $slug );
 	}
 
 	/**
